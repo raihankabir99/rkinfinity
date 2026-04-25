@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { TypingText } from "@/components/TypingText";
-import { Counter } from "@/components/Counter";
 import { ArrowRight, Sparkles, Code2, TrendingUp, Search } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -47,20 +46,6 @@ function Home() {
             </div>
           </div>
 
-          {/* STATS */}
-          <div className="mt-24 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto">
-            {[
-              { n: 1, s: "", l: "SEO Enthusiast" },
-              { n: 10, s: "+", l: "Practice Projects" },
-            ].map((s) => (
-              <div key={s.l} className="glass rounded-2xl p-6 md:p-8 text-center hover:border-primary/40 transition group">
-                <div className="text-4xl md:text-6xl font-black text-gradient">
-                  <Counter to={s.n} suffix={s.s} />
-                </div>
-                <div className="mt-2 text-xs md:text-sm text-muted-foreground uppercase tracking-wider">{s.l}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
