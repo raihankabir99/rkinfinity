@@ -50,14 +50,14 @@ function Home() {
           {/* STATS */}
           <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
-              { n: 8, s: "+", l: "Years Experience" },
+              { text: "Learning", l: "SEO" },
               { n: 240, s: "+", l: "Happy Clients" },
-              { n: 500, s: "+", l: "Projects Shipped" },
-              { n: 99, s: "%", l: "Retention Rate" },
+              { n: 10, s: "+", l: "Practice Projects" },
+              { n: 100, s: "%", l: "Commitment" },
             ].map((s) => (
               <div key={s.l} className="glass rounded-2xl p-6 md:p-8 text-center hover:border-primary/40 transition group">
                 <div className="text-4xl md:text-6xl font-black text-gradient">
-                  <Counter to={s.n} suffix={s.s} />
+                  {"text" in s ? s.text : <Counter to={s.n!} suffix={s.s} />}
                 </div>
                 <div className="mt-2 text-xs md:text-sm text-muted-foreground uppercase tracking-wider">{s.l}</div>
               </div>
