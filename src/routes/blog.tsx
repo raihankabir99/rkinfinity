@@ -5,9 +5,9 @@ import { Clock, ArrowUpRight } from "lucide-react";
 export const Route = createFileRoute("/blog")({
   head: () => ({
     meta: [
-      { title: "Blog — RK Infinity" },
+      { title: "Blog — rkInfinity" },
       { name: "description", content: "Essays on SEO, marketing, code, and storytelling." },
-      { property: "og:title", content: "RK Infinity Blog" },
+      { property: "og:title", content: "rkInfinity Blog" },
       { property: "og:description", content: "Long-form thinking on the modern web." },
     ],
   }),
@@ -20,7 +20,7 @@ const posts = [
   { t: "Edge-First Web Apps in 2026", d: "A field guide to building React applications that load in under 200ms — anywhere.", c: "Code", r: "12 min" },
   { t: "From Audit to Authority in 90 Days", d: "A real client case study with the full audit, fixes, and the rankings that followed.", c: "SEO", r: "10 min" },
   { t: "The Story Behind Every Conversion", d: "Why narrative drives every metric you actually care about.", c: "Marketing", r: "5 min" },
-  { t: "Building RK Infinity: Year One", d: "Lessons, numbers, and the quiet weeks nobody talks about.", c: "Story", r: "7 min" },
+  { t: "Building rkInfinity: Year One", d: "Lessons, numbers, and the quiet weeks nobody talks about.", c: "Story", r: "7 min" },
 ];
 
 function Blog() {

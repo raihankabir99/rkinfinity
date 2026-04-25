@@ -5,9 +5,9 @@ import { Wrench, Gauge, FileSearch, KeyRound, Image as ImageIcon, Link2, Externa
 export const Route = createFileRoute("/tools")({
   head: () => ({
     meta: [
-      { title: "Tools — RK Infinity" },
+      { title: "Tools — rkInfinity" },
       { name: "description", content: "Free tools for SEO, marketing, and developers — built by RK." },
-      { property: "og:title", content: "Free Tools — RK Infinity" },
+      { property: "og:title", content: "Free Tools — rkInfinity" },
       { property: "og:description", content: "Handcrafted utilities for the modern web professional." },
     ],
   }),

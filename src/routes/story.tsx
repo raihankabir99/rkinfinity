@@ -5,7 +5,7 @@ import { BookOpen, Rocket, Lightbulb, Trophy, Pen, Sparkles } from "lucide-react
 export const Route = createFileRoute("/story")({
   head: () => ({
     meta: [
-      { title: "Story — RK Infinity" },
+      { title: "Story — rkInfinity" },
       { name: "description", content: "The journey of RK — from curious coder to multi-disciplinary craftsman." },
       { property: "og:title", content: "RK's Story" },
       { property: "og:description", content: "A timeline of curiosity, code, and craft." },
@@ -18,7 +18,7 @@ const timeline = [
   { y: "2017", icon: Lightbulb, t: "The First Spark", d: "Built my first WordPress site for a local business. Watched it rank #1 in 90 days. Hooked." },
   { y: "2019", icon: BookOpen, t: "Deep Dive into SEO", d: "Spent two years obsessing over crawlers, schema, and core web vitals. Audited 100+ sites." },
   { y: "2021", icon: Pen, t: "Found My Voice", d: "Started writing — short stories, essays, technical deep-dives. Discovered story is the algorithm beneath every algorithm." },
-  { y: "2023", icon: Rocket, t: "RK Infinity is Born", d: "Launched the studio. Three crafts, one philosophy: ship things that compound." },
+  { y: "2023", icon: Rocket, t: "rkInfinity is Born", d: "Launched the studio. Three crafts, one philosophy: ship things that compound." },
   { y: "2025", icon: Trophy, t: "240+ Clients Later", d: "From solo founders to Series-B startups. Every project a chapter in the same book." },
   { y: "Today", icon: Sparkles, t: "What's Next", d: "Building tools, mentoring creators, and writing the next story — yours, maybe." },
 ];

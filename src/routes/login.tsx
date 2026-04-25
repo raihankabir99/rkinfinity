@@ -5,8 +5,8 @@ import { Lock, Mail, ArrowRight } from "lucide-react";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Login — RK Infinity" },
-      { name: "description", content: "Sign in to your RK Infinity account." },
+      { title: "Login — rkInfinity" },
+      { name: "description", content: "Sign in to your rkInfinity account." },
     ],
   }),
   component: Login,

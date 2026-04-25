@@ -7,9 +7,9 @@ import { ArrowRight, Sparkles, Code2, TrendingUp, Search } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RK Infinity — SEO Expert · Digital Marketer · Web Developer" },
+      { title: "rkInfinity — SEO Expert · Digital Marketer · Web Developer" },
       { name: "description", content: "Premium digital craftsmanship by RK. SEO, growth marketing, and engineering for ambitious brands." },
-      { property: "og:title", content: "RK Infinity — Digital Excellence" },
+      { property: "og:title", content: "rkInfinity — Digital Excellence" },
       { property: "og:description", content: "SEO Expert · Digital Marketer · Web Developer · Story Writer." },
     ],
   }),
@@ -31,7 +31,7 @@ function Home() {
               Hi, I'm <span className="text-gradient neon-text">RK</span>
               <br />
               <span className="text-foreground/90">I am a </span>
-              <TypingText words={["SEO Expert", "Digital Marketer", "Web Developer", "Story Writer"]} />
+              <TypingText words={["SEO Specialist", "Digital Marketer", "Content Creator", "Writer"]} />
             </h1>
             <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Building infinite possibilities at the intersection of search, code, and story.

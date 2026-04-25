@@ -33,10 +33,10 @@ export function Navbar() {
         <nav className="glass flex items-center justify-between rounded-2xl px-4 py-3 md:px-6">
           <Link to="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground font-black">
-              RK
+              rk
             </span>
             <span className="hidden sm:inline">
-              <span className="text-white">RK</span><span className="text-primary">Infinity</span>
+              <span className="text-white">rk</span><span className="text-primary">Infinity</span>
             </span>
           </Link>
 
