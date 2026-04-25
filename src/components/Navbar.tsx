@@ -36,7 +36,7 @@ export function Navbar() {
               RK
             </span>
             <span className="hidden sm:inline">
-              RK <span className="text-gradient">Infinity</span>
+              <span className="text-white">RK</span><span className="text-primary">Infinity</span>
             </span>
           </Link>
 
