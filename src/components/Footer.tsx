@@ -8,7 +8,7 @@ export function Footer() {
         <div className="md:col-span-2">
           <div className="flex items-center gap-2 font-bold text-lg">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground font-black">RK</span>
-            <span><span className="text-foreground">RK</span><span className="text-primary">Infinity</span></span>
+            RK <span className="text-gradient">Infinity</span>
           </div>
           <p className="mt-4 text-sm text-muted-foreground max-w-md">
             SEO Expert · Digital Marketer · Web Developer · Story Writer. Crafting digital experiences that scale.
@@ -40,7 +40,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/5 py-6 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} RKInfinity. All rights reserved.
+        © {new Date().getFullYear()} RK Infinity. All rights reserved.
       </div>
     </footer>
   );
