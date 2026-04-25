@@ -7,10 +7,10 @@ import { ArrowRight, Sparkles, Code2, TrendingUp, Search } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RK Infinity — SEO Expert · Digital Marketer · Web Developer" },
+      { title: "RKInfinity — SEO Enthusiast · Digital Marketer · Web Developer" },
       { name: "description", content: "Premium digital craftsmanship by RK. SEO, growth marketing, and engineering for ambitious brands." },
-      { property: "og:title", content: "RK Infinity — Digital Excellence" },
-      { property: "og:description", content: "SEO Expert · Digital Marketer · Web Developer · Story Writer." },
+      { property: "og:title", content: "RKInfinity — Digital Excellence" },
+      { property: "og:description", content: "SEO Enthusiast · Digital Marketer · Web Developer · Story Writer." },
     ],
   }),
   component: Home,
@@ -48,12 +48,10 @@ function Home() {
           </div>
 
           {/* STATS */}
-          <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="mt-24 grid grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
             {[
-              { n: 8, s: "+", l: "Years Experience" },
-              { n: 240, s: "+", l: "Happy Clients" },
-              { n: 500, s: "+", l: "Projects Shipped" },
-              { n: 99, s: "%", l: "Retention Rate" },
+              { n: 1, s: "+", l: "SEO Enthusiast" },
+              { n: 10, s: "+", l: "Practice Projects" },
             ].map((s) => (
               <div key={s.l} className="glass rounded-2xl p-6 md:p-8 text-center hover:border-primary/40 transition group">
                 <div className="text-4xl md:text-6xl font-black text-gradient">
