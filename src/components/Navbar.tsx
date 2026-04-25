@@ -35,8 +35,8 @@ export function Navbar() {
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground font-black">
               RK
             </span>
-            <span className="hidden sm:inline">
-              RK <span className="text-gradient">Infinity</span>
+            <span className="hidden sm:inline text-foreground">
+              RK<span className="text-primary">Infinity</span>
             </span>
           </Link>
 
