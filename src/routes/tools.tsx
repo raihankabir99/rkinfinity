@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { PageShell, SectionHeader } from "@/components/PageShell";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
   Search, Gauge, FileSearch, KeyRound, Link2, FileCode2, Map, Tags,
   BarChart3, Network, Calculator, DollarSign,
@@ -8,6 +9,10 @@ import {
   Code2, Braces, Wand2, Binary, ArrowRight,
   type LucideIcon,
 } from "lucide-react";
+import { PageSpeedTool, KeywordTool, SeoAuditTool, BrokenLinkTool, RobotsTool, SitemapTool, MetaTool, DensityTool } from "@/components/tools/SeoTools";
+import { CompetitorTool, BacklinkTool, ROITool, CPCTool } from "@/components/tools/AnalyticsTools";
+import { BlogIntroTool, YoutubeScriptTool, SummarizerTool, HashtagTool } from "@/components/tools/AiTools";
+import { MinifierTool, JsonTool, BeautifyTool, Base64Tool } from "@/components/tools/CodingTools";
 
 export const Route = createFileRoute("/tools")({
   head: () => ({
@@ -20,6 +25,29 @@ export const Route = createFileRoute("/tools")({
   }),
   component: ToolsHub,
 });
+
+const toolComponents: Record<string, () => ReactNode> = {
+  "page-speed": () => <PageSpeedTool />,
+  "keyword-research": () => <KeywordTool />,
+  "seo-audit": () => <SeoAuditTool />,
+  "broken-links": () => <BrokenLinkTool />,
+  "robots-generator": () => <RobotsTool />,
+  "sitemap-generator": () => <SitemapTool />,
+  "meta-generator": () => <MetaTool />,
+  "keyword-density": () => <DensityTool />,
+  "competitor-comparison": () => <CompetitorTool />,
+  "backlink-overview": () => <BacklinkTool />,
+  "roi-calculator": () => <ROITool />,
+  "cpc-calculator": () => <CPCTool />,
+  "blog-intro": () => <BlogIntroTool />,
+  "youtube-script": () => <YoutubeScriptTool />,
+  "text-summarizer": () => <SummarizerTool />,
+  "hashtag-generator": () => <HashtagTool />,
+  "minifier": () => <MinifierTool />,
+  "json-formatter": () => <JsonTool />,
+  "code-beautifier": () => <BeautifyTool />,
+  "base64": () => <Base64Tool />,
+};
 
 type Tool = { t: string; d: string; icon: LucideIcon; slug: string };
 type Category = { id: string; name: string; accent: string; icon: LucideIcon; tools: Tool[] };
