@@ -1,51 +1,209 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { PageShell, SectionHeader } from "@/components/PageShell";
-import { Wrench, Gauge, FileSearch, KeyRound, Image as ImageIcon, Link2, ExternalLink } from "lucide-react";
+import {
+  Search, Gauge, FileSearch, KeyRound, Link2, FileCode2, Map, Tags,
+  BarChart3, Network, Calculator, DollarSign,
+  Sparkles, Youtube, FileText, Hash,
+  Code2, Braces, Wand2, Binary, ArrowRight,
+  type LucideIcon,
+} from "lucide-react";
 
 export const Route = createFileRoute("/tools")({
   head: () => ({
     meta: [
-      { title: "Tools — rkInfinity" },
-      { name: "description", content: "Free tools for SEO, marketing, and developers — built by RK." },
-      { property: "og:title", content: "Free Tools — rkInfinity" },
-      { property: "og:description", content: "Handcrafted utilities for the modern web professional." },
+      { title: "Tools Hub — rkInfinity" },
+      { name: "description", content: "A curated hub of free SEO, analytics, AI, and coding tools — built by RK." },
+      { property: "og:title", content: "Tools Hub — rkInfinity" },
+      { property: "og:description", content: "Search 24+ free tools across SEO, analytics, AI, and coding." },
     ],
   }),
-  component: Tools,
+  component: ToolsHub,
 });
 
-const tools = [
-  { icon: Gauge, t: "PageSpeed Analyzer", d: "Instant Core Web Vitals snapshot for any URL.", tag: "SEO" },
-  { icon: FileSearch, t: "Meta Tag Inspector", d: "Audit titles, descriptions, OG and Twitter cards.", tag: "SEO" },
-  { icon: KeyRound, t: "Keyword Density", d: "Spot keyword stuffing and content opportunities.", tag: "Content" },
-  { icon: ImageIcon, t: "Image Compressor", d: "Lossless WebP conversion at the edge.", tag: "Dev" },
-  { icon: Link2, t: "Broken Link Checker", d: "Crawl your sitemap and surface 404s in seconds.", tag: "SEO" },
-  { icon: Wrench, t: "Schema Generator", d: "Build valid JSON-LD for any rich result type.", tag: "Dev" },
+type Tool = { t: string; d: string; icon: LucideIcon; slug: string };
+type Category = { id: string; name: string; accent: string; icon: LucideIcon; tools: Tool[] };
+
+const categories: Category[] = [
+  {
+    id: "seo",
+    name: "SEO Tools",
+    accent: "from-primary/20 to-primary/5",
+    icon: Search,
+    tools: [
+      { t: "Keyword Research", d: "Real keyword suggestions with search intent.", icon: KeyRound, slug: "keyword-research" },
+      { t: "Page Speed", d: "Google PageSpeed API — Core Web Vitals report.", icon: Gauge, slug: "page-speed" },
+      { t: "SEO Audit", d: "On-page audit for any URL in seconds.", icon: FileSearch, slug: "seo-audit" },
+      { t: "Broken Link Checker", d: "Crawl any page and surface 404s instantly.", icon: Link2, slug: "broken-links" },
+      { t: "Robots.txt Generator", d: "Build a clean, crawler-friendly robots.txt.", icon: FileCode2, slug: "robots-generator" },
+      { t: "Sitemap Generator", d: "Generate XML sitemaps from a domain.", icon: Map, slug: "sitemap-generator" },
+      { t: "Meta Tag Generator", d: "Craft perfect title, description & OG tags.", icon: Tags, slug: "meta-generator" },
+      { t: "Keyword Density Checker", d: "Detect stuffing, find content gaps.", icon: BarChart3, slug: "keyword-density" },
+    ],
+  },
+  {
+    id: "analytics",
+    name: "Analytics & Competitor",
+    accent: "from-accent/20 to-accent/5",
+    icon: BarChart3,
+    tools: [
+      { t: "Competitor Comparison", d: "Side-by-side metrics (realistic mock).", icon: Network, slug: "competitor-comparison" },
+      { t: "Backlink Overview", d: "Domain authority + referring domains (mock).", icon: Link2, slug: "backlink-overview" },
+      { t: "ROI Calculator", d: "Project return on marketing spend.", icon: Calculator, slug: "roi-calculator" },
+      { t: "CPC Calculator", d: "Estimate cost-per-click & ad budgets.", icon: DollarSign, slug: "cpc-calculator" },
+    ],
+  },
+  {
+    id: "ai",
+    name: "AI Tools",
+    accent: "from-primary/20 to-accent/10",
+    icon: Sparkles,
+    tools: [
+      { t: "AI Blog Intro Generator", d: "Hook-driven intros from a single topic.", icon: Sparkles, slug: "blog-intro" },
+      { t: "YouTube Script Generator", d: "Full scripts with hook, body & CTA.", icon: Youtube, slug: "youtube-script" },
+      { t: "Text Summarizer", d: "Compress long content into key points.", icon: FileText, slug: "text-summarizer" },
+      { t: "Hashtag Generator", d: "On-trend hashtag sets per platform.", icon: Hash, slug: "hashtag-generator" },
+    ],
+  },
+  {
+    id: "code",
+    name: "Coding Tools",
+    accent: "from-accent/20 to-primary/10",
+    icon: Code2,
+    tools: [
+      { t: "HTML / CSS / JS Minifier", d: "Shrink production assets in one click.", icon: Code2, slug: "minifier" },
+      { t: "JSON Formatter", d: "Validate, pretty-print, and tree-view JSON.", icon: Braces, slug: "json-formatter" },
+      { t: "Code Beautifier", d: "Reformat messy code with consistent style.", icon: Wand2, slug: "code-beautifier" },
+      { t: "Base64 Converter", d: "Encode & decode text or files to Base64.", icon: Binary, slug: "base64" },
+    ],
+  },
 ];
 
-function Tools() {
+function ToolsHub() {
+  const [q, setQ] = useState("");
+  const [activeCat, setActiveCat] = useState<string>("all");
+
+  const filtered = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    return categories
+      .filter((c) => activeCat === "all" || c.id === activeCat)
+      .map((c) => ({
+        ...c,
+        tools: c.tools.filter(
+          (t) => !query || t.t.toLowerCase().includes(query) || t.d.toLowerCase().includes(query)
+        ),
+      }))
+      .filter((c) => c.tools.length > 0);
+  }, [q, activeCat]);
+
+  const totalCount = categories.reduce((sum, c) => sum + c.tools.length, 0);
+
   return (
     <PageShell>
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <SectionHeader eyebrow="Toolkit" title="Free tools, built with care." sub="The same utilities I use on every client engagement — yours to use." />
+        <SectionHeader
+          eyebrow="Tools Hub"
+          title={`${totalCount} free tools, one workbench.`}
+          sub="SEO, analytics, AI, and coding utilities — search or browse by category."
+        />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tools.map(({ icon: Icon, t, d, tag }) => (
-            <div key={t} className="glass rounded-2xl p-7 hover:border-primary/40 transition cursor-pointer group">
-              <div className="flex items-start justify-between mb-5">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
-                  <Icon size={22} />
-                </div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-primary px-2 py-1 rounded-md bg-primary/10">{tag}</span>
-              </div>
-              <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-                {t}
-                <ExternalLink size={14} className="text-muted-foreground group-hover:text-primary transition" />
-              </h3>
-              <p className="text-sm text-muted-foreground">{d}</p>
-            </div>
+        {/* SEARCH BAR */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="glass rounded-2xl flex items-center gap-3 px-5 py-4 focus-within:border-primary/50 transition">
+            <Search size={20} className="text-primary shrink-0" />
+            <input
+              type="text"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search tools — try 'keyword', 'json', 'roi'…"
+              className="flex-1 bg-transparent outline-none text-base placeholder:text-muted-foreground"
+              aria-label="Search tools"
+            />
+            {q && (
+              <button
+                onClick={() => setQ("")}
+                className="text-xs text-muted-foreground hover:text-foreground transition"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* CATEGORY FILTERS */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
+          <button
+            onClick={() => setActiveCat("all")}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
+              activeCat === "all"
+                ? "bg-gradient-to-r from-primary to-accent text-primary-foreground"
+                : "glass hover:border-primary/40"
+            }`}
+          >
+            All
+          </button>
+          {categories.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => setActiveCat(c.id)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition inline-flex items-center gap-2 ${
+                activeCat === c.id
+                  ? "bg-gradient-to-r from-primary to-accent text-primary-foreground"
+                  : "glass hover:border-primary/40"
+              }`}
+            >
+              <c.icon size={14} />
+              {c.name}
+            </button>
           ))}
         </div>
+
+        {/* CATEGORY SECTIONS */}
+        {filtered.length === 0 ? (
+          <div className="glass rounded-2xl p-12 text-center text-muted-foreground">
+            No tools match <span className="text-foreground font-mono">"{q}"</span>. Try another keyword.
+          </div>
+        ) : (
+          <div className="space-y-16">
+            {filtered.map((cat) => (
+              <div key={cat.id}>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${cat.accent} text-primary`}>
+                    <cat.icon size={18} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold">{cat.name}</h2>
+                    <p className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
+                      {cat.tools.length} {cat.tools.length === 1 ? "tool" : "tools"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {cat.tools.map(({ t, d, icon: Icon }) => (
+                    <div
+                      key={t}
+                      className="glass rounded-2xl p-6 hover:border-primary/40 transition group flex flex-col"
+                    >
+                      <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary mb-4 group-hover:scale-110 transition">
+                        <Icon size={20} />
+                      </div>
+                      <h3 className="text-base font-bold mb-1.5 leading-tight">{t}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">{d}</p>
+                      <button
+                        type="button"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition w-full"
+                      >
+                        Launch Tool
+                        <ArrowRight size={14} className="group-hover:translate-x-0.5 transition" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </PageShell>
   );
