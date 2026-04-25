@@ -31,7 +31,7 @@ function Home() {
               Hi, I'm <span className="text-gradient neon-text">RK</span>
               <br />
               <span className="text-foreground/90">I am a </span>
-              <TypingText words={["SEO Expert", "Digital Marketer", "Web Developer", "Story Writer"]} />
+              <TypingText words={["SEO Specialist", "Digital Marketer", "Content Creator", "Writer"]} />
             </h1>
             <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Building infinite possibilities at the intersection of search, code, and story.
