@@ -82,6 +82,7 @@ const categories: Category[] = [
 function ToolsHub() {
   const [q, setQ] = useState("");
   const [activeCat, setActiveCat] = useState<string>("all");
+  const [openTool, setOpenTool] = useState<Tool | null>(null);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
