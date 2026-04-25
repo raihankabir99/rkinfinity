@@ -209,31 +209,56 @@ function ToolsHub() {
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                  {cat.tools.map(({ t, d, icon: Icon }) => (
-                    <div
-                      key={t}
-                      className="glass rounded-2xl p-6 hover:border-primary/40 transition group flex flex-col"
-                    >
-                      <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary mb-4 group-hover:scale-110 transition">
-                        <Icon size={20} />
-                      </div>
-                      <h3 className="text-base font-bold mb-1.5 leading-tight">{t}</h3>
-                      <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">{d}</p>
-                      <button
-                        type="button"
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition w-full"
+                  {cat.tools.map((tool) => {
+                    const { t, d, icon: Icon } = tool;
+                    return (
+                      <div
+                        key={t}
+                        className="glass rounded-2xl p-6 hover:border-primary/40 transition group flex flex-col"
                       >
-                        Launch Tool
-                        <ArrowRight size={14} className="group-hover:translate-x-0.5 transition" />
-                      </button>
-                    </div>
-                  ))}
+                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary mb-4 group-hover:scale-110 transition">
+                          <Icon size={20} />
+                        </div>
+                        <h3 className="text-base font-bold mb-1.5 leading-tight">{t}</h3>
+                        <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">{d}</p>
+                        <button
+                          type="button"
+                          onClick={() => setOpenTool(tool)}
+                          className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition w-full"
+                        >
+                          Launch Tool
+                          <ArrowRight size={14} className="group-hover:translate-x-0.5 transition" />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
           </div>
         )}
       </section>
+
+      <Dialog open={!!openTool} onOpenChange={(o) => !o && setOpenTool(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-card border-border">
+          {openTool && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-3 text-xl">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
+                    <openTool.icon size={18} />
+                  </div>
+                  {openTool.t}
+                </DialogTitle>
+                <DialogDescription>{openTool.d}</DialogDescription>
+              </DialogHeader>
+              <div className="mt-4">
+                {toolComponents[openTool.slug]?.() ?? <p className="text-sm text-muted-foreground">Coming soon.</p>}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
 }
