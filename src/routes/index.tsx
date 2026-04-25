@@ -7,10 +7,10 @@ import { ArrowRight, Sparkles, Code2, TrendingUp, Search } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RK Infinity — SEO Expert · Digital Marketer · Web Developer" },
+      { title: "RKInfinity — SEO Enthusiast · Digital Marketer · Web Developer" },
       { name: "description", content: "Premium digital craftsmanship by RK. SEO, growth marketing, and engineering for ambitious brands." },
-      { property: "og:title", content: "RK Infinity — Digital Excellence" },
-      { property: "og:description", content: "SEO Expert · Digital Marketer · Web Developer · Story Writer." },
+      { property: "og:title", content: "RKInfinity — Digital Excellence" },
+      { property: "og:description", content: "SEO Enthusiast · Digital Marketer · Web Developer · Story Writer." },
     ],
   }),
   component: Home,
