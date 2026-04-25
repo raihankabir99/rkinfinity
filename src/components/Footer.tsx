@@ -40,7 +40,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/5 py-6 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} RK Infinity. All rights reserved.
+        © {new Date().getFullYear()} rkInfinity. All rights reserved.
       </div>
     </footer>
   );

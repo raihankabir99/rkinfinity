@@ -5,9 +5,9 @@ import { Award, Coffee, Globe, Heart } from "lucide-react";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — RK Infinity" },
+      { title: "About — rkInfinity" },
       { name: "description", content: "Meet RK — SEO strategist, marketer, developer, and story writer." },
-      { property: "og:title", content: "About RK Infinity" },
+      { property: "og:title", content: "About rkInfinity" },
       { property: "og:description", content: "Meet RK — the mind behind the brand." },
     ],
   }),

@@ -5,9 +5,9 @@ import { Search, TrendingUp, Code2, PenTool, Megaphone, BarChart3, Check } from 
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
-      { title: "Services — RK Infinity" },
+      { title: "Services — rkInfinity" },
       { name: "description", content: "SEO, digital marketing, and web development services that compound." },
-      { property: "og:title", content: "Services — RK Infinity" },
+      { property: "og:title", content: "Services — rkInfinity" },
       { property: "og:description", content: "Premium SEO, marketing, and engineering services." },
     ],
   }),
