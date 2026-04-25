@@ -8,7 +8,7 @@ export function Footer() {
         <div className="md:col-span-2">
           <div className="flex items-center gap-2 font-bold text-lg">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground font-black">RK</span>
-            RK <span className="text-gradient">Infinity</span>
+            <span><span className="text-white">RK</span><span className="text-primary">Infinity</span></span>
           </div>
           <p className="mt-4 text-sm text-muted-foreground max-w-md">
             SEO Expert · Digital Marketer · Web Developer · Story Writer. Crafting digital experiences that scale.
