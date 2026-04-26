@@ -36,20 +36,21 @@ export function Navbar() {
             <img
               src={logo}
               alt="rkInfinity logo"
-              className="h-10 w-10 rounded-full object-cover ring-1 ring-primary/30"
+              className="h-10 w-10 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50 shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
             />
             <span className="hidden sm:inline">
-              <span className="text-white">rk</span><span className="text-primary">Infinity</span>
+              <span className="text-white">rk</span>
+              <span className="text-gradient">Infinity</span>
             </span>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1.5">
             {links.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
-                className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-white/5"
-                activeProps={{ className: "px-3 py-2 text-sm text-primary rounded-lg bg-primary/10" }}
+                className="nav-pill"
+                activeProps={{ className: "nav-pill nav-pill-active" }}
                 activeOptions={{ exact: l.to === "/" }}
               >
                 {l.label}
@@ -60,7 +61,7 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <Link
               to="/login"
-              className="hidden sm:inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 transition pulse-glow"
+              className="btn-gold hidden sm:inline-flex !py-2 !px-4 text-sm pulse-glow"
             >
               Login
             </Link>
@@ -76,14 +77,14 @@ export function Navbar() {
 
         {open && (
           <div className="glass mt-2 rounded-2xl p-3 lg:hidden animate-fade-in">
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-1.5">
               {links.map((l) => (
                 <Link
                   key={l.to}
                   to={l.to}
                   onClick={() => setOpen(false)}
-                  className="px-4 py-3 text-sm text-muted-foreground hover:text-primary hover:bg-white/5 rounded-lg"
-                  activeProps={{ className: "px-4 py-3 text-sm text-primary bg-primary/10 rounded-lg" }}
+                  className="nav-pill !justify-start"
+                  activeProps={{ className: "nav-pill nav-pill-active !justify-start" }}
                   activeOptions={{ exact: l.to === "/" }}
                 >
                   {l.label}
@@ -92,7 +93,7 @@ export function Navbar() {
               <Link
                 to="/login"
                 onClick={() => setOpen(false)}
-                className="mt-2 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-3 text-sm font-semibold text-primary-foreground"
+                className="btn-gold mt-2 text-sm"
               >
                 Login
               </Link>
