@@ -47,10 +47,10 @@ function Home() {
               I help brands rank, scale, and connect.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Link to="/services" className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-3.5 font-semibold text-primary-foreground hover:opacity-90 transition pulse-glow">
+              <Link to="/services" className="group btn-gold pulse-glow">
                 Explore Services <ArrowRight size={18} className="group-hover:translate-x-1 transition" />
               </Link>
-              <Link to="/contact" className="inline-flex items-center gap-2 rounded-xl glass px-6 py-3.5 font-semibold hover:border-primary/40 transition">
+              <Link to="/contact" className="btn-metal">
                 Let's Talk
               </Link>
             </div>
