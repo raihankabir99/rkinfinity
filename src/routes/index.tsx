@@ -47,10 +47,10 @@ function Home() {
               I help brands rank, scale, and connect.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Link to="/services" className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-3.5 font-semibold text-primary-foreground hover:opacity-90 transition pulse-glow">
+              <Link to="/services" className="group btn-gold pulse-glow">
                 Explore Services <ArrowRight size={18} className="group-hover:translate-x-1 transition" />
               </Link>
-              <Link to="/contact" className="inline-flex items-center gap-2 rounded-xl glass px-6 py-3.5 font-semibold hover:border-primary/40 transition">
+              <Link to="/contact" className="btn-metal">
                 Let's Talk
               </Link>
             </div>
@@ -86,7 +86,7 @@ function Home() {
           <div className="relative">
             <h2 className="text-3xl md:text-5xl font-bold">Ready to build something <span className="text-gradient">infinite</span>?</h2>
             <p className="mt-4 text-muted-foreground max-w-xl mx-auto">A free 30-minute consultation to map your next breakthrough.</p>
-            <Link to="/contact" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-3.5 font-semibold text-primary-foreground">
+            <Link to="/contact" className="btn-gold mt-8">
               Start the conversation <ArrowRight size={18} />
             </Link>
           </div>
