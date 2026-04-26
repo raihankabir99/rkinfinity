@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { TypingText } from "@/components/TypingText";
 import { ArrowRight, Sparkles, Code2, TrendingUp, Search } from "lucide-react";
+import heroCircuit from "@/assets/hero-circuit.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
