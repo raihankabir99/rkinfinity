@@ -21,7 +21,16 @@ function Home() {
     <PageShell>
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-bg opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
+        {/* Circuit board background — subtle, low opacity for readability */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-center bg-cover opacity-[0.18] md:opacity-20 [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_85%)]"
+          style={{ backgroundImage: `url(${heroCircuit})` }}
+        />
+        {/* Dark overlay for contrast */}
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
+        {/* Faint grid accent */}
+        <div className="absolute inset-0 grid-bg opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
         <div className="relative mx-auto max-w-7xl px-4 py-20 md:py-32">
           <div className="text-center max-w-4xl mx-auto">
             <span className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-mono uppercase tracking-wider text-primary mb-6">
