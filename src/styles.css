@@ -39,35 +39,47 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0 0 0);
+  --background: oklch(0.04 0.005 80);
   --foreground: oklch(0.97 0 0);
-  --card: oklch(0.06 0 0);
+  --card: oklch(0.07 0.005 80);
   --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.06 0 0);
+  --popover: oklch(0.07 0.005 80);
   --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.88 0.28 142);
-  --primary-foreground: oklch(0.05 0 0);
-  --secondary: oklch(0.85 0.18 195);
+  --primary: oklch(0.78 0.14 85);
+  --primary-foreground: oklch(0.08 0 0);
+  --secondary: oklch(0.85 0.2 142);
   --secondary-foreground: oklch(0.05 0 0);
   --muted: oklch(0.14 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.85 0.18 195);
+  --muted-foreground: oklch(0.68 0.02 80);
+  --accent: oklch(0.85 0.2 142);
   --accent-foreground: oklch(0.05 0 0);
   --destructive: oklch(0.62 0.24 27);
   --destructive-foreground: oklch(0.97 0 0);
-  --border: oklch(0.2 0 0 / 60%);
+  --border: oklch(0.78 0.14 85 / 18%);
   --input: oklch(0.18 0 0);
-  --ring: oklch(0.88 0.28 142);
+  --ring: oklch(0.78 0.14 85);
 
-  --neon: oklch(0.88 0.28 142);
+  --gold: oklch(0.78 0.14 85);
+  --gold-bright: oklch(0.88 0.16 90);
+  --gold-deep: oklch(0.55 0.12 75);
+  --neon: oklch(0.85 0.2 142);
   --aqua: oklch(0.85 0.18 195);
-  --glass: oklch(0.08 0 0 / 60%);
+  --glass: oklch(0.06 0.005 80 / 65%);
 
-  --gradient-hero: radial-gradient(ellipse at top, oklch(0.88 0.28 142 / 0.15), transparent 60%),
-                   radial-gradient(ellipse at bottom right, oklch(0.85 0.18 195 / 0.12), transparent 50%);
+  --gradient-gold: linear-gradient(135deg,
+    oklch(0.55 0.12 75) 0%,
+    oklch(0.82 0.15 88) 35%,
+    oklch(0.92 0.13 92) 50%,
+    oklch(0.78 0.14 85) 65%,
+    oklch(0.45 0.1 70) 100%);
+  --gradient-gold-soft: linear-gradient(135deg, oklch(0.4 0.08 75), oklch(0.65 0.12 85));
   --gradient-neon: linear-gradient(135deg, var(--neon), var(--aqua));
-  --shadow-neon: 0 0 40px oklch(0.88 0.28 142 / 0.4), 0 0 80px oklch(0.88 0.28 142 / 0.15);
-  --shadow-aqua: 0 0 40px oklch(0.85 0.18 195 / 0.35);
+  --gradient-hero: radial-gradient(ellipse at top, oklch(0.78 0.14 85 / 0.12), transparent 60%),
+                   radial-gradient(ellipse at bottom right, oklch(0.85 0.2 142 / 0.08), transparent 50%);
+
+  --shadow-gold: 0 0 24px oklch(0.78 0.14 85 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.25), inset 0 -1px 0 oklch(0 0 0 / 0.4);
+  --shadow-neon: 0 0 30px oklch(0.85 0.2 142 / 0.35), 0 0 60px oklch(0.85 0.2 142 / 0.12);
+  --shadow-aqua: 0 0 40px oklch(0.85 0.18 195 / 0.3);
 }
 
 .dark {
