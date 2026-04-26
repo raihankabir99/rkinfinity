@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import logo from "@/assets/rkinfinity-logo.png";
 
 const links = [
   { to: "/", label: "Home" },
@@ -31,10 +32,12 @@ export function Navbar() {
     >
       <div className="mx-auto max-w-7xl px-4">
         <nav className="glass flex items-center justify-between rounded-2xl px-4 py-3 md:px-6">
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground font-black">
-              rk
-            </span>
+          <Link to="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
+            <img
+              src={logo}
+              alt="rkInfinity logo"
+              className="h-10 w-10 rounded-full object-cover ring-1 ring-primary/30"
+            />
             <span className="hidden sm:inline">
               <span className="text-white">rk</span><span className="text-primary">Infinity</span>
             </span>
