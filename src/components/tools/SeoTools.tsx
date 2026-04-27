@@ -263,9 +263,8 @@ export function BrokenLinkTool() {
     setResults([]); setLoading(true);
     try {
       const target = normalizeUrl(url);
-      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(target)}`);
-      const json = await res.json();
-      const doc = new DOMParser().parseFromString(json.contents, "text/html");
+      const { html } = await fetchHtmlWithFallback(target);
+      const doc = new DOMParser().parseFromString(html, "text/html");
       const base = new URL(target);
       const links = [...doc.querySelectorAll("a[href]")]
         .map((a) => a.getAttribute("href")!)
@@ -276,11 +275,13 @@ export function BrokenLinkTool() {
       const unique = Array.from(new Set(links));
       const checks = await Promise.all(unique.map(async (link) => {
         try {
-          const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`, { method: "HEAD" });
+          const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(link)}`, { method: "HEAD" });
           return { link, status: r.status };
         } catch { return { link, status: "ERR" as const }; }
       }));
       setResults(checks);
+    } catch {
+      // swallow — UI shows empty state
     } finally { setLoading(false); }
   };
 
