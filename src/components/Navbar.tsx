@@ -59,12 +59,16 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              to="/login"
-              className="btn-gold hidden sm:inline-flex !py-2 !px-4 text-sm pulse-glow"
+            <button
+              type="button"
+              onClick={() => {
+                const footer = document.querySelector("footer");
+                footer?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="btn-gold btn-pill hidden sm:inline-flex !py-2 !px-5 text-sm pulse-glow"
             >
-              Login
-            </Link>
+              Subscribe
+            </button>
             <button
               onClick={() => setOpen(!open)}
               className="lg:hidden p-2 text-foreground"
@@ -90,13 +94,16 @@ export function Navbar() {
                   {l.label}
                 </Link>
               ))}
-              <Link
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="btn-gold mt-2 text-sm"
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  setTimeout(() => document.querySelector("footer")?.scrollIntoView({ behavior: "smooth" }), 80);
+                }}
+                className="btn-gold btn-pill mt-2 text-sm"
               >
-                Login
-              </Link>
+                Subscribe
+              </button>
             </div>
           </div>
         )}

@@ -7,12 +7,14 @@ import {
   BarChart3, Network, Calculator, DollarSign,
   Sparkles, Youtube, FileText, Hash,
   Code2, Braces, Wand2, Binary, ArrowRight,
+  DollarSign as Coin, Wand, Swords,
   type LucideIcon,
 } from "lucide-react";
 import { PageSpeedTool, KeywordTool, SeoAuditTool, BrokenLinkTool, RobotsTool, SitemapTool, MetaTool, DensityTool } from "@/components/tools/SeoTools";
 import { CompetitorTool, BacklinkTool, ROITool, CPCTool } from "@/components/tools/AnalyticsTools";
 import { BlogIntroTool, YoutubeScriptTool, SummarizerTool, HashtagTool } from "@/components/tools/AiTools";
 import { MinifierTool, JsonTool, BeautifyTool, Base64Tool } from "@/components/tools/CodingTools";
+import { WebsiteWorthTool, HumanizerTool, RankBattleTool } from "@/components/tools/FeaturedTools";
 
 export const Route = createFileRoute("/tools")({
   head: () => ({
@@ -27,6 +29,9 @@ export const Route = createFileRoute("/tools")({
 });
 
 const toolComponents: Record<string, () => ReactNode> = {
+  "website-worth": () => <WebsiteWorthTool />,
+  "ai-humanizer": () => <HumanizerTool />,
+  "rank-battle": () => <RankBattleTool />,
   "page-speed": () => <PageSpeedTool />,
   "keyword-research": () => <KeywordTool />,
   "seo-audit": () => <SeoAuditTool />,
@@ -53,6 +58,17 @@ type Tool = { t: string; d: string; icon: LucideIcon; slug: string };
 type Category = { id: string; name: string; accent: string; icon: LucideIcon; tools: Tool[] };
 
 const categories: Category[] = [
+  {
+    id: "featured",
+    name: "⭐ Featured Tools",
+    accent: "from-primary/30 to-accent/10",
+    icon: Sparkles,
+    tools: [
+      { t: "Website Worth Calculator", d: "Estimate the market value of any website.", icon: Coin, slug: "website-worth" },
+      { t: "AI Content Humanizer", d: "Rewrite AI-sounding text in a natural human voice.", icon: Wand, slug: "ai-humanizer" },
+      { t: "Rank Battle", d: "Head-to-head SEO showdown between two domains.", icon: Swords, slug: "rank-battle" },
+    ],
+  },
   {
     id: "seo",
     name: "SEO Tools",

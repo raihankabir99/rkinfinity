@@ -1,11 +1,37 @@
 import { useState } from "react";
 import { Spinner, NeonButton, CircularScore, downloadPdf, PdfButton } from "./ToolHelpers";
 import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 
 const normalizeUrl = (u: string) => {
   if (!u) return "";
   return /^https?:\/\//i.test(u) ? u : `https://${u}`;
 };
+
+// Multi-proxy fetch with fallbacks for CORS-restricted URLs
+async function fetchHtmlWithFallback(target: string): Promise<{ html: string; status: number }> {
+  const proxies = [
+    { url: `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`, kind: "allorigins" as const },
+    { url: `https://corsproxy.io/?${encodeURIComponent(target)}`, kind: "raw" as const },
+    { url: `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(target)}`, kind: "raw" as const },
+  ];
+  let lastErr: unknown = null;
+  for (const p of proxies) {
+    try {
+      const r = await fetch(p.url);
+      if (!r.ok) { lastErr = new Error(`Proxy ${r.status}`); continue; }
+      if (p.kind === "allorigins") {
+        const j = await r.json();
+        if (!j?.contents) { lastErr = new Error("Empty proxy response"); continue; }
+        return { html: j.contents, status: j?.status?.http_code ?? 200 };
+      }
+      const html = await r.text();
+      if (!html) { lastErr = new Error("Empty body"); continue; }
+      return { html, status: 200 };
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error("All proxies failed");
+}
 
 // ============ PAGE SPEED ============
 export function PageSpeedTool() {
@@ -16,11 +42,23 @@ export function PageSpeedTool() {
 
   const run = async () => {
     setErr(""); setData(null); setLoading(true);
+    const target = encodeURIComponent(normalizeUrl(url));
+    const endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${target}&category=performance&category=seo&category=accessibility&category=best-practices&strategy=mobile`;
+    // 429-aware: retry up to 3 times with exponential back-off
+    const fetchWithRetry = async (): Promise<Response> => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const r = await fetch(endpoint);
+        if (r.status !== 429) return r;
+        await new Promise((res) => setTimeout(res, 1500 * (attempt + 1)));
+      }
+      return fetch(endpoint);
+    };
     try {
-      const res = await fetch(
-        `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(normalizeUrl(url))}&category=performance&category=seo&category=accessibility&category=best-practices&strategy=mobile`
-      );
-      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const res = await fetchWithRetry();
+      if (res.status === 429) {
+        throw new Error("Google PageSpeed is rate-limiting (429). Please wait ~30 seconds and try again.");
+      }
+      if (!res.ok) throw new Error(`PageSpeed API error ${res.status}`);
       const json = await res.json();
       const c = json.lighthouseResult.categories;
       const audits = json.lighthouseResult.audits;
@@ -36,6 +74,16 @@ export function PageSpeedTool() {
       setErr(e instanceof Error ? e.message : "Failed to fetch");
     } finally { setLoading(false); }
   };
+
+  const chartData = data
+    ? [
+        { name: "Performance", value: data.perf },
+        { name: "SEO", value: data.seo },
+        { name: "Accessibility", value: data.a11y },
+        { name: "Best Practices", value: data.bp },
+      ]
+    : [];
+  const COLORS = ["oklch(0.78 0.14 85)", "oklch(0.92 0.13 92)", "oklch(0.65 0.12 75)", "oklch(0.55 0.1 70)"];
 
   return (
     <div className="space-y-4">
@@ -53,6 +101,16 @@ export function PageSpeedTool() {
             <CircularScore value={data.seo} label="SEO" />
             <CircularScore value={data.a11y} label="Accessibility" />
             <CircularScore value={data.bp} label="Best Practices" />
+          </div>
+          <div className="glass rounded-lg p-4 h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={chartData} cx="50%" cy="50%" outerRadius={80} innerRadius={45} dataKey="value" label={(p) => `${(p as { name?: string }).name ?? ""}: ${(p as { value?: number }).value ?? ""}`}>
+                  {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                </Pie>
+                <Tooltip contentStyle={{ background: "#000", border: "1px solid oklch(0.78 0.14 85)", borderRadius: 8, fontSize: 12 }} />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
           {(data.lcp || data.cls) && (
             <div className="glass rounded-lg p-4 text-xs space-y-1 font-mono">
@@ -138,10 +196,7 @@ export function SeoAuditTool() {
     setErr(""); setData(null); setLoading(true);
     try {
       const target = normalizeUrl(url);
-      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(target)}`);
-      const json = await res.json();
-      const html: string = json.contents;
-      const status = json.status?.http_code ?? 200;
+      const { html, status } = await fetchHtmlWithFallback(target);
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, "text/html");
       setData({
@@ -153,7 +208,7 @@ export function SeoAuditTool() {
         status,
       });
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Failed");
+      setErr(e instanceof Error ? `Failed to fetch — ${e.message}. Try again or check the URL.` : "Failed to fetch");
     } finally { setLoading(false); }
   };
 
@@ -208,9 +263,8 @@ export function BrokenLinkTool() {
     setResults([]); setLoading(true);
     try {
       const target = normalizeUrl(url);
-      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(target)}`);
-      const json = await res.json();
-      const doc = new DOMParser().parseFromString(json.contents, "text/html");
+      const { html } = await fetchHtmlWithFallback(target);
+      const doc = new DOMParser().parseFromString(html, "text/html");
       const base = new URL(target);
       const links = [...doc.querySelectorAll("a[href]")]
         .map((a) => a.getAttribute("href")!)
@@ -221,11 +275,13 @@ export function BrokenLinkTool() {
       const unique = Array.from(new Set(links));
       const checks = await Promise.all(unique.map(async (link) => {
         try {
-          const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`, { method: "HEAD" });
+          const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(link)}`, { method: "HEAD" });
           return { link, status: r.status };
         } catch { return { link, status: "ERR" as const }; }
       }));
       setResults(checks);
+    } catch {
+      // swallow — UI shows empty state
     } finally { setLoading(false); }
   };
 
@@ -319,11 +375,25 @@ export function DensityTool() {
   words.filter((w) => !stop.has(w)).forEach((w) => { counts[w] = (counts[w] ?? 0) + 1; });
   const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15);
   const total = words.length || 1;
+  const chart = top.slice(0, 10).map(([w, c]) => ({ name: w, count: c }));
   return (
     <div className="space-y-3 text-sm">
       <textarea value={text} onChange={(e) => setText(e.target.value)} rows={6} placeholder="Paste content..."
         className="w-full glass rounded-lg px-3 py-2 outline-none" />
       <div className="text-xs text-muted-foreground">Total words: <span className="text-primary font-bold">{words.length}</span></div>
+      {chart.length > 0 && (
+        <div className="glass rounded-lg p-3 h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chart}>
+              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.78 0.14 85 / 0.2)" />
+              <XAxis dataKey="name" tick={{ fontSize: 10, fill: "currentColor" }} />
+              <YAxis tick={{ fontSize: 10, fill: "currentColor" }} />
+              <Tooltip contentStyle={{ background: "#000", border: "1px solid oklch(0.78 0.14 85)", borderRadius: 8, fontSize: 12 }} />
+              <Bar dataKey="count" fill="oklch(0.85 0.15 88)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
       <div className="space-y-1.5">
         {top.map(([w, c]) => (
           <div key={w} className="glass rounded-lg px-3 py-2 flex items-center justify-between text-xs">
@@ -332,6 +402,12 @@ export function DensityTool() {
           </div>
         ))}
       </div>
+      {top.length > 0 && (
+        <PdfButton onClick={() => downloadPdf("Keyword Density Report", [
+          `Total words: ${words.length}`,
+          ...top.map(([w, c]) => `${w}: ${c} (${((c / total) * 100).toFixed(1)}%)`),
+        ])} />
+      )}
     </div>
   );
 }

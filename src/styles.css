@@ -256,4 +256,66 @@
     border: 1px solid oklch(0.92 0.13 92 / 0.6);
   }
   .wa-pulse-glow:hover { filter: brightness(1.1); }
+
+  /* Pill variants — used by hero CTAs and Subscribe button */
+  .btn-pill {
+    border-radius: 999px;
+    padding: 0.7rem 1.6rem;
+  }
+
+  /* Dark matte pill with metallic gold outline + gold text — matches Track My Project */
+  .btn-metal-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: #000;
+    color: var(--gold-bright);
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 0.7rem 1.6rem;
+    border: 1px solid oklch(0.78 0.14 85 / 0.7);
+    box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.05), 0 0 16px oklch(0.78 0.14 85 / 0.18);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  }
+  .btn-metal-pill:hover {
+    border-color: var(--gold-bright);
+    box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.08), 0 0 24px oklch(0.78 0.14 85 / 0.45);
+    transform: translateY(-1px);
+  }
+
+  /* Social icon — gold glow on hover, icon only */
+  .social-icon {
+    display: inline-grid;
+    place-items: center;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 0.625rem;
+    background: #000;
+    color: var(--gold-bright);
+    border: 1px solid oklch(0.78 0.14 85 / 0.4);
+    transition: all 0.25s ease;
+  }
+  .social-icon:hover {
+    border-color: var(--gold-bright);
+    color: var(--gold-bright);
+    box-shadow: 0 0 18px oklch(0.78 0.14 85 / 0.55), 0 0 36px oklch(0.92 0.13 92 / 0.25);
+    transform: translateY(-2px);
+  }
+
+  /* Neon-green glow for Facebook story-card icons */
+  .fb-neon {
+    color: oklch(0.85 0.2 142);
+    text-shadow: 0 0 10px oklch(0.85 0.2 142 / 0.7);
+    filter: drop-shadow(0 0 6px oklch(0.85 0.2 142 / 0.55));
+  }
+  .neon-border {
+    border: 1px solid oklch(0.85 0.2 142 / 0.6);
+    box-shadow: 0 0 18px oklch(0.85 0.2 142 / 0.35), inset 0 0 12px oklch(0.85 0.2 142 / 0.08);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .neon-border:hover {
+    border-color: oklch(0.85 0.2 142);
+    box-shadow: 0 0 28px oklch(0.85 0.2 142 / 0.55), inset 0 0 18px oklch(0.85 0.2 142 / 0.12);
+  }
 }
