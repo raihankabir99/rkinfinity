@@ -59,6 +59,17 @@ type Category = { id: string; name: string; accent: string; icon: LucideIcon; to
 
 const categories: Category[] = [
   {
+    id: "featured",
+    name: "⭐ Featured Tools",
+    accent: "from-primary/30 to-accent/10",
+    icon: Sparkles,
+    tools: [
+      { t: "Website Worth Calculator", d: "Estimate the market value of any website.", icon: Coin, slug: "website-worth" },
+      { t: "AI Content Humanizer", d: "Rewrite AI-sounding text in a natural human voice.", icon: Wand, slug: "ai-humanizer" },
+      { t: "Rank Battle", d: "Head-to-head SEO showdown between two domains.", icon: Swords, slug: "rank-battle" },
+    ],
+  },
+  {
     id: "seo",
     name: "SEO Tools",
     accent: "from-primary/20 to-primary/5",
