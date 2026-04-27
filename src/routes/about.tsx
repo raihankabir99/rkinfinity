@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { Award, Coffee, Globe, Heart } from "lucide-react";
+import aboutMe from "@/assets/about-me.png";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -23,13 +24,24 @@ function About() {
         <div className="grid lg:grid-cols-12 gap-6">
           <div className="lg:col-span-7 glass rounded-3xl p-8 md:p-12 relative overflow-hidden">
             <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+            <div className="flex items-start gap-5 mb-6">
+              <img
+                src={aboutMe}
+                alt="RK portrait"
+                className="h-20 w-20 rounded-2xl object-cover ring-2 ring-[color:var(--gold)]/60 shadow-[0_0_24px_oklch(0.78_0.14_85/0.35)] shrink-0"
+              />
+              <div>
+                <div className="text-xs font-mono uppercase tracking-widest text-primary mb-1">Hello, I'm RK</div>
+                <div className="text-sm text-muted-foreground">Raihan Kabir Ovi · Bangladesh</div>
+              </div>
+            </div>
             <h3 className="text-3xl md:text-4xl font-bold leading-tight">
               I build <span className="text-gradient">digital systems</span> that grow on their own.
             </h3>
             <p className="mt-6 text-muted-foreground leading-relaxed">
-              Over the last eight years I've helped startups, agencies, and personal brands turn obscure
-              corners of the web into compounding revenue engines. My toolkit lives at the seam between
-              technical SEO, performance marketing, and modern web engineering.
+              I'm an SEO and digital marketing learner turning curiosity into craft. Since 2025 I've been
+              building real-world skills across technical SEO, analytics, and modern web development —
+              one project, one experiment, one story at a time.
             </p>
             <p className="mt-4 text-muted-foreground leading-relaxed">
               When I'm not auditing crawl budgets or shipping React, I'm writing — short fiction, essays,
