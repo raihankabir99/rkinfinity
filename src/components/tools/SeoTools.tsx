@@ -1,11 +1,37 @@
 import { useState } from "react";
 import { Spinner, NeonButton, CircularScore, downloadPdf, PdfButton } from "./ToolHelpers";
 import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 
 const normalizeUrl = (u: string) => {
   if (!u) return "";
   return /^https?:\/\//i.test(u) ? u : `https://${u}`;
 };
+
+// Multi-proxy fetch with fallbacks for CORS-restricted URLs
+async function fetchHtmlWithFallback(target: string): Promise<{ html: string; status: number }> {
+  const proxies = [
+    { url: `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`, kind: "allorigins" as const },
+    { url: `https://corsproxy.io/?${encodeURIComponent(target)}`, kind: "raw" as const },
+    { url: `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(target)}`, kind: "raw" as const },
+  ];
+  let lastErr: unknown = null;
+  for (const p of proxies) {
+    try {
+      const r = await fetch(p.url);
+      if (!r.ok) { lastErr = new Error(`Proxy ${r.status}`); continue; }
+      if (p.kind === "allorigins") {
+        const j = await r.json();
+        if (!j?.contents) { lastErr = new Error("Empty proxy response"); continue; }
+        return { html: j.contents, status: j?.status?.http_code ?? 200 };
+      }
+      const html = await r.text();
+      if (!html) { lastErr = new Error("Empty body"); continue; }
+      return { html, status: 200 };
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error("All proxies failed");
+}
 
 // ============ PAGE SPEED ============
 export function PageSpeedTool() {
