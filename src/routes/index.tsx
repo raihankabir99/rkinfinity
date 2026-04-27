@@ -109,19 +109,7 @@ function Home() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 pb-12">
-        <div className="glass rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
-          <div className="relative">
-            <h2 className="text-3xl md:text-5xl font-bold">Ready to build something <span className="text-gradient">infinite</span>?</h2>
-            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">A free 30-minute consultation to map your next breakthrough.</p>
-            <Link to="/contact" className="btn-gold mt-8">
-              Start the conversation <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* CTA moved into Footer for consistency */}
     </PageShell>
   );
 }
