@@ -196,10 +196,7 @@ export function SeoAuditTool() {
     setErr(""); setData(null); setLoading(true);
     try {
       const target = normalizeUrl(url);
-      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(target)}`);
-      const json = await res.json();
-      const html: string = json.contents;
-      const status = json.status?.http_code ?? 200;
+      const { html, status } = await fetchHtmlWithFallback(target);
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, "text/html");
       setData({
@@ -211,7 +208,7 @@ export function SeoAuditTool() {
         status,
       });
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Failed");
+      setErr(e instanceof Error ? `Failed to fetch — ${e.message}. Try again or check the URL.` : "Failed to fetch");
     } finally { setLoading(false); }
   };
 
