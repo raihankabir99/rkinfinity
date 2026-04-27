@@ -375,11 +375,25 @@ export function DensityTool() {
   words.filter((w) => !stop.has(w)).forEach((w) => { counts[w] = (counts[w] ?? 0) + 1; });
   const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15);
   const total = words.length || 1;
+  const chart = top.slice(0, 10).map(([w, c]) => ({ name: w, count: c }));
   return (
     <div className="space-y-3 text-sm">
       <textarea value={text} onChange={(e) => setText(e.target.value)} rows={6} placeholder="Paste content..."
         className="w-full glass rounded-lg px-3 py-2 outline-none" />
       <div className="text-xs text-muted-foreground">Total words: <span className="text-primary font-bold">{words.length}</span></div>
+      {chart.length > 0 && (
+        <div className="glass rounded-lg p-3 h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chart}>
+              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.78 0.14 85 / 0.2)" />
+              <XAxis dataKey="name" tick={{ fontSize: 10, fill: "currentColor" }} />
+              <YAxis tick={{ fontSize: 10, fill: "currentColor" }} />
+              <Tooltip contentStyle={{ background: "#000", border: "1px solid oklch(0.78 0.14 85)", borderRadius: 8, fontSize: 12 }} />
+              <Bar dataKey="count" fill="oklch(0.85 0.15 88)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
       <div className="space-y-1.5">
         {top.map(([w, c]) => (
           <div key={w} className="glass rounded-lg px-3 py-2 flex items-center justify-between text-xs">
@@ -388,6 +402,12 @@ export function DensityTool() {
           </div>
         ))}
       </div>
+      {top.length > 0 && (
+        <PdfButton onClick={() => downloadPdf("Keyword Density Report", [
+          `Total words: ${words.length}`,
+          ...top.map(([w, c]) => `${w}: ${c} (${((c / total) * 100).toFixed(1)}%)`),
+        ])} />
+      )}
     </div>
   );
 }
