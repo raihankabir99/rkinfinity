@@ -51,8 +51,8 @@ function About() {
 
           <div className="lg:col-span-5 grid gap-4">
             {[
-              { icon: Award, t: "8+ Years", d: "Compounding expertise" },
-              { icon: Globe, t: "12 Countries", d: "Clients shipped to" },
+              { icon: Award, t: "Since 2025", d: "Building expertise" },
+              { icon: Globe, t: "Remote-First", d: "Global mindset" },
               { icon: Coffee, t: "∞ Espressos", d: "Fuel for the craft" },
               { icon: Heart, t: "1 Mission", d: "Build infinite value" },
             ].map(({ icon: Icon, t, d }) => (
