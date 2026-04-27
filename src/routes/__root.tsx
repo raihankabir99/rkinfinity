@@ -60,11 +60,17 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <body>
         {children}
         <Scripts />
+        <script src="//code.tidio.co/8xcp8el9mnkmlqx0o4quijisu1xdqltc.js" async />
       </body>
     </html>
   );
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <FloatingWhatsApp />
+    </>
+  );
 }
