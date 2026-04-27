@@ -47,10 +47,14 @@ function Home() {
             </span>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95]">
               Hi, I'm <span className="text-gradient neon-text">RK</span>
-              <br />
-              <span className="text-foreground/90">I am a </span>
-              <TypingText words={["SEO Specialist", "Digital Marketer", "Content Creator", "Writer"]} />
             </h1>
+            <div
+              className="mt-2 text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] flex flex-wrap items-baseline justify-center gap-x-3"
+              style={{ minHeight: "calc(2 * 0.95em)" }}
+            >
+              <span className="text-foreground/90">I am a</span>
+              <TypingText words={["SEO Specialist", "Digital Marketer", "Content Creator", "Writer"]} />
+            </div>
             <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Building infinite possibilities at the intersection of search, code, and story.
               I help brands rank, scale, and connect.
