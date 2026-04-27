@@ -242,4 +242,18 @@
     50% { box-shadow: 0 0 40px oklch(0.78 0.14 85 / 0.55); }
   }
   .pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+
+  @keyframes wa-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 oklch(0.78 0.14 85 / 0.55), 0 0 24px oklch(0.78 0.14 85 / 0.55);
+    }
+    50% {
+      box-shadow: 0 0 0 14px oklch(0.78 0.14 85 / 0), 0 0 40px oklch(0.92 0.13 92 / 0.7);
+    }
+  }
+  .wa-pulse-glow {
+    animation: wa-pulse 2.2s ease-in-out infinite;
+    border: 1px solid oklch(0.92 0.13 92 / 0.6);
+  }
+  .wa-pulse-glow:hover { filter: brightness(1.1); }
 }
