@@ -26,7 +26,31 @@ function Contact() {
           <div className="lg:col-span-2 space-y-4">
             {[
               { icon: Mail, t: "Email", d: "hello@rkinfinity.com" },
-              { icon: MessageCircle, t: "WhatsApp", d: "+1 (555) 010-2025" },
+            ].map(({ icon: Icon, t, d }) => (
+              <div key={t} className="glass rounded-2xl p-6 flex items-center gap-4">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
+                  <Icon size={20} />
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">{t}</div>
+                  <div className="font-semibold">{d}</div>
+                </div>
+              </div>
+            ))}
+
+            <a
+              href="https://wa.me/966540742748"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="glass rounded-2xl p-6 flex items-center gap-4 hover:border-[color:var(--gold)]/60 hover:shadow-[0_0_24px_oklch(0.85_0.2_142/0.25)] transition group"
+            >
+              <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-[oklch(0.85_0.2_142/0.25)] to-[oklch(0.78_0.14_85/0.2)] text-[color:var(--neon)] group-hover:scale-110 transition">
+                <MessageCircle size={22} />
+              </div>
+              <div className="font-semibold">Chat on WhatsApp</div>
+            </a>
+
+            {[
               { icon: MapPin, t: "Based in", d: "Remote · Worldwide" },
             ].map(({ icon: Icon, t, d }) => (
               <div key={t} className="glass rounded-2xl p-6 flex items-center gap-4">
