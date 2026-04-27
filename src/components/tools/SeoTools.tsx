@@ -105,7 +105,7 @@ export function PageSpeedTool() {
           <div className="glass rounded-lg p-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={chartData} cx="50%" cy="50%" outerRadius={80} innerRadius={45} dataKey="value" label={(e: { name: string; value: number }) => `${e.name}: ${e.value}`}>
+                <Pie data={chartData} cx="50%" cy="50%" outerRadius={80} innerRadius={45} dataKey="value" label={(p) => `${(p as { name?: string }).name ?? ""}: ${(p as { value?: number }).value ?? ""}`}>
                   {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={{ background: "#000", border: "1px solid oklch(0.78 0.14 85)", borderRadius: 8, fontSize: 12 }} />
