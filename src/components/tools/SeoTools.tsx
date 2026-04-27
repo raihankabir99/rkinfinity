@@ -42,11 +42,23 @@ export function PageSpeedTool() {
 
   const run = async () => {
     setErr(""); setData(null); setLoading(true);
+    const target = encodeURIComponent(normalizeUrl(url));
+    const endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${target}&category=performance&category=seo&category=accessibility&category=best-practices&strategy=mobile`;
+    // 429-aware: retry up to 3 times with exponential back-off
+    const fetchWithRetry = async (): Promise<Response> => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const r = await fetch(endpoint);
+        if (r.status !== 429) return r;
+        await new Promise((res) => setTimeout(res, 1500 * (attempt + 1)));
+      }
+      return fetch(endpoint);
+    };
     try {
-      const res = await fetch(
-        `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(normalizeUrl(url))}&category=performance&category=seo&category=accessibility&category=best-practices&strategy=mobile`
-      );
-      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const res = await fetchWithRetry();
+      if (res.status === 429) {
+        throw new Error("Google PageSpeed is rate-limiting (429). Please wait ~30 seconds and try again.");
+      }
+      if (!res.ok) throw new Error(`PageSpeed API error ${res.status}`);
       const json = await res.json();
       const c = json.lighthouseResult.categories;
       const audits = json.lighthouseResult.audits;
@@ -62,6 +74,16 @@ export function PageSpeedTool() {
       setErr(e instanceof Error ? e.message : "Failed to fetch");
     } finally { setLoading(false); }
   };
+
+  const chartData = data
+    ? [
+        { name: "Performance", value: data.perf },
+        { name: "SEO", value: data.seo },
+        { name: "Accessibility", value: data.a11y },
+        { name: "Best Practices", value: data.bp },
+      ]
+    : [];
+  const COLORS = ["oklch(0.78 0.14 85)", "oklch(0.92 0.13 92)", "oklch(0.65 0.12 75)", "oklch(0.55 0.1 70)"];
 
   return (
     <div className="space-y-4">
@@ -79,6 +101,16 @@ export function PageSpeedTool() {
             <CircularScore value={data.seo} label="SEO" />
             <CircularScore value={data.a11y} label="Accessibility" />
             <CircularScore value={data.bp} label="Best Practices" />
+          </div>
+          <div className="glass rounded-lg p-4 h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={chartData} cx="50%" cy="50%" outerRadius={80} innerRadius={45} dataKey="value" label={(e: { name: string; value: number }) => `${e.name}: ${e.value}`}>
+                  {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                </Pie>
+                <Tooltip contentStyle={{ background: "#000", border: "1px solid oklch(0.78 0.14 85)", borderRadius: 8, fontSize: 12 }} />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
           {(data.lcp || data.cls) && (
             <div className="glass rounded-lg p-4 text-xs space-y-1 font-mono">
