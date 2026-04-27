@@ -21,14 +21,23 @@ function Home() {
     <PageShell>
       {/* HERO */}
       <section className="relative overflow-hidden">
-        {/* Circuit board background — deeply subdued, etched-copper feel */}
+        {/* Circuit board gears — deep metallic gold + dark forest green blend */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-center bg-cover opacity-[0.07] md:opacity-[0.09] [filter:saturate(0.35)_brightness(0.55)_contrast(1.1)] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]"
+          className="absolute inset-0 bg-center bg-cover opacity-[0.18] md:opacity-[0.22] [filter:sepia(0.6)_hue-rotate(5deg)_saturate(1.4)_brightness(0.7)_contrast(1.15)] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]"
           style={{ backgroundImage: `url(${heroCircuit})` }}
         />
-        {/* Heavy dark overlay for text contrast */}
-        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/75 to-background" />
+        {/* Forest green tint layer blended over the gears */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 mix-blend-color"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, oklch(0.32 0.08 150 / 0.55) 0%, oklch(0.18 0.06 130 / 0.35) 45%, transparent 80%)",
+          }}
+        />
+        {/* Dark overlay for text contrast */}
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-background/75 via-background/60 to-background" />
         {/* Faint grid accent */}
         <div aria-hidden="true" className="absolute inset-0 grid-bg opacity-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
         <div className="relative mx-auto max-w-7xl px-4 py-20 md:py-32">
@@ -46,13 +55,30 @@ function Home() {
               Building infinite possibilities at the intersection of search, code, and story.
               I help brands rank, scale, and connect.
             </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Link to="/services" className="group btn-gold pulse-glow">
-                Explore Services <ArrowRight size={18} className="group-hover:translate-x-1 transition" />
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3 md:gap-4">
+              <Link to="/tools" className="group btn-gold pulse-glow">
+                Explore Tools <ArrowRight size={18} className="group-hover:translate-x-1 transition" />
               </Link>
               <Link to="/contact" className="btn-metal">
-                Let's Talk
+                Get in Touch
               </Link>
+              <a
+                href="https://trello.com/b/8BdFkKJ4/my-trello-board"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 font-semibold text-[color:var(--gold-bright)] border border-[color:var(--gold)]/70 hover:border-[color:var(--gold-bright)] hover:shadow-[0_0_24px_oklch(0.78_0.14_85/0.45)] transition"
+              >
+                Track My Project
+              </a>
+              <a
+                href="https://wa.me/966540742748?text=TrackMyProject"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-gold"
+                style={{ color: "#000" }}
+              >
+                Track with RK
+              </a>
             </div>
           </div>
 
