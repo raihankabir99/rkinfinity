@@ -60,17 +60,17 @@ function Home() {
               I help brands rank, scale, and connect.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3 md:gap-4">
-              <Link to="/tools" className="group btn-gold pulse-glow">
+              <Link to="/tools" className="group btn-gold btn-pill pulse-glow">
                 Explore Tools <ArrowRight size={18} className="group-hover:translate-x-1 transition" />
               </Link>
-              <Link to="/contact" className="btn-metal">
+              <Link to="/contact" className="btn-metal-pill">
                 Get in Touch
               </Link>
               <a
                 href="https://trello.com/b/8BdFkKJ4/my-trello-board"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 font-semibold text-[color:var(--gold-bright)] border border-[color:var(--gold)]/70 hover:border-[color:var(--gold-bright)] hover:shadow-[0_0_24px_oklch(0.78_0.14_85/0.45)] transition"
+                className="btn-metal-pill"
               >
                 Track My Project
               </a>
@@ -78,7 +78,7 @@ function Home() {
                 href="https://api.whatsapp.com/send?phone=966540742748&text=TrackMyProject"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-gold"
+                className="btn-gold btn-pill"
                 style={{ color: "#000" }}
               >
                 Track with RK
