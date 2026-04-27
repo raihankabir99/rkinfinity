@@ -71,7 +71,7 @@ function Home() {
                 Track My Project
               </a>
               <a
-                href="https://wa.me/966540742748?text=TrackMyProject"
+                href="https://api.whatsapp.com/send?phone=966540742748&text=TrackMyProject"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-gold"
