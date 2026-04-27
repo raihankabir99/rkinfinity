@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
+import { CommentForm } from "@/components/CommentForm";
 import { Clock, ArrowUpRight } from "lucide-react";
 
 export const Route = createFileRoute("/blog")({
@@ -46,6 +47,7 @@ function Blog() {
           ))}
         </div>
       </section>
+      <CommentForm />
     </PageShell>
   );
 }
