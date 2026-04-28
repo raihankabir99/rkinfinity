@@ -70,6 +70,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  useVisitorTracking();
   return (
     <>
       <Outlet />
