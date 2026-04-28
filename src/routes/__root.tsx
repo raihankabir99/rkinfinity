@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { Chatbot } from "@/components/Chatbot";
+import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 
 import appCss from "../styles.css?url";
 
@@ -63,13 +64,13 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <body>
         {children}
         <Scripts />
-        <script src="//code.tidio.co/8xcp8el9mnkmlqx0o4quijisu1xdqltc.js" async />
       </body>
     </html>
   );
 }
 
 function RootComponent() {
+  useVisitorTracking();
   return (
     <>
       <Outlet />
