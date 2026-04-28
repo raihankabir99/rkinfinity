@@ -4,6 +4,7 @@ import { Lock, Mail, ArrowRight, User as UserIcon, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import logo from "@/assets/rkinfinity-logo.png";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -76,7 +77,17 @@ function Login() {
           <div className="absolute -top-20 -right-20 h-48 w-48 rounded-full bg-primary/15 blur-3xl" />
           <div className="relative">
             <div className="text-center mb-8">
-              <div className="inline-grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground font-black text-xl mb-4">RK</div>
+              <div className="inline-flex items-center justify-center gap-2 mb-4">
+                <img
+                  src={logo}
+                  alt="rkInfinity logo"
+                  className="h-14 w-14 rounded-full object-cover ring-1 ring-[color:var(--gold,_oklch(0.78_0.14_85))]/60 shadow-[0_0_22px_oklch(0.78_0.14_85/0.45)]"
+                />
+                <span className="text-2xl font-extrabold tracking-tight">
+                  <span className="text-white">rk</span>
+                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Infinity</span>
+                </span>
+              </div>
               <h1 className="text-3xl font-bold">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
               <p className="mt-2 text-sm text-muted-foreground">
                 {mode === "signin" ? "Sign in to your dashboard" : "Sign up to access the rkInfinity dashboard"}
