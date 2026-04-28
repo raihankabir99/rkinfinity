@@ -58,4 +58,4 @@ export const Route = createFileRoute("/api/chat")({
       POST: ({ request }: { request: Request }) => handlePost(request),
     },
   },
-});
+} as never);
