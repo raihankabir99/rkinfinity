@@ -18,6 +18,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiLogErrorRouteImport } from './routes/api/log-error'
 import { Route as ApiLeadRouteImport } from './routes/api/lead'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AdminTrainerRouteImport } from './routes/admin.trainer'
@@ -67,6 +68,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLogErrorRoute = ApiLogErrorRouteImport.update({
+  id: '/api/log-error',
+  path: '/api/log-error',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiLeadRoute = ApiLeadRouteImport.update({
   id: '/api/lead',
   path: '/api/lead',
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/admin/trainer': typeof AdminTrainerRoute
   '/api/chat': typeof ApiChatRoute
   '/api/lead': typeof ApiLeadRoute
+  '/api/log-error': typeof ApiLogErrorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/admin/trainer': typeof AdminTrainerRoute
   '/api/chat': typeof ApiChatRoute
   '/api/lead': typeof ApiLeadRoute
+  '/api/log-error': typeof ApiLogErrorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/admin/trainer': typeof AdminTrainerRoute
   '/api/chat': typeof ApiChatRoute
   '/api/lead': typeof ApiLeadRoute
+  '/api/log-error': typeof ApiLogErrorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/admin/trainer'
     | '/api/chat'
     | '/api/lead'
+    | '/api/log-error'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/admin/trainer'
     | '/api/chat'
     | '/api/lead'
+    | '/api/log-error'
   id:
     | '__root__'
     | '/'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/admin/trainer'
     | '/api/chat'
     | '/api/lead'
+    | '/api/log-error'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -183,6 +195,7 @@ export interface RootRouteChildren {
   ToolsRoute: typeof ToolsRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiLeadRoute: typeof ApiLeadRoute
+  ApiLogErrorRoute: typeof ApiLogErrorRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -250,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/log-error': {
+      id: '/api/log-error'
+      path: '/api/log-error'
+      fullPath: '/api/log-error'
+      preLoaderRoute: typeof ApiLogErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/lead': {
       id: '/api/lead'
       path: '/api/lead'
@@ -296,6 +316,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsRoute: ToolsRoute,
   ApiChatRoute: ApiChatRoute,
   ApiLeadRoute: ApiLeadRoute,
+  ApiLogErrorRoute: ApiLogErrorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
