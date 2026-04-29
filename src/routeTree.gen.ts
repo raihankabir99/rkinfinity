@@ -18,7 +18,11 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiLogErrorRouteImport } from './routes/api/log-error'
+import { Route as ApiLeadRouteImport } from './routes/api/lead'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AdminTrainerRouteImport } from './routes/admin.trainer'
+import { Route as ApiPublicWeeklyReportRouteImport } from './routes/api/public/weekly-report'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
@@ -65,48 +69,80 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLogErrorRoute = ApiLogErrorRouteImport.update({
+  id: '/api/log-error',
+  path: '/api/log-error',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLeadRoute = ApiLeadRouteImport.update({
+  id: '/api/lead',
+  path: '/api/lead',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTrainerRoute = AdminTrainerRouteImport.update({
+  id: '/trainer',
+  path: '/trainer',
+  getParentRoute: () => AdminRoute,
+} as any)
+const ApiPublicWeeklyReportRoute = ApiPublicWeeklyReportRouteImport.update({
+  id: '/api/public/weekly-report',
+  path: '/api/public/weekly-report',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/admin/trainer': typeof AdminTrainerRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/lead': typeof ApiLeadRoute
+  '/api/log-error': typeof ApiLogErrorRoute
+  '/api/public/weekly-report': typeof ApiPublicWeeklyReportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/admin/trainer': typeof AdminTrainerRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/lead': typeof ApiLeadRoute
+  '/api/log-error': typeof ApiLogErrorRoute
+  '/api/public/weekly-report': typeof ApiPublicWeeklyReportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/admin/trainer': typeof AdminTrainerRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/lead': typeof ApiLeadRoute
+  '/api/log-error': typeof ApiLogErrorRoute
+  '/api/public/weekly-report': typeof ApiPublicWeeklyReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,7 +156,11 @@ export interface FileRouteTypes {
     | '/services'
     | '/story'
     | '/tools'
+    | '/admin/trainer'
     | '/api/chat'
+    | '/api/lead'
+    | '/api/log-error'
+    | '/api/public/weekly-report'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -132,7 +172,11 @@ export interface FileRouteTypes {
     | '/services'
     | '/story'
     | '/tools'
+    | '/admin/trainer'
     | '/api/chat'
+    | '/api/lead'
+    | '/api/log-error'
+    | '/api/public/weekly-report'
   id:
     | '__root__'
     | '/'
@@ -144,13 +188,17 @@ export interface FileRouteTypes {
     | '/services'
     | '/story'
     | '/tools'
+    | '/admin/trainer'
     | '/api/chat'
+    | '/api/lead'
+    | '/api/log-error'
+    | '/api/public/weekly-report'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BlogRoute: typeof BlogRoute
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
@@ -158,6 +206,9 @@ export interface RootRouteChildren {
   StoryRoute: typeof StoryRoute
   ToolsRoute: typeof ToolsRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiLeadRoute: typeof ApiLeadRoute
+  ApiLogErrorRoute: typeof ApiLogErrorRoute
+  ApiPublicWeeklyReportRoute: typeof ApiPublicWeeklyReportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -225,6 +276,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/log-error': {
+      id: '/api/log-error'
+      path: '/api/log-error'
+      fullPath: '/api/log-error'
+      preLoaderRoute: typeof ApiLogErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/lead': {
+      id: '/api/lead'
+      path: '/api/lead'
+      fullPath: '/api/lead'
+      preLoaderRoute: typeof ApiLeadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -232,13 +297,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/trainer': {
+      id: '/admin/trainer'
+      path: '/trainer'
+      fullPath: '/admin/trainer'
+      preLoaderRoute: typeof AdminTrainerRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/api/public/weekly-report': {
+      id: '/api/public/weekly-report'
+      path: '/api/public/weekly-report'
+      fullPath: '/api/public/weekly-report'
+      preLoaderRoute: typeof ApiPublicWeeklyReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminTrainerRoute: typeof AdminTrainerRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminTrainerRoute: AdminTrainerRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   BlogRoute: BlogRoute,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
@@ -246,6 +335,9 @@ const rootRouteChildren: RootRouteChildren = {
   StoryRoute: StoryRoute,
   ToolsRoute: ToolsRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiLeadRoute: ApiLeadRoute,
+  ApiLogErrorRoute: ApiLogErrorRoute,
+  ApiPublicWeeklyReportRoute: ApiPublicWeeklyReportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

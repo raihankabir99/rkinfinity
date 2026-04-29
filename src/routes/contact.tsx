@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
-import { Mail, MapPin, MessageCircle, Send } from "lucide-react";
+import { Mail, MapPin, MessageCircle, Send, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -16,7 +17,35 @@ export const Route = createFileRoute("/contact")({
 });
 
 function Contact() {
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+
+  const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loading) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, source: "contact_form" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Failed to send");
+      setSent(true);
+      toast.success("Message received — RK will be in touch.");
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <PageShell>
       <section className="mx-auto max-w-7xl px-4 py-12">
@@ -24,9 +53,7 @@ function Contact() {
 
         <div className="grid lg:grid-cols-5 gap-6">
           <div className="lg:col-span-2 space-y-4">
-            {[
-              { icon: Mail, t: "Email", d: "hello@rkinfinity.com" },
-            ].map(({ icon: Icon, t, d }) => (
+            {[{ icon: Mail, t: "Email", d: "rkinfinity.official@gmail.com" }].map(({ icon: Icon, t, d }) => (
               <div key={t} className="glass rounded-2xl p-6 flex items-center gap-4">
                 <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
                   <Icon size={20} />
@@ -50,9 +77,7 @@ function Contact() {
               <div className="font-semibold">Chat on WhatsApp</div>
             </a>
 
-            {[
-              { icon: MapPin, t: "Based in", d: "Remote · Worldwide" },
-            ].map(({ icon: Icon, t, d }) => (
+            {[{ icon: MapPin, t: "Based in", d: "Remote · Worldwide" }].map(({ icon: Icon, t, d }) => (
               <div key={t} className="glass rounded-2xl p-6 flex items-center gap-4">
                 <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
                   <Icon size={20} />
@@ -65,22 +90,31 @@ function Contact() {
             ))}
           </div>
 
-          <form
-            onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-            className="lg:col-span-3 glass rounded-3xl p-8 md:p-10 space-y-5"
-          >
+          <form onSubmit={submit} className="lg:col-span-3 glass rounded-3xl p-8 md:p-10 space-y-5">
             <div className="grid sm:grid-cols-2 gap-5">
-              <Field label="Name" name="name" placeholder="Your name" />
-              <Field label="Email" name="email" type="email" placeholder="you@domain.com" />
+              <Field label="Name" name="name" placeholder="Your name" value={form.name} onChange={update("name")} />
+              <Field label="Email" name="email" type="email" placeholder="you@domain.com" value={form.email} onChange={update("email")} />
             </div>
-            <Field label="Subject" name="subject" placeholder="What's this about?" />
+            <Field label="Subject" name="subject" placeholder="What's this about?" value={form.subject} onChange={update("subject")} required={false} />
             <div>
               <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">Message</label>
-              <textarea required rows={5} placeholder="Tell me everything…"
-                className="w-full bg-background/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition resize-none" />
+              <textarea
+                required
+                rows={5}
+                placeholder="Tell me everything…"
+                value={form.message}
+                onChange={update("message")}
+                maxLength={4000}
+                className="w-full bg-background/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition resize-none"
+              />
             </div>
-            <button type="submit" className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-3.5 font-semibold text-primary-foreground hover:opacity-90 transition">
-              {sent ? "Sent — talk soon ✨" : <>Send message <Send size={16} /></>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-3.5 font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-60"
+            >
+              {loading ? (<><Loader2 size={16} className="animate-spin" /> Sending…</>) :
+               sent ? "Sent — talk soon ✨" : (<>Send message <Send size={16} /></>)}
             </button>
           </form>
         </div>
@@ -89,12 +123,26 @@ function Contact() {
   );
 }
 
-function Field({ label, name, type = "text", placeholder }: { label: string; name: string; type?: string; placeholder: string }) {
+function Field({
+  label, name, type = "text", placeholder, value, onChange, required = true,
+}: {
+  label: string; name: string; type?: string; placeholder: string;
+  value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  required?: boolean;
+}) {
   return (
     <div>
       <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">{label}</label>
-      <input required name={name} type={type} placeholder={placeholder}
-        className="w-full bg-background/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition" />
+      <input
+        required={required}
+        name={name}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        maxLength={type === "email" ? 255 : 200}
+        className="w-full bg-background/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
+      />
     </div>
   );
 }
