@@ -1,7 +1,9 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { Chatbot } from "@/components/Chatbot";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
+import { GlobalErrorBoundary, installClientErrorReporting } from "@/components/GlobalErrorBoundary";
 
 import appCss from "../styles.css?url";
 
@@ -71,11 +73,12 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   useVisitorTracking();
+  useEffect(() => { installClientErrorReporting(); }, []);
   return (
-    <>
+    <GlobalErrorBoundary>
       <Outlet />
       <FloatingWhatsApp />
       <Chatbot />
-    </>
+    </GlobalErrorBoundary>
   );
 }
