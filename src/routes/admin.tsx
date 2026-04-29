@@ -209,6 +209,12 @@ function AdminPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Link
+              to="/admin/trainer"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/60 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition"
+            >
+              Train bot
+            </Link>
             <button
               onClick={loadAll}
               disabled={refreshing}
