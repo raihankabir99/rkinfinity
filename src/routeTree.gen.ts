@@ -20,6 +20,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiLeadRouteImport } from './routes/api/lead'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AdminTrainerRouteImport } from './routes/admin.trainer'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
@@ -76,30 +77,37 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTrainerRoute = AdminTrainerRouteImport.update({
+  id: '/trainer',
+  path: '/trainer',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/admin/trainer': typeof AdminTrainerRoute
   '/api/chat': typeof ApiChatRoute
   '/api/lead': typeof ApiLeadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/admin/trainer': typeof AdminTrainerRoute
   '/api/chat': typeof ApiChatRoute
   '/api/lead': typeof ApiLeadRoute
 }
@@ -107,13 +115,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/admin/trainer': typeof AdminTrainerRoute
   '/api/chat': typeof ApiChatRoute
   '/api/lead': typeof ApiLeadRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/story'
     | '/tools'
+    | '/admin/trainer'
     | '/api/chat'
     | '/api/lead'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/story'
     | '/tools'
+    | '/admin/trainer'
     | '/api/chat'
     | '/api/lead'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/story'
     | '/tools'
+    | '/admin/trainer'
     | '/api/chat'
     | '/api/lead'
   fileRoutesById: FileRoutesById
@@ -162,7 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BlogRoute: typeof BlogRoute
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
@@ -252,13 +264,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/trainer': {
+      id: '/admin/trainer'
+      path: '/trainer'
+      fullPath: '/admin/trainer'
+      preLoaderRoute: typeof AdminTrainerRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminTrainerRoute: typeof AdminTrainerRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminTrainerRoute: AdminTrainerRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   BlogRoute: BlogRoute,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
