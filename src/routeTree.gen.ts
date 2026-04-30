@@ -15,6 +15,7 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -54,6 +55,11 @@ const BlogRoute = BlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -65,9 +71,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ApiLogErrorRoute = ApiLogErrorRouteImport.update({
   id: '/api/log-error',
@@ -98,6 +104,7 @@ const ApiPublicWeeklyReportRoute = ApiPublicWeeklyReportRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
@@ -131,6 +138,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
@@ -149,6 +157,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/blog'
     | '/contact'
     | '/login'
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/blog'
     | '/contact'
     | '/login'
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BlogRoute: typeof BlogRoute
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
@@ -207,7 +218,6 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   ApiLeadRoute: typeof ApiLeadRoute
   ApiLogErrorRoute: typeof ApiLogErrorRoute
-  AdminIndexRoute: typeof AdminIndexRoute
   ApiPublicWeeklyReportRoute: typeof ApiPublicWeeklyReportRoute
 }
 
@@ -255,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -271,10 +288,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
+      path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/api/log-error': {
       id: '/api/log-error'
@@ -314,9 +331,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminTrainerRoute: typeof AdminTrainerRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminTrainerRoute: AdminTrainerRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRouteWithChildren,
   BlogRoute: BlogRoute,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
@@ -326,7 +356,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   ApiLeadRoute: ApiLeadRoute,
   ApiLogErrorRoute: ApiLogErrorRoute,
-  AdminIndexRoute: AdminIndexRoute,
   ApiPublicWeeklyReportRoute: ApiPublicWeeklyReportRoute,
 }
 export const routeTree = rootRouteImport
