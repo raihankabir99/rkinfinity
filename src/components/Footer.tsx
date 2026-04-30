@@ -1,11 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { Linkedin, Mail, Facebook, ArrowRight } from "lucide-react";
+import { Linkedin, Mail, Facebook, ArrowRight, Github } from "lucide-react";
 import logo from "@/assets/rkinfinity-logo.png";
 
+const facebookUrl = "https://www.facebook.com/EndlessOcean/";
+const linkedinUrl = "https://www.linkedin.com/in/raihan-kabir-ovi99";
+const githubUrl = "https://github.com/raihankabir99";
+const emailUrl = "mailto:rkinfinity.official@gmail.com";
+
 const socials = [
-  { Icon: Facebook, href: "https://www.facebook.com/Rk.58555/", label: "Facebook" },
-  { Icon: Linkedin, href: "https://www.linkedin.com/in/raihan-kabir-ovi99", label: "LinkedIn" },
-  { Icon: Mail, href: "mailto:maskrklo@gmail.com", label: "Email" },
+  { Icon: Facebook, href: facebookUrl, label: "Facebook" },
+  { Icon: Linkedin, href: linkedinUrl, label: "LinkedIn" },
+  { Icon: Github, href: githubUrl, label: "GitHub" },
+  { Icon: Mail, href: emailUrl, label: "Email" },
 ];
 
 const services = [
@@ -51,58 +57,17 @@ export function Footer() {
         </div>
       </div>
 
-      {/* 4-column grid */}
-      <div className="mx-auto max-w-7xl px-4 py-16 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-        {/* Services */}
-        <div>
-          <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Services</h4>
-          <ul className="space-y-2.5 text-sm text-muted-foreground">
-            {services.map((s) => (
-              <li key={s.label}>
-                <Link to={s.to} className="hover:text-[color:var(--gold)] transition-colors">
-                  {s.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Tools */}
-        <div>
-          <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Tools</h4>
-          <ul className="space-y-2.5 text-sm text-muted-foreground">
-            {tools.map((t) => (
-              <li key={t.label}>
-                <Link to={t.to} className="hover:text-[color:var(--gold)] transition-colors">
-                  {t.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Company */}
-        <div>
-          <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Company</h4>
-          <ul className="space-y-2.5 text-sm text-muted-foreground">
-            {company.map((c) => (
-              <li key={c.label}>
-                <Link to={c.to} className="hover:text-[color:var(--gold)] transition-colors">
-                  {c.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Logo & Social */}
-        <div>
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.9fr)] lg:items-start">
+        <div className="max-w-md">
           <div className="flex items-center gap-2.5 font-bold text-lg">
             <img src={logo} alt="rkInfinity logo" className="h-9 w-9 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50" />
             <span><span className="text-white">rk</span><span className="text-gradient">Infinity</span></span>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
             SEO Expert · Digital Marketer · Web Developer · Story Writer.
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Crafting digital experiences that scale with precision and creativity.
           </p>
           <div className="mt-5 flex gap-3">
             {socials.map(({ Icon, href, label }) => (
@@ -120,12 +85,53 @@ export function Footer() {
             ))}
           </div>
         </div>
+
+        <div className="grid gap-10 sm:grid-cols-3 lg:justify-items-end">
+          <div className="w-full sm:max-w-[11rem]">
+            <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Services</h4>
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
+              {services.map((s) => (
+                <li key={s.label}>
+                  <Link to={s.to} className="hover:text-[color:var(--gold)] transition-colors">
+                    {s.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="w-full sm:max-w-[11rem]">
+            <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Tools</h4>
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
+              {tools.map((t) => (
+                <li key={t.label}>
+                  <Link to={t.to} className="hover:text-[color:var(--gold)] transition-colors">
+                    {t.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="w-full sm:max-w-[11rem]">
+            <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Company</h4>
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
+              {company.map((c) => (
+                <li key={c.label}>
+                  <Link to={c.to} className="hover:text-[color:var(--gold)] transition-colors">
+                    {c.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
 
       {/* Facebook page CTA — kept prominent at the bottom */}
       <div className="mx-auto max-w-7xl px-4 pb-10 flex justify-center">
         <a
-          href="https://www.facebook.com/EndlessOcean/"
+          href={facebookUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="neon-border inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-[oklch(0.92_0.18_142)]"
