@@ -1,13 +1,37 @@
 import { Link } from "@tanstack/react-router";
-import { Github, Linkedin, Mail, Facebook, ArrowRight } from "lucide-react";
+import { Linkedin, Mail, Facebook, ArrowRight } from "lucide-react";
 import logo from "@/assets/rkinfinity-logo.png";
 
 const socials = [
-  { Icon: Facebook, href: "https://www.facebook.com/Rk.58555", label: "Facebook" },
+  { Icon: Facebook, href: "https://www.facebook.com/Rk.58555/", label: "Facebook" },
   { Icon: Linkedin, href: "https://www.linkedin.com/in/raihan-kabir-ovi99", label: "LinkedIn" },
-  { Icon: Github, href: "https://github.com/raihankabir99", label: "GitHub" },
   { Icon: Mail, href: "mailto:maskrklo@gmail.com", label: "Email" },
 ];
+
+const services = [
+  { label: "Keyword Research", to: "/services" },
+  { label: "Technical SEO", to: "/services" },
+  { label: "Link Building", to: "/services" },
+  { label: "Content Strategy", to: "/services" },
+  { label: "On-Page SEO", to: "/services" },
+  { label: "SEO Audits", to: "/services" },
+] as const;
+
+const tools = [
+  { label: "Page Speed", to: "/tools" },
+  { label: "Meta Tags", to: "/tools" },
+  { label: "Keywords", to: "/tools" },
+  { label: "Minifiers", to: "/tools" },
+  { label: "ROI Calculator", to: "/tools" },
+  { label: "All Tools", to: "/tools" },
+] as const;
+
+const company = [
+  { label: "About", to: "/about" },
+  { label: "My Story", to: "/story" },
+  { label: "Blog", to: "/blog" },
+  { label: "Contact", to: "/contact" },
+] as const;
 
 export function Footer() {
   return (
@@ -27,18 +51,60 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-16 grid gap-10 md:grid-cols-4">
-        <div className="md:col-span-2">
+      {/* 4-column grid */}
+      <div className="mx-auto max-w-7xl px-4 py-16 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        {/* Services */}
+        <div>
+          <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Services</h4>
+          <ul className="space-y-2.5 text-sm text-muted-foreground">
+            {services.map((s) => (
+              <li key={s.label}>
+                <Link to={s.to} className="hover:text-[color:var(--gold)] transition-colors">
+                  {s.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Tools */}
+        <div>
+          <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Tools</h4>
+          <ul className="space-y-2.5 text-sm text-muted-foreground">
+            {tools.map((t) => (
+              <li key={t.label}>
+                <Link to={t.to} className="hover:text-[color:var(--gold)] transition-colors">
+                  {t.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Company */}
+        <div>
+          <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Company</h4>
+          <ul className="space-y-2.5 text-sm text-muted-foreground">
+            {company.map((c) => (
+              <li key={c.label}>
+                <Link to={c.to} className="hover:text-[color:var(--gold)] transition-colors">
+                  {c.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Logo & Social */}
+        <div>
           <div className="flex items-center gap-2.5 font-bold text-lg">
             <img src={logo} alt="rkInfinity logo" className="h-9 w-9 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50" />
             <span><span className="text-white">rk</span><span className="text-gradient">Infinity</span></span>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground max-w-md">
-            SEO Expert · Digital Marketer · Web Developer · Story Writer. Crafting digital experiences that scale.
+          <p className="mt-4 text-sm text-muted-foreground">
+            SEO Expert · Digital Marketer · Web Developer · Story Writer.
           </p>
-
-          {/* Social icons — icon-only, gold glow on hover, open in new tab */}
-          <div className="mt-6 flex gap-3">
+          <div className="mt-5 flex gap-3">
             {socials.map(({ Icon, href, label }) => (
               <a
                 key={label}
@@ -53,35 +119,20 @@ export function Footer() {
               </a>
             ))}
           </div>
+        </div>
+      </div>
 
-          {/* Facebook follow CTA */}
-          <a
-            href="https://www.facebook.com/Rk.58555"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="neon-border mt-6 inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-[oklch(0.92_0.18_142)]"
-          >
-            <Facebook size={16} className="fb-neon" />
-            Follow my Facebook page for daily stories &amp; creative updates
-          </a>
-        </div>
-
-        <div>
-          <h4 className="text-sm font-semibold mb-3">Explore</h4>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/about" className="hover:text-primary">About</Link></li>
-            <li><Link to="/story" className="hover:text-primary">Story</Link></li>
-            <li><Link to="/services" className="hover:text-primary">Services</Link></li>
-            <li><Link to="/blog" className="hover:text-primary">Blog</Link></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="text-sm font-semibold mb-3">Resources</h4>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/tools" className="hover:text-primary">Tools</Link></li>
-            <li><Link to="/contact" className="hover:text-primary">Contact</Link></li>
-          </ul>
-        </div>
+      {/* Facebook page CTA — kept prominent at the bottom */}
+      <div className="mx-auto max-w-7xl px-4 pb-10 flex justify-center">
+        <a
+          href="https://www.facebook.com/EndlessOcean/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="neon-border inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-[oklch(0.92_0.18_142)]"
+        >
+          <Facebook size={16} className="fb-neon" />
+          Follow my Facebook page for daily stories &amp; creative updates
+        </a>
       </div>
 
       <div className="border-t border-white/5 py-6 text-center text-xs text-muted-foreground">

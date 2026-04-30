@@ -89,6 +89,21 @@ function About() {
           ))}
         </div>
       </section>
+
+      {/* Designed & Developed credit */}
+      <div className="mx-auto max-w-7xl px-4 pb-16 pt-8 text-center">
+        <p className="text-sm md:text-base text-muted-foreground tracking-wide">
+          Designed &amp; Developed by{" "}
+          <a
+            href="https://www.linkedin.com/in/raihan-kabir-ovi99"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-[color:var(--gold)] hover:underline underline-offset-4 transition-colors"
+          >
+            Raihan Kabir
+          </a>
+        </p>
+      </div>
     </PageShell>
   );
 }

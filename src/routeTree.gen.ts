@@ -18,6 +18,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ApiLogErrorRouteImport } from './routes/api/log-error'
 import { Route as ApiLeadRouteImport } from './routes/api/lead'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -69,6 +70,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiLogErrorRoute = ApiLogErrorRouteImport.update({
   id: '/api/log-error',
   path: '/api/log-error',
@@ -109,12 +115,12 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/api/lead': typeof ApiLeadRoute
   '/api/log-error': typeof ApiLogErrorRoute
+  '/admin/': typeof AdminIndexRoute
   '/api/public/weekly-report': typeof ApiPublicWeeklyReportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRouteWithChildren
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
@@ -125,6 +131,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/api/lead': typeof ApiLeadRoute
   '/api/log-error': typeof ApiLogErrorRoute
+  '/admin': typeof AdminIndexRoute
   '/api/public/weekly-report': typeof ApiPublicWeeklyReportRoute
 }
 export interface FileRoutesById {
@@ -142,6 +149,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/api/lead': typeof ApiLeadRoute
   '/api/log-error': typeof ApiLogErrorRoute
+  '/admin/': typeof AdminIndexRoute
   '/api/public/weekly-report': typeof ApiPublicWeeklyReportRoute
 }
 export interface FileRouteTypes {
@@ -160,12 +168,12 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/lead'
     | '/api/log-error'
+    | '/admin/'
     | '/api/public/weekly-report'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
-    | '/admin'
     | '/blog'
     | '/contact'
     | '/login'
@@ -176,6 +184,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/lead'
     | '/api/log-error'
+    | '/admin'
     | '/api/public/weekly-report'
   id:
     | '__root__'
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/lead'
     | '/api/log-error'
+    | '/admin/'
     | '/api/public/weekly-report'
   fileRoutesById: FileRoutesById
 }
@@ -276,6 +286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/log-error': {
       id: '/api/log-error'
       path: '/api/log-error'
@@ -316,10 +333,12 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminTrainerRoute: typeof AdminTrainerRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminTrainerRoute: AdminTrainerRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
