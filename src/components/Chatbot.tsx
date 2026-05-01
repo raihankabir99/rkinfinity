@@ -201,7 +201,7 @@ export function Chatbot() {
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4 space-y-3 text-sm">
+          <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-3 py-4 space-y-3 text-sm text-white">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
