@@ -44,14 +44,17 @@ export function Footer() {
     <footer className="border-t border-[color:var(--gold)]/15 mt-32">
       {/* CTA banner */}
       <div className="mx-auto max-w-7xl px-4 pt-16">
-        <div className="glass rounded-3xl p-10 md:p-14 text-center relative overflow-hidden">
+        <div className="glass rounded-3xl p-10 md:p-14 text-center relative overflow-hidden bg-black">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
           <div className="relative">
-            <h2 className="text-3xl md:text-5xl font-bold leading-tight max-w-3xl mx-auto">
-              Ready to build something <span className="text-gradient">infinite</span> and outrank your competition?
+            <h2 className="text-3xl md:text-5xl font-bold leading-tight max-w-3xl mx-auto text-white">
+              Ready to <span className="text-gradient">outrank</span> your competition?
             </h2>
+            <p className="mt-4 text-base md:text-lg text-white/75 max-w-2xl mx-auto">
+              Let's work together to boost your search rankings and drive organic growth.
+            </p>
             <Link to="/contact" className="btn-gold btn-pill mt-8 inline-flex">
-              Start the conversation <ArrowRight size={18} />
+              Get Started <ArrowRight size={18} />
             </Link>
           </div>
         </div>
