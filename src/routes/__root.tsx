@@ -4,6 +4,7 @@ import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { Chatbot } from "@/components/Chatbot";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import { GlobalErrorBoundary, installClientErrorReporting } from "@/components/GlobalErrorBoundary";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
@@ -75,10 +76,11 @@ function RootComponent() {
   useVisitorTracking();
   useEffect(() => { installClientErrorReporting(); }, []);
   return (
-    <GlobalErrorBoundary>
-      <Outlet />
-      <FloatingWhatsApp />
-      <Chatbot />
-    </GlobalErrorBoundary>
+      <GlobalErrorBoundary>
+        <Outlet />
+        <FloatingWhatsApp />
+        <Chatbot />
+        <Toaster position="bottom-center" theme="dark" richColors />
+      </GlobalErrorBoundary>
   );
 }
