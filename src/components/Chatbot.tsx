@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Send, Loader2, Mic, MicOff } from "lucide-react";
+import { toast } from "sonner";
 import robotLogo from "@/assets/chatbot-robot.png";
 import { chatFn } from "@/server/chat.functions";
 
@@ -23,15 +24,20 @@ function detectProjectId(text: string): string | null {
 }
 
 // SpeechRecognition typing
+interface SRResultAlt { transcript: string }
+interface SRResult { 0: SRResultAlt; isFinal: boolean }
+interface SREvent { results: ArrayLike<SRResult> & { length: number }; resultIndex: number }
+interface SRErrorEvent { error: string }
 interface SRInstance {
   lang: string;
   interimResults: boolean;
   continuous: boolean;
-  onresult: (e: { results: ArrayLike<{ 0: { transcript: string } }> }) => void;
-  onerror: (e: unknown) => void;
+  onresult: (e: SREvent) => void;
+  onerror: (e: SRErrorEvent) => void;
   onend: () => void;
   start: () => void;
   stop: () => void;
+  abort: () => void;
 }
 type SRCtor = new () => SRInstance;
 
