@@ -89,6 +89,15 @@ export function Chatbot() {
       }
       const combined = (baseInputRef.current + finalText + interimText).replace(/\s+/g, " ").trimStart();
       setInput(combined);
+      // Auto-send when we have a final result
+      if (finalText.trim()) {
+        try { r.stop(); } catch { /* noop */ }
+        const toSend = (baseInputRef.current + finalText).replace(/\s+/g, " ").trim();
+        setTimeout(() => {
+          setInput(toSend);
+          void send(toSend);
+        }, 100);
+      }
     };
     r.onerror = (e) => {
       setListening(false);
