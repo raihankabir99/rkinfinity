@@ -60,13 +60,12 @@ export function Chatbot() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, open]);
 
+  const baseInputRef = useRef<string>("");
+
   const toggleMic = () => {
     const SRClass = getSR();
     if (!SRClass) {
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: "Voice input isn't supported in this browser. Try Chrome or Edge on desktop/Android." },
-      ]);
+      toast.error("Voice input isn't supported in this browser. Try Chrome or Edge.");
       return;
     }
     if (listening && recogRef.current) {
@@ -75,13 +74,32 @@ export function Chatbot() {
     }
     const r = new SRClass();
     r.lang = "en-US";
-    r.interimResults = false;
+    r.interimResults = true;
     r.continuous = false;
+    baseInputRef.current = input ? input.trim() + " " : "";
     r.onresult = (e) => {
-      const transcript = Array.from({ length: e.results.length }, (_, i) => e.results[i][0].transcript).join(" ");
-      setInput((prev) => (prev ? prev + " " + transcript : transcript).trim());
+      let finalText = "";
+      let interimText = "";
+      for (let i = 0; i < e.results.length; i++) {
+        const res = e.results[i];
+        const chunk = res[0]?.transcript ?? "";
+        if (res.isFinal) finalText += chunk + " ";
+        else interimText += chunk;
+      }
+      const combined = (baseInputRef.current + finalText + interimText).replace(/\s+/g, " ").trimStart();
+      setInput(combined);
     };
-    r.onerror = () => setListening(false);
+    r.onerror = (e) => {
+      setListening(false);
+      const code = e?.error ?? "error";
+      const msg =
+        code === "no-speech" ? "I didn't catch that — try again."
+        : code === "not-allowed" || code === "service-not-allowed" ? "Microphone permission denied."
+        : code === "audio-capture" ? "No microphone detected."
+        : `Voice error: ${code}`;
+      toast.error(msg);
+      try { r.abort(); } catch { /* noop */ }
+    };
     r.onend = () => {
       setListening(false);
       recogRef.current = null;
@@ -92,6 +110,7 @@ export function Chatbot() {
       r.start();
     } catch {
       setListening(false);
+      toast.error("Couldn't start microphone. Please retry.");
     }
   };
 
