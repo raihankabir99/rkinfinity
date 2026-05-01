@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Send, Loader2, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import robotLogo from "@/assets/chatbot-robot.png";
+import chatbotBg from "@/assets/chatbot-bg.png";
 import { chatFn } from "@/server/chat.functions";
 
 type Msg = { role: "user" | "assistant"; content: string };
