@@ -1,4 +1,5 @@
 import React from "react";
+import { logErrorFn } from "@/server/log-error.functions";
 
 type State = { error: Error | null };
 
@@ -15,15 +16,13 @@ export class GlobalErrorBoundary extends React.Component<
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Fire & forget — never block UI.
     try {
-      void fetch("/api/log-error", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      void logErrorFn({
+        data: {
           message: error.message,
           stack: `${error.stack ?? ""}\n\nReact: ${info.componentStack ?? ""}`,
           path: typeof window !== "undefined" ? window.location.pathname : undefined,
           level: "error",
-        }),
+        },
       });
     } catch {
       /* swallow */
@@ -59,14 +58,9 @@ export function installClientErrorReporting() {
   if ((window as any).__rkErrInstalled) return;
   (window as any).__rkErrInstalled = true;
 
-  const post = (payload: Record<string, unknown>) => {
+  const post = (payload: { message: string; stack?: string; path?: string; level?: "error" | "warn" | "info" }) => {
     try {
-      void fetch("/api/log-error", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        keepalive: true,
-      });
+      void logErrorFn({ data: payload });
     } catch { /* noop */ }
   };
 

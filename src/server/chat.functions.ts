@@ -1,10 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-type Msg = { role: "system" | "user" | "assistant"; content: string };
+const MsgSchema = z.object({
+  role: z.enum(["system", "user", "assistant"]),
+  content: z.string().min(1).max(8000),
+});
+const ChatSchema = z.object({
+  messages: z.array(MsgSchema).min(1).max(50),
+});
+
+type Msg = z.infer<typeof MsgSchema>;
 
 async function getTrainedAnswer(userText: string): Promise<string | null> {
-  // Pull latest 200 trained Q&A pairs and do a fuzzy contains match.
   const { data } = await supabaseAdmin
     .from("bot_training")
     .select("question, answer")
@@ -31,26 +39,21 @@ async function logChat(userMessage: string, botReply: string) {
   }
 }
 
-async function handlePost(request: Request): Promise<Response> {
-  try {
-    const { messages } = (await request.json()) as { messages: Msg[] };
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return new Response(JSON.stringify({ error: "messages required" }), { status: 400 });
-    }
-
+export const chatFn = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => ChatSchema.parse(input))
+  .handler(async ({ data }) => {
+    const messages = data.messages as Msg[];
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
 
-    // 1. Try trained answer first
     const trained = await getTrainedAnswer(lastUser);
     if (trained) {
       await logChat(lastUser, trained);
-      return Response.json({ content: trained, source: "trained" });
+      return { content: trained, source: "trained" as const };
     }
 
-    // 2. Fallback to AI
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "AI not configured" }), { status: 500 });
+      throw new Error("AI not configured");
     }
 
     const system: Msg = {
@@ -73,32 +76,13 @@ async function handlePost(request: Request): Promise<Response> {
 
     if (!res.ok) {
       const text = await res.text();
-      return new Response(
-        JSON.stringify({ error: `Gateway ${res.status}: ${text.slice(0, 200)}` }),
-        { status: res.status },
-      );
+      throw new Error(`Gateway ${res.status}: ${text.slice(0, 200)}`);
     }
 
-    const data = await res.json();
-    const content: string = data?.choices?.[0]?.message?.content ?? "Sorry, I didn't catch that.";
+    const json = await res.json();
+    const content: string = json?.choices?.[0]?.message?.content ?? "Sorry, I didn't catch that.";
 
     await logChat(lastUser, content);
 
-    return new Response(JSON.stringify({ content, source: "ai" }), {
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (e) {
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500 },
-    );
-  }
-}
-
-export const Route = createFileRoute("/api/chat")({
-  server: {
-    handlers: {
-      POST: ({ request }: { request: Request }) => handlePost(request),
-    },
-  },
-} as never);
+    return { content, source: "ai" as const };
+  });

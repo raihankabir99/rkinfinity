@@ -3,6 +3,7 @@ import { PageShell, SectionHeader } from "@/components/PageShell";
 import { Mail, MapPin, MessageCircle, Send, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { submitLeadFn } from "@/server/lead.functions";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -29,13 +30,7 @@ function Contact() {
     if (loading) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, source: "contact_form" }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Failed to send");
+      await submitLeadFn({ data: { ...form, source: "contact_form" } });
       setSent(true);
       toast.success("Message received — RK will be in touch.");
       setForm({ name: "", email: "", subject: "", message: "" });
