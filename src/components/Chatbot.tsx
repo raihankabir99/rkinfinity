@@ -173,7 +173,14 @@ export function Chatbot() {
 
       {/* Panel */}
       {open && (
-        <div className="fixed bottom-6 right-6 z-[70] w-[min(380px,calc(100vw-2rem))] h-[min(560px,calc(100vh-3rem))] rounded-2xl flex flex-col overflow-hidden bg-black border border-[color:var(--gold)]/60 shadow-[0_0_40px_oklch(0.78_0.14_85/0.45)] animate-fade-in">
+        <div
+          className="fixed bottom-6 right-6 z-[70] w-[min(380px,calc(100vw-2rem))] h-[min(560px,calc(100vh-3rem))] rounded-2xl flex flex-col overflow-hidden border border-[color:var(--gold)]/60 shadow-[0_0_40px_oklch(0.78_0.14_85/0.45)] animate-fade-in relative bg-black"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.7)), url(${chatbotBg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[color:var(--gold)]/30 bg-gradient-to-r from-black via-[oklch(0.08_0.005_80)] to-black">
             <img src={robotLogo} alt="" className="h-9 w-9 rounded-full object-cover ring-1 ring-[color:var(--gold)]/60" />
