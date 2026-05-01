@@ -63,8 +63,13 @@ export function Footer() {
             <img src={logo} alt="rkInfinity logo" className="h-9 w-9 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50" />
             <span><span className="text-white">rk</span><span className="text-gradient">Infinity</span></span>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            SEO Expert · Digital Marketer · Web Developer · Story Writer.
+          <p className="mt-4 text-sm font-medium text-foreground/80 leading-relaxed">
+            {["SEO Specialist", "Digital Solutions Architect", "Content Strategist", "AI-Powered Web Creator"].map((title, idx, arr) => (
+              <span key={title}>
+                <span>{title}</span>
+                {idx < arr.length - 1 && <span className="mx-2 text-[color:var(--gold)]" aria-hidden="true">·</span>}
+              </span>
+            ))}
           </p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             Crafting digital experiences that scale with precision and creativity.
