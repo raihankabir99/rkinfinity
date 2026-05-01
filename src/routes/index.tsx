@@ -53,7 +53,7 @@ function Home() {
               style={{ minHeight: "calc(2 * 0.95em)" }}
             >
               <span className="text-foreground/90">I am a</span>
-              <TypingText words={["SEO Specialist", "Digital Marketer", "Content Creator", "Writer"]} />
+              <TypingText words={["SEO Specialist", "Digital Marketer", "AI-Powered Web Creator", "Content Strategist"]} speed={110} pause={1800} />
             </div>
             <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Building infinite possibilities at the intersection of search, code, and story.
