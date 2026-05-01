@@ -182,7 +182,7 @@ export function Chatbot() {
           }}
         >
           {/* Header */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-[color:var(--gold)]/30 bg-gradient-to-r from-black via-[oklch(0.08_0.005_80)] to-black">
+          <div className="relative flex items-center gap-3 px-4 py-3 border-b border-[color:var(--gold)]/30 bg-black/55 backdrop-blur-sm">
             <img src={robotLogo} alt="" className="h-9 w-9 rounded-full object-cover ring-1 ring-[color:var(--gold)]/60" />
             <div className="flex-1 min-w-0">
               <div className="text-sm font-bold">
