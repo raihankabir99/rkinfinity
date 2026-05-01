@@ -85,7 +85,7 @@ function Contact() {
             ))}
           </div>
 
-          <form onSubmit={submit} className="lg:col-span-3 glass rounded-3xl p-8 md:p-10 space-y-5">
+          <form id="contact-form" onSubmit={submit} className="lg:col-span-3 glass rounded-3xl p-8 md:p-10 space-y-5">
             <div className="grid sm:grid-cols-2 gap-5">
               <Field label="Name" name="name" placeholder="Your name" value={form.name} onChange={update("name")} />
               <Field label="Email" name="email" type="email" placeholder="you@domain.com" value={form.email} onChange={update("email")} />
