@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Send, Loader2 } from "lucide-react";
+import { X, Send, Loader2, Mic, MicOff } from "lucide-react";
 import robotLogo from "@/assets/chatbot-robot.png";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -7,19 +7,87 @@ type Msg = { role: "user" | "assistant"; content: string };
 const GREETING: Msg = {
   role: "assistant",
   content:
-    "Hi! I'm rkInfinity's assistant 🤖✨ Ask me anything about SEO, digital marketing, web dev, or RK's services. No login needed — just type away.",
+    "Hi! I'm rkInfinity's assistant 🤖✨ Ask me anything about SEO, digital marketing, web dev, or RK's services. You can also track your project here using your unique ID. No login needed — just type away.",
 };
+
+// Detect a project ID pattern (e.g. RK-1234, PRJ-ABCD, or 6+ alphanumerics with a dash)
+const PROJECT_ID_RE = /\b([A-Z]{2,5}-[A-Z0-9]{3,10}|#?\d{4,8})\b/i;
+
+function detectProjectId(text: string): string | null {
+  const m = text.match(PROJECT_ID_RE);
+  if (!m) return null;
+  // Avoid false positives on plain years like "2026"
+  if (/^\d{4}$/.test(m[0]) && Number(m[0]) >= 1900 && Number(m[0]) <= 2100) return null;
+  return m[0].replace(/^#/, "");
+}
+
+// SpeechRecognition typing
+type SR = {
+  new (): {
+    lang: string;
+    interimResults: boolean;
+    continuous: boolean;
+    onresult: (e: { results: ArrayLike<{ 0: { transcript: string } }> }) => void;
+    onerror: (e: unknown) => void;
+    onend: () => void;
+    start: () => void;
+    stop: () => void;
+  };
+};
+
+function getSR(): SR | null {
+  if (typeof window === "undefined") return null;
+  const w = window as unknown as { SpeechRecognition?: SR; webkitSpeechRecognition?: SR };
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
 
 export function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([GREETING]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [listening, setListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const recogRef = useRef<ReturnType<SR> | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, open]);
+
+  const toggleMic = () => {
+    const SRClass = getSR();
+    if (!SRClass) {
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", content: "Voice input isn't supported in this browser. Try Chrome or Edge on desktop/Android." },
+      ]);
+      return;
+    }
+    if (listening && recogRef.current) {
+      recogRef.current.stop();
+      return;
+    }
+    const r = new SRClass();
+    r.lang = "en-US";
+    r.interimResults = false;
+    r.continuous = false;
+    r.onresult = (e) => {
+      const transcript = Array.from({ length: e.results.length }, (_, i) => e.results[i][0].transcript).join(" ");
+      setInput((prev) => (prev ? prev + " " + transcript : transcript).trim());
+    };
+    r.onerror = () => setListening(false);
+    r.onend = () => {
+      setListening(false);
+      recogRef.current = null;
+    };
+    recogRef.current = r;
+    setListening(true);
+    try {
+      r.start();
+    } catch {
+      setListening(false);
+    }
+  };
 
   const send = async () => {
     const text = input.trim();
@@ -27,6 +95,16 @@ export function Chatbot() {
     const next: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(next);
     setInput("");
+
+    // Project ID short-circuit — answer locally without an AI call
+    const pid = detectProjectId(text);
+    const mentionsTrack = /\btrack(ing)?\b|\bstatus\b|\bproject id\b/i.test(text);
+    if (pid && mentionsTrack) {
+      const reply = `Got it — your project ID is **${pid}**. To track its status:\n\n1. Visit the [Contact page](/contact) and mention your ID, or\n2. Email RK directly with the ID in the subject line.\n\nYou'll get an update within 24 hours. ✨`;
+      setMessages((m) => [...m, { role: "assistant", content: reply }]);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/chat", {
@@ -113,16 +191,29 @@ export function Chatbot() {
           {/* Input */}
           <form
             onSubmit={(e) => { e.preventDefault(); send(); }}
-            className="border-t border-[color:var(--gold)]/30 p-3 flex gap-2"
+            className="border-t border-[color:var(--gold)]/30 p-3 flex gap-2 items-center"
           >
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message…"
+              placeholder={listening ? "Listening…" : "Type or speak your message…"}
               className="flex-1 bg-black border border-[color:var(--gold)]/40 rounded-full px-4 py-2.5 text-sm outline-none focus:border-[color:var(--gold-bright)] placeholder:text-muted-foreground"
               aria-label="Message"
             />
+            <button
+              type="button"
+              onClick={toggleMic}
+              aria-label={listening ? "Stop listening" : "Start voice input"}
+              title={listening ? "Stop listening" : "Voice input"}
+              className={`grid h-10 w-10 place-items-center rounded-full border transition ${
+                listening
+                  ? "bg-[color:var(--gold)]/20 border-[color:var(--gold-bright)] text-[color:var(--gold-bright)] animate-pulse"
+                  : "bg-black border-[color:var(--gold)]/50 text-[color:var(--gold)] hover:border-[color:var(--gold-bright)] hover:text-[color:var(--gold-bright)]"
+              }`}
+            >
+              {listening ? <MicOff size={16} /> : <Mic size={16} />}
+            </button>
             <button
               type="submit"
               disabled={!input.trim() || loading}
