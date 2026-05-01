@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { TypingText } from "@/components/TypingText";
-import { ArrowRight, Sparkles, Code2, TrendingUp, Search } from "lucide-react";
+import { ArrowRight, Sparkles, Code2, TrendingUp, Search, KeyRound, Wrench, LinkIcon, FileText, FileCheck2, ClipboardCheck, Clock, ArrowUpRight } from "lucide-react";
 import heroCircuit from "@/assets/hero-circuit.png";
 
 export const Route = createFileRoute("/")({
@@ -49,8 +49,8 @@ function Home() {
               Hi, I'm <span className="text-gradient neon-text">RK</span>
             </h1>
             <div
-              className="mt-2 text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] flex flex-wrap items-baseline justify-center gap-x-3"
-              style={{ minHeight: "calc(2 * 0.95em)" }}
+              className="mt-2 font-black tracking-tight leading-[1.05] flex flex-nowrap items-baseline justify-center gap-x-3 mx-auto"
+              style={{ fontSize: "clamp(1.75rem, 5.5vw, 4.5rem)", whiteSpace: "nowrap", maxWidth: "100%" }}
             >
               <span className="text-foreground/90">I am a</span>
               <TypingText words={["SEO Specialist", "Digital Marketer", "AI-Powered Web Creator", "Content Strategist"]} speed={110} pause={1800} />
@@ -59,12 +59,9 @@ function Home() {
               Building infinite possibilities at the intersection of search, code, and story.
               I help brands rank, scale, and connect.
             </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3 md:gap-4">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4 md:gap-5">
               <Link to="/tools" className="group btn-gold btn-pill pulse-glow">
                 Explore Tools <ArrowRight size={18} className="group-hover:translate-x-1 transition" />
-              </Link>
-              <Link to="/contact" className="btn-metal-pill">
-                Get in Touch
               </Link>
               <a
                 href="https://trello.com/b/8BdFkKJ4/my-trello-board"
