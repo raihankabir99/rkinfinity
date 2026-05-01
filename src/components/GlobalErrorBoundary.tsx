@@ -15,7 +15,7 @@ export class GlobalErrorBoundary extends React.Component<
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Fire & forget — never block UI.
     try {
-      void fetch("/api/log-error", {
+      void fetch("/api/public/log-error", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -61,7 +61,7 @@ export function installClientErrorReporting() {
 
   const post = (payload: Record<string, unknown>) => {
     try {
-      void fetch("/api/log-error", {
+      void fetch("/api/public/log-error", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
