@@ -22,22 +22,21 @@ function detectProjectId(text: string): string | null {
 }
 
 // SpeechRecognition typing
-type SR = {
-  new (): {
-    lang: string;
-    interimResults: boolean;
-    continuous: boolean;
-    onresult: (e: { results: ArrayLike<{ 0: { transcript: string } }> }) => void;
-    onerror: (e: unknown) => void;
-    onend: () => void;
-    start: () => void;
-    stop: () => void;
-  };
-};
+interface SRInstance {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onresult: (e: { results: ArrayLike<{ 0: { transcript: string } }> }) => void;
+  onerror: (e: unknown) => void;
+  onend: () => void;
+  start: () => void;
+  stop: () => void;
+}
+type SRCtor = new () => SRInstance;
 
-function getSR(): SR | null {
+function getSR(): SRCtor | null {
   if (typeof window === "undefined") return null;
-  const w = window as unknown as { SpeechRecognition?: SR; webkitSpeechRecognition?: SR };
+  const w = window as unknown as { SpeechRecognition?: SRCtor; webkitSpeechRecognition?: SRCtor };
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
@@ -48,7 +47,7 @@ export function Chatbot() {
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const recogRef = useRef<ReturnType<SR> | null>(null);
+  const recogRef = useRef<SRInstance | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
