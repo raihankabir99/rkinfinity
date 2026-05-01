@@ -227,7 +227,7 @@ export function Chatbot() {
           {/* Input */}
           <form
             onSubmit={(e) => { e.preventDefault(); send(); }}
-            className="border-t border-[color:var(--gold)]/30 p-3 flex gap-2 items-center"
+            className="relative border-t border-[color:var(--gold)]/30 p-3 flex gap-2 items-center bg-black/55 backdrop-blur-sm"
           >
             <input
               type="text"
