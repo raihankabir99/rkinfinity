@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Send, Loader2, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import robotLogo from "@/assets/chatbot-robot.png";
+import chatbotBg from "@/assets/chatbot-bg.png";
 import { chatFn } from "@/server/chat.functions";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -88,6 +89,15 @@ export function Chatbot() {
       }
       const combined = (baseInputRef.current + finalText + interimText).replace(/\s+/g, " ").trimStart();
       setInput(combined);
+      // Auto-send when we have a final result
+      if (finalText.trim()) {
+        try { r.stop(); } catch { /* noop */ }
+        const toSend = (baseInputRef.current + finalText).replace(/\s+/g, " ").trim();
+        setTimeout(() => {
+          setInput(toSend);
+          void send(toSend);
+        }, 100);
+      }
     };
     r.onerror = (e) => {
       setListening(false);
@@ -114,8 +124,8 @@ export function Chatbot() {
     }
   };
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (override?: string) => {
+    const text = (override ?? input).trim();
     if (!text || loading) return;
     const next: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(next);
@@ -163,9 +173,16 @@ export function Chatbot() {
 
       {/* Panel */}
       {open && (
-        <div className="fixed bottom-6 right-6 z-[70] w-[min(380px,calc(100vw-2rem))] h-[min(560px,calc(100vh-3rem))] rounded-2xl flex flex-col overflow-hidden bg-black border border-[color:var(--gold)]/60 shadow-[0_0_40px_oklch(0.78_0.14_85/0.45)] animate-fade-in">
+        <div
+          className="fixed bottom-6 right-6 z-[70] w-[min(380px,calc(100vw-2rem))] h-[min(560px,calc(100vh-3rem))] rounded-2xl flex flex-col overflow-hidden border border-[color:var(--gold)]/60 shadow-[0_0_40px_oklch(0.78_0.14_85/0.45)] animate-fade-in relative bg-black"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.7)), url(${chatbotBg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
           {/* Header */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-[color:var(--gold)]/30 bg-gradient-to-r from-black via-[oklch(0.08_0.005_80)] to-black">
+          <div className="relative flex items-center gap-3 px-4 py-3 border-b border-[color:var(--gold)]/30 bg-black/55 backdrop-blur-sm">
             <img src={robotLogo} alt="" className="h-9 w-9 rounded-full object-cover ring-1 ring-[color:var(--gold)]/60" />
             <div className="flex-1 min-w-0">
               <div className="text-sm font-bold">
@@ -184,7 +201,7 @@ export function Chatbot() {
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4 space-y-3 text-sm">
+          <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-3 py-4 space-y-3 text-sm text-white">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
@@ -210,7 +227,7 @@ export function Chatbot() {
           {/* Input */}
           <form
             onSubmit={(e) => { e.preventDefault(); send(); }}
-            className="border-t border-[color:var(--gold)]/30 p-3 flex gap-2 items-center"
+            className="relative border-t border-[color:var(--gold)]/30 p-3 flex gap-2 items-center bg-black/55 backdrop-blur-sm"
           >
             <input
               type="text"

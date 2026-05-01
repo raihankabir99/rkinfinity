@@ -22,5 +22,5 @@ export function TypingText({ words, speed = 90, pause = 1400 }: { words: string[
     return () => clearTimeout(t);
   }, [text, del, i, words, speed, pause]);
 
-  return <span className="text-gradient typing-cursor">{text}</span>;
+  return <span className="text-gradient typing-cursor whitespace-nowrap">{text}</span>;
 }
