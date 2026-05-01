@@ -124,8 +124,8 @@ export function Chatbot() {
     }
   };
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (override?: string) => {
+    const text = (override ?? input).trim();
     if (!text || loading) return;
     const next: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(next);
