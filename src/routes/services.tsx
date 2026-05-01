@@ -65,10 +65,10 @@ const featuredServices = [
 const services = [
   { icon: Search, t: "Technical SEO Audits", d: "Deep crawl analysis, schema, and core web vitals optimization.", items: ["Site architecture", "Schema markup", "Core Web Vitals"] },
   { icon: TrendingUp, t: "Growth Marketing", d: "Paid + organic systems engineered for compounding ROAS.", items: ["Funnel design", "PPC management", "CRO"] },
-  { icon: Code2, t: "Web Development", d: "Modern, blazing-fast React & Next-gen apps.", items: ["React / TypeScript", "Headless CMS", "Edge deployments"] },
+  { icon: Code2, t: "AI-Powered Web Creation", d: "Modern, AI-driven websites built for speed and conversion using latest technologies.", items: ["Rapid AI Prototyping", "Custom UI/UX Implementation", "AI Chatbot Integration"] },
   { icon: PenTool, t: "Content Strategy", d: "Editorial systems that rank, convert, and resonate.", items: ["Topic clusters", "Editorial calendars", "Brand voice"] },
-  { icon: Megaphone, t: "Brand & Launch", d: "Positioning and go-to-market that lands with impact.", items: ["Naming", "Positioning", "Launch campaigns"] },
-  { icon: BarChart3, t: "Analytics & Reporting", d: "Dashboards that turn noise into next-step decisions.", items: ["GA4 setup", "Looker Studio", "Attribution"] },
+  { icon: Megaphone, t: "Digital Presence Growth", d: "Strategic organic growth plans to enhance your brand's visibility and authority online.", items: ["Search Visibility", "Content Authority", "Data-Driven Insights"] },
+  { icon: BarChart3, t: "Analytics & Reporting", d: "Dashboards that turn noise into next-step decisions.", items: ["GA4 & Search Console", "Looker Studio Dashboards", "SEO Performance Tracking"] },
 ];
 
 const processSteps = [
