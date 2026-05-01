@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { sendGmail, ALERT_RECIPIENTS } from "@/server/gmail.server";
+import { supabaseAdmin } from "@/server/supabase-admin";
+import { sendGmail, ALERT_RECIPIENTS } from "@/server/gmail";
 
 const LeadSchema = z.object({
   name: z.string().trim().min(1).max(120),

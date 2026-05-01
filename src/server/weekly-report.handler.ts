@@ -1,6 +1,6 @@
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { sendGmail, ALERT_RECIPIENTS } from "@/server/gmail.server";
-import { uploadReportToDrive } from "@/server/drive.server";
+import { supabaseAdmin } from "@/server/supabase-admin";
+import { sendGmail, ALERT_RECIPIENTS } from "@/server/gmail";
+import { uploadReportToDrive } from "@/server/drive";
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

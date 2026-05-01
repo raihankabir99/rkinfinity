@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabaseAdmin } from "@/server/supabase-admin";
 
 const ErrSchema = z.object({
   message: z.string().trim().min(1).max(2000),
