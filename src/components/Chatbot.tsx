@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Send, Loader2, Mic, MicOff } from "lucide-react";
 import robotLogo from "@/assets/chatbot-robot.png";
+import { chatFn } from "@/server/chat.functions";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -106,13 +107,7 @@ export function Chatbot() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/public/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Network error");
+      const data = await chatFn({ data: { messages: next } });
       setMessages((m) => [...m, { role: "assistant", content: data.content }]);
     } catch (e) {
       setMessages((m) => [
