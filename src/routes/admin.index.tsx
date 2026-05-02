@@ -208,12 +208,24 @@ function AdminPage() {
               Real-time visitors, leads, errors and chat activity
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               to="/admin/trainer"
               className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/60 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition"
             >
               Train bot
+            </Link>
+            <Link
+              to="/admin/knowledge"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/60 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition"
+            >
+              Knowledge
+            </Link>
+            <Link
+              to="/admin/blog"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/60 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition"
+            >
+              Blog CMS
             </Link>
             <button
               onClick={loadAll}

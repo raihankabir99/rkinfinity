@@ -19,7 +19,10 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminTrainerRouteImport } from './routes/admin.trainer'
+import { Route as AdminKnowledgeRouteImport } from './routes/admin.knowledge'
+import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as ApiPublicWeeklyReportRouteImport } from './routes/api/public/weekly-report'
 
 const ToolsRoute = ToolsRouteImport.update({
@@ -72,9 +75,24 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 const AdminTrainerRoute = AdminTrainerRouteImport.update({
   id: '/trainer',
   path: '/trainer',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminKnowledgeRoute = AdminKnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBlogRoute = AdminBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => AdminRoute,
 } as any)
 const ApiPublicWeeklyReportRoute = ApiPublicWeeklyReportRouteImport.update({
@@ -87,26 +105,32 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/admin/blog': typeof AdminBlogRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
   '/admin/trainer': typeof AdminTrainerRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/weekly-report': typeof ApiPublicWeeklyReportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/admin/blog': typeof AdminBlogRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
   '/admin/trainer': typeof AdminTrainerRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/weekly-report': typeof ApiPublicWeeklyReportRoute
 }
@@ -115,13 +139,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/admin/blog': typeof AdminBlogRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
   '/admin/trainer': typeof AdminTrainerRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/weekly-report': typeof ApiPublicWeeklyReportRoute
 }
@@ -137,7 +164,10 @@ export interface FileRouteTypes {
     | '/services'
     | '/story'
     | '/tools'
+    | '/admin/blog'
+    | '/admin/knowledge'
     | '/admin/trainer'
+    | '/blog/$slug'
     | '/admin/'
     | '/api/public/weekly-report'
   fileRoutesByTo: FileRoutesByTo
@@ -150,7 +180,10 @@ export interface FileRouteTypes {
     | '/services'
     | '/story'
     | '/tools'
+    | '/admin/blog'
+    | '/admin/knowledge'
     | '/admin/trainer'
+    | '/blog/$slug'
     | '/admin'
     | '/api/public/weekly-report'
   id:
@@ -164,7 +197,10 @@ export interface FileRouteTypes {
     | '/services'
     | '/story'
     | '/tools'
+    | '/admin/blog'
+    | '/admin/knowledge'
     | '/admin/trainer'
+    | '/blog/$slug'
     | '/admin/'
     | '/api/public/weekly-report'
   fileRoutesById: FileRoutesById
@@ -173,7 +209,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
   ServicesRoute: typeof ServicesRoute
@@ -254,11 +290,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/admin/trainer': {
       id: '/admin/trainer'
       path: '/trainer'
       fullPath: '/admin/trainer'
       preLoaderRoute: typeof AdminTrainerRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/knowledge': {
+      id: '/admin/knowledge'
+      path: '/knowledge'
+      fullPath: '/admin/knowledge'
+      preLoaderRoute: typeof AdminKnowledgeRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/blog': {
+      id: '/admin/blog'
+      path: '/blog'
+      fullPath: '/admin/blog'
+      preLoaderRoute: typeof AdminBlogRouteImport
       parentRoute: typeof AdminRoute
     }
     '/api/public/weekly-report': {
@@ -272,22 +329,36 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminBlogRoute: typeof AdminBlogRoute
+  AdminKnowledgeRoute: typeof AdminKnowledgeRoute
   AdminTrainerRoute: typeof AdminTrainerRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminBlogRoute: AdminBlogRoute,
+  AdminKnowledgeRoute: AdminKnowledgeRoute,
   AdminTrainerRoute: AdminTrainerRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
   ServicesRoute: ServicesRoute,
@@ -298,12 +369,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

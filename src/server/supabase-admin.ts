@@ -7,13 +7,13 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 const url =
   process.env.SUPABASE_URL ??
   process.env.VITE_SUPABASE_URL ??
-  "https://ltzxgqtougmuvukqrtuz.supabase.co";
+  "https://xsrlvchbyiupibjirvqo.supabase.co";
 
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const publishable =
   process.env.SUPABASE_PUBLISHABLE_KEY ??
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
-  "sb_publishable__cbDUJYzdCU4NeVCG-lnkw_tId4UueP";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzcmx2Y2hieWl1cGliamlydnFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MzQ0MzcsImV4cCI6MjA5MzMxMDQzN30.lyxcwUwA3VK9n-yJ4fB0L74dwDIIK69pjzx15O-Lkq8";
 
 const key = serviceKey || publishable;
 
