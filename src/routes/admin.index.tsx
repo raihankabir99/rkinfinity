@@ -227,6 +227,24 @@ function AdminPage() {
             >
               Blog CMS
             </Link>
+            <Link
+              to="/admin/chats"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/60 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition"
+            >
+              Chats
+            </Link>
+            <Link
+              to="/admin/leads"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/60 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition"
+            >
+              Leads
+            </Link>
+            <Link
+              to="/admin/analytics"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/60 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition"
+            >
+              Analytics
+            </Link>
             <button
               onClick={loadAll}
               disabled={refreshing}
