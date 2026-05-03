@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { CommentForm } from "@/components/CommentForm";
+import { BlogTranslator } from "@/components/BlogTranslator";
 import { Clock, ArrowUpRight, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/blog")({
