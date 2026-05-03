@@ -60,50 +60,52 @@ function Blog() {
           sub="Long-form thinking on the work — and the world it lives in."
         />
 
-        {loading && (
-          <div className="text-center py-16">
-            <Loader2 className="inline animate-spin text-primary" size={20} />
+        <BlogTranslator>
+          {loading && (
+            <div className="text-center py-16">
+              <Loader2 className="inline animate-spin text-primary" size={20} />
+            </div>
+          )}
+
+          {!loading && posts.length === 0 && (
+            <p className="text-center text-sm text-muted-foreground py-16">
+              No posts yet — check back soon.
+            </p>
+          )}
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {posts.map((p, i) => (
+              <Link
+                key={p.id}
+                to="/blog/$slug"
+                params={{ slug: p.slug }}
+                className="glass rounded-2xl p-7 hover:border-primary/40 transition cursor-pointer group block"
+              >
+                <div className="flex items-center justify-between mb-4 text-xs font-mono uppercase tracking-wider">
+                  <span className="text-primary">{p.category}</span>
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Clock size={12} /> {p.read_minutes} min
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold leading-snug mb-3 group-hover:text-gradient">
+                  {p.title}
+                </h3>
+                {p.excerpt && (
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-5">{p.excerpt}</p>
+                )}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground" data-no-translate>
+                    Article #{(i + 1).toString().padStart(2, "0")}
+                  </span>
+                  <ArrowUpRight
+                    size={16}
+                    className="text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition"
+                  />
+                </div>
+              </Link>
+            ))}
           </div>
-        )}
-
-        {!loading && posts.length === 0 && (
-          <p className="text-center text-sm text-muted-foreground py-16">
-            No posts yet — check back soon.
-          </p>
-        )}
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((p, i) => (
-            <Link
-              key={p.id}
-              to="/blog/$slug"
-              params={{ slug: p.slug }}
-              className="glass rounded-2xl p-7 hover:border-primary/40 transition cursor-pointer group block"
-            >
-              <div className="flex items-center justify-between mb-4 text-xs font-mono uppercase tracking-wider">
-                <span className="text-primary">{p.category}</span>
-                <span className="text-muted-foreground flex items-center gap-1">
-                  <Clock size={12} /> {p.read_minutes} min
-                </span>
-              </div>
-              <h3 className="text-xl font-bold leading-snug mb-3 group-hover:text-gradient">
-                {p.title}
-              </h3>
-              {p.excerpt && (
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5">{p.excerpt}</p>
-              )}
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">
-                  Article #{(i + 1).toString().padStart(2, "0")}
-                </span>
-                <ArrowUpRight
-                  size={16}
-                  className="text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition"
-                />
-              </div>
-            </Link>
-          ))}
-        </div>
+        </BlogTranslator>
       </section>
       <CommentForm />
     </PageShell>
