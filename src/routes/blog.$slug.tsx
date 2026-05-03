@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/PageShell";
+import { BlogTranslator } from "@/components/BlogTranslator";
 import { Clock, ArrowLeft, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/blog/$slug")({
@@ -95,41 +96,45 @@ function PostPage() {
         <Link
           to="/blog"
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-6"
+          data-no-translate
         >
           <ArrowLeft size={14} /> Back to blog
         </Link>
 
-        <div className="flex items-center gap-3 mb-4 text-xs font-mono uppercase tracking-wider">
-          <span className="text-primary">{post.category}</span>
-          <span className="text-muted-foreground flex items-center gap-1">
-            <Clock size={12} /> {post.read_minutes} min read
-          </span>
-          <span className="text-muted-foreground">
-            {new Date(post.created_at).toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </span>
-        </div>
+        <BlogTranslator>
+          <div className="flex items-center gap-3 mb-4 text-xs font-mono uppercase tracking-wider">
+            <span className="text-primary">{post.category}</span>
+            <span className="text-muted-foreground flex items-center gap-1">
+              <Clock size={12} /> {post.read_minutes} min read
+            </span>
+            <span className="text-muted-foreground" data-no-translate>
+              {new Date(post.created_at).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </span>
+          </div>
 
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">{post.title}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">{post.title}</h1>
 
-        {post.excerpt && (
-          <p className="text-lg text-muted-foreground leading-relaxed mb-8">{post.excerpt}</p>
-        )}
+          {post.excerpt && (
+            <p className="text-lg text-muted-foreground leading-relaxed mb-8">{post.excerpt}</p>
+          )}
 
-        {post.cover_url && (
-          <img
-            src={post.cover_url}
-            alt={post.title}
-            className="w-full rounded-2xl mb-10 border border-white/5"
-          />
-        )}
+          {post.cover_url && (
+            <img
+              src={post.cover_url}
+              alt={post.title}
+              className="w-full rounded-2xl mb-10 border border-white/5"
+              data-no-translate
+            />
+          )}
 
-        <div className="prose prose-invert max-w-none whitespace-pre-wrap text-foreground/90 leading-relaxed">
-          {post.content}
-        </div>
+          <div className="prose prose-invert max-w-none whitespace-pre-wrap text-foreground/90 leading-relaxed">
+            {post.content}
+          </div>
+        </BlogTranslator>
       </article>
     </PageShell>
   );
