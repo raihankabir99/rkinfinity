@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/server/supabase-admin";
+import { supabaseAdmin } from "@/server/supabase-admin.server";
 
 const MsgSchema = z.object({
   role: z.enum(["system", "user", "assistant"]),
