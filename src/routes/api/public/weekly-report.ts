@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { weeklyReportFn } from "@/server/weekly-report.functions";
+import { weeklyReportFn } from "@/lib/weekly-report.rpc";
 
 async function runFromRequest(request: Request): Promise<Response> {
   const secret = request.headers.get("x-cron-secret") ?? new URL(request.url).searchParams.get("secret");
