@@ -1,0 +1,1 @@
+export { weeklyReportFn } from "@/server/weekly-report.functions";
