@@ -82,11 +82,10 @@ function kpi(label: string, value: number, color = "#FFD700") {
   `;
 }
 
-export async function handleWeeklyReport(request: Request): Promise<Response> {
+export async function runWeeklyReport(providedSecret?: string | null) {
   const expected = process.env.WEEKLY_REPORT_SECRET;
-  const provided = request.headers.get("x-cron-secret") ?? new URL(request.url).searchParams.get("secret");
-  if (expected && provided !== expected) {
-    return new Response("Unauthorized", { status: 401 });
+  if (expected && providedSecret !== expected) {
+    return { status: 401, body: { error: "Unauthorized" } };
   }
 
   try {
@@ -112,19 +111,28 @@ export async function handleWeeklyReport(request: Request): Promise<Response> {
       console.error(driveError);
     }
 
-    return Response.json({
-      ok: true,
-      counts,
-      emailed: emailRes.ok,
-      emailError: emailRes.error ?? null,
-      drive,
-      driveError,
-    });
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        counts,
+        emailed: emailRes.ok,
+        emailError: emailRes.error ?? null,
+        drive,
+        driveError,
+      },
+    };
   } catch (e) {
     console.error("weekly report failed", e);
-    return Response.json(
-      { error: e instanceof Error ? e.message : "unknown" },
-      { status: 500 },
-    );
+    return {
+      status: 500,
+      body: { error: e instanceof Error ? e.message : "unknown" },
+    };
   }
+}
+
+export async function handleWeeklyReport(request: Request): Promise<Response> {
+  const provided = request.headers.get("x-cron-secret") ?? new URL(request.url).searchParams.get("secret");
+  const result = await runWeeklyReport(provided);
+  return Response.json(result.body, { status: result.status });
 }
