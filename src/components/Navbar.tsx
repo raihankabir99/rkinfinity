@@ -27,6 +27,7 @@ export function Navbar() {
   }, []);
 
   return (
+    <>
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled ? "py-2" : "py-4"
@@ -108,5 +109,7 @@ export function Navbar() {
         )}
       </div>
     </header>
+    <SubscribeModal open={subOpen} onClose={() => setSubOpen(false)} />
+    </>
   );
 }
