@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { TypingText } from "@/components/TypingText";
-import { ArrowRight, Sparkles, Code2, TrendingUp, Search, KeyRound, Wrench, LinkIcon, FileText, FileCheck2, ClipboardCheck, Clock, ArrowUpRight } from "lucide-react";
+import { ArrowRight, Sparkles, Code2, TrendingUp, Search, KeyRound, Wrench, LinkIcon, FileText, FileCheck2, ClipboardCheck, Clock, ArrowUpRight, Star } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import heroCircuit from "@/assets/hero-circuit.png";
 
 export const Route = createFileRoute("/")({
@@ -179,6 +180,58 @@ function Home() {
             </Link>
           ))}
         </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section className="mx-auto max-w-7xl px-4 py-24">
+        <SectionHeader eyebrow="Testimonials" title="Voices of trust." sub="What clients say after working with RK." />
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            { n: "Sarah Mitchell", r: "Founder, Bloomly", img: "https://i.pravatar.cc/120?img=47", t: "RK rebuilt our SEO from the ground up. Organic traffic 4x in 5 months." },
+            { n: "Daniel Park", r: "CMO, NorthEdge", img: "https://i.pravatar.cc/120?img=12", t: "A rare blend of strategy and execution. The AI-powered site is buttery fast." },
+            { n: "Aisha Rahman", r: "CEO, LumeWorks", img: "https://i.pravatar.cc/120?img=32", t: "Clear communication, premium delivery. Worth every penny." },
+            { n: "Marco Silva", r: "Owner, Atlas&Co", img: "https://i.pravatar.cc/120?img=15", t: "He treats your brand like it's his own. Results that compound." },
+          ].map((x) => (
+            <div key={x.n} className="glass rounded-2xl p-6 hover:border-primary/40 transition flex flex-col">
+              <div className="flex items-center gap-3 mb-4">
+                <img src={x.img} alt={x.n} className="h-12 w-12 rounded-full object-cover ring-2 ring-[color:var(--gold)]/60" />
+                <div>
+                  <div className="font-bold text-sm">{x.n}</div>
+                  <div className="text-xs text-muted-foreground">{x.r}</div>
+                </div>
+              </div>
+              <div className="flex gap-0.5 mb-3 text-[color:var(--gold)]">
+                {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">"{x.t}"</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mx-auto max-w-3xl px-4 py-20">
+        <SectionHeader eyebrow="FAQ" title="Frequently asked." sub="Quick answers to what people ask most." />
+        <Accordion type="single" collapsible className="glass rounded-2xl px-6">
+          <AccordionItem value="q1" className="border-[color:var(--gold)]/15">
+            <AccordionTrigger className="text-left">What services do you offer?</AccordionTrigger>
+            <AccordionContent className="text-muted-foreground">
+              SEO, Digital Marketing, and AI-Powered Web Creation — end-to-end strategy, build, and growth.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="q2" className="border-[color:var(--gold)]/15">
+            <AccordionTrigger className="text-left">How long does SEO take to show results?</AccordionTrigger>
+            <AccordionContent className="text-muted-foreground">
+              Typically 3–6 months for meaningful, compounding results. Quick wins can land sooner.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="q3" className="border-none">
+            <AccordionTrigger className="text-left">Can I track my project?</AccordionTrigger>
+            <AccordionContent className="text-muted-foreground">
+              Yes — share your project ID via the chatbot or contact page for a live status update.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </section>
 
     </PageShell>
