@@ -1,5 +1,5 @@
 import React from "react";
-import { logErrorFn } from "@/server/log-error.functions";
+import { logErrorFn } from "@/lib/log-error.functions";
 
 type State = { error: Error | null };
 
