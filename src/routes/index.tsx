@@ -46,13 +46,12 @@ function Home() {
               <Sparkles size={12} /> Available for new projects · 2026
             </span>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95]">
-              Hi, I'm <span className="text-gradient neon-text">RK</span>
+              <span className="text-gradient neon-text">Hi, I'm RK</span>
             </h1>
             <div
               className="mt-2 font-black tracking-tight leading-[1.05] flex flex-nowrap items-baseline justify-center gap-x-3 mx-auto"
               style={{ fontSize: "clamp(1.75rem, 5.5vw, 4.5rem)", whiteSpace: "nowrap", maxWidth: "100%" }}
             >
-              <span className="text-foreground/90">I am a</span>
               <TypingText words={["SEO Specialist", "Digital Marketer", "AI-Powered Web Creator", "Content Strategist"]} speed={110} pause={1800} />
             </div>
             <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -93,7 +92,7 @@ function Home() {
           {[
             { icon: Search, t: "SEO Engineering", d: "Technical SEO, content architecture, and ranking systems built to compound." },
             { icon: TrendingUp, t: "Growth Marketing", d: "Performance campaigns, funnels, and analytics that turn traffic into revenue." },
-            { icon: Code2, t: "Web Development", d: "Lightning-fast modern web apps engineered for scale and conversion." },
+            { icon: Code2, t: "AI-Powered Web Creation", d: "Modern, AI-driven websites built for speed and conversion using latest technologies." },
           ].map(({ icon: Icon, t, d }) => (
             <div key={t} className="glass rounded-2xl p-8 hover:border-primary/40 transition group">
               <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary mb-5 group-hover:scale-110 transition">
