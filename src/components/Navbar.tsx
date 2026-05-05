@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import logo from "@/assets/rkinfinity-logo.png";
+import { SubscribeModal } from "./SubscribeModal";
 
 const links = [
   { to: "/", label: "Home" },
@@ -16,6 +17,7 @@ const links = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [subOpen, setSubOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -61,10 +63,7 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => {
-                const footer = document.querySelector("footer");
-                footer?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
+              onClick={() => setSubOpen(true)}
               className="btn-gold btn-pill hidden sm:inline-flex !py-2 !px-5 text-sm pulse-glow"
             >
               Subscribe
@@ -98,7 +97,7 @@ export function Navbar() {
                 type="button"
                 onClick={() => {
                   setOpen(false);
-                  setTimeout(() => document.querySelector("footer")?.scrollIntoView({ behavior: "smooth" }), 80);
+                  setSubOpen(true);
                 }}
                 className="btn-gold btn-pill mt-2 text-sm"
               >
