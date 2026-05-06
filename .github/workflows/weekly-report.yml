@@ -1,0 +1,30 @@
+name: Weekly Report
+
+on:
+  schedule:
+    # Mondays 09:00 UTC
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger weekly report endpoint
+        env:
+          WEEKLY_REPORT_SECRET: ${{ secrets.WEEKLY_REPORT_SECRET }}
+          EMAIL_SERVER_PASSWORD: ${{ secrets.EMAIL_SERVER_PASSWORD }}
+          REPORT_URL: ${{ secrets.REPORT_URL }}
+        run: |
+          if [ -z "$REPORT_URL" ]; then
+            REPORT_URL="https://project--9be9022a-0050-4f8b-b2bb-1c878f9d0723.lovable.app/api/public/weekly-report"
+          fi
+          echo "Calling $REPORT_URL"
+          curl -fsSL -X POST "$REPORT_URL" \
+            -H "x-cron-secret: $WEEKLY_REPORT_SECRET" \
+            -H "x-email-password: $EMAIL_SERVER_PASSWORD" \
+            -H "Content-Type: application/json" \
+            --max-time 120 \
+            --retry 2 --retry-delay 10 \
+            -o response.json -w "\nHTTP %{http_code}\n"
+          cat response.json || true
