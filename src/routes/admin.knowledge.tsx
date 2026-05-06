@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/PageShell";
 import {
@@ -12,6 +12,7 @@ import {
   Pencil,
   X,
   Save,
+  Upload,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -47,6 +48,44 @@ function KbPage() {
   const [content, setContent] = useState("");
   const [tagsInput, setTagsInput] = useState("");
   const [saving, setSaving] = useState(false);
+  const [parsing, setParsing] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setParsing(true);
+    try {
+      let text = "";
+      if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+        const pdfjs = await import("pdfjs-dist");
+        // Use bundled worker
+        const worker = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
+        pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+        const buf = await file.arrayBuffer();
+        const doc = await pdfjs.getDocument({ data: buf }).promise;
+        const parts: string[] = [];
+        for (let i = 1; i <= doc.numPages; i++) {
+          const page = await doc.getPage(i);
+          const tc = await page.getTextContent();
+          parts.push(tc.items.map((it) => ("str" in it ? it.str : "")).join(" "));
+        }
+        text = parts.join("\n\n");
+      } else {
+        text = await file.text();
+      }
+      text = text.replace(/\s+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+      if (!text) { toast.error("No text extracted"); return; }
+      if (!title.trim()) setTitle(file.name.replace(/\.[^.]+$/, ""));
+      setContent(text.slice(0, 8000));
+      toast.success(`Extracted ${text.length.toLocaleString()} characters`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to parse file");
+    } finally {
+      setParsing(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
