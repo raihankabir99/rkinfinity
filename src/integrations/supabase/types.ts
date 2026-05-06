@@ -101,11 +101,76 @@ export type Database = {
         }
         Relationships: []
       }
-      knowledge_base: {
+      chat_messages: {
         Row: {
           content: string
           created_at: string
           id: string
+          role: string
+          session_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          session_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
+      chat_users: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          device: string | null
+          id: string
+          ip_address: string | null
+          last_seen_at: string
+          mode: string
+          session_id: string
+          user_name: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          ip_address?: string | null
+          last_seen_at?: string
+          mode?: string
+          session_id: string
+          user_name?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          ip_address?: string | null
+          last_seen_at?: string
+          mode?: string
+          session_id?: string
+          user_name?: string | null
+        }
+        Relationships: []
+      }
+      knowledge_base: {
+        Row: {
+          content: string
+          created_at: string
+          file_name: string | null
+          id: string
+          source: string
           tags: string[]
           title: string
           updated_at: string
@@ -113,7 +178,9 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          file_name?: string | null
           id?: string
+          source?: string
           tags?: string[]
           title: string
           updated_at?: string
@@ -121,7 +188,9 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          file_name?: string | null
           id?: string
+          source?: string
           tags?: string[]
           title?: string
           updated_at?: string
@@ -152,6 +221,42 @@ export type Database = {
           message?: string | null
           name?: string | null
           source?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          client_name: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          progress: number
+          project_id: string
+          status: string
+          tracking_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_name?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          progress?: number
+          project_id: string
+          status?: string
+          tracking_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_name?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          progress?: number
+          project_id?: string
+          status?: string
+          tracking_url?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
