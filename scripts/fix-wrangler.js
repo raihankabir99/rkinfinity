@@ -21,17 +21,16 @@ try {
   process.exit(1);
 }
 
-// Remove invalid empty triggers (Cloudflare Pages rejects `triggers: {}`)
-if (cfg.triggers && typeof cfg.triggers === "object") {
-  const t = cfg.triggers;
-  const hasCrons = Array.isArray(t.crons) && t.crons.length > 0;
-  if (!hasCrons) {
-    delete cfg.triggers;
-    console.log("[fix-wrangler] Removed empty `triggers` field.");
+// Remove fields unsupported by Cloudflare Pages
+const UNSUPPORTED = ["triggers", "vars", "cloudchamber", "assets"];
+for (const key of UNSUPPORTED) {
+  if (key in cfg) {
+    delete cfg[key];
+    console.log(`[fix-wrangler] Removed \`${key}\` field.`);
   }
 }
 
-// Strip other empty objects/arrays that Cloudflare's validator dislikes
+// Strip empty objects that Cloudflare's validator dislikes
 for (const key of Object.keys(cfg)) {
   const v = cfg[key];
   if (v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0) {
