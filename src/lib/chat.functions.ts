@@ -8,8 +8,10 @@ const MsgSchema = z.object({
 });
 const ChatSchema = z.object({
   messages: z.array(MsgSchema).min(1).max(50),
+  session_id: z.string().min(1).max(100).optional(),
+  user_name: z.string().max(80).optional(),
 });
 
 export const chatFn = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ChatSchema.parse(input))
-  .handler(async ({ data }) => runChat(data.messages));
+  .handler(async ({ data }) => runChat(data));
