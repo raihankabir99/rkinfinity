@@ -4,9 +4,8 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite build && node scripts/fix-wrangler.js",
+    "dev": "vite dev",
     "build": "vite build && node scripts/fix-wrangler.js",
-    "postbuild": "node scripts/fix-wrangler.js",
     "build:dev": "vite build --mode development && node scripts/fix-wrangler.js",
     "preview": "vite preview",
     "lint": "eslint .",
