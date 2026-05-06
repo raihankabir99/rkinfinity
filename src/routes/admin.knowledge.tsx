@@ -241,6 +241,21 @@ function KbPage() {
               </button>
             )}
           </div>
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-dashed border-[color:var(--gold)]/40 bg-[color:var(--gold)]/5 px-3 py-2">
+            <p className="text-xs text-muted-foreground">
+              <span className="text-[color:var(--gold-bright)] font-semibold">Train from a document</span> — upload a PDF, TXT, or MD file to auto-fill the content below.
+            </p>
+            <input ref={fileRef} type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={onFile} className="hidden" />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={parsing}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--gold)]/60 bg-black px-3 py-1.5 text-xs font-semibold text-[color:var(--gold-bright)] hover:bg-[color:var(--gold)]/10 disabled:opacity-50"
+            >
+              {parsing ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+              {parsing ? "Parsing…" : "Upload PDF / Text"}
+            </button>
+          </div>
           <div>
             <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">
               Title
