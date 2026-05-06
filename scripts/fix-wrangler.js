@@ -1,8 +1,4 @@
 #!/usr/bin/env node
-// Post-build cleanup for dist/client/wrangler.json
-// Cloudflare Pages rejects an empty `triggers: {}` object emitted by the
-// TanStack Start Cloudflare preset. We rewrite the file to a valid shape
-// instead of deleting it (Cloudflare needs the config to exist).
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -13,31 +9,31 @@ if (!existsSync(target)) {
   process.exit(0);
 }
 
-let cfg;
 try {
-  cfg = JSON.parse(readFileSync(target, "utf8"));
+  let cfg = JSON.parse(readFileSync(target, "utf8"));
+
+  // Cloudflare Pages-এ যা যা সমস্যা করে সব মুছে ফেলবে নিচের এই কোড
+  const fieldsToRemove = [
+    "assets", 
+    "triggers", 
+    "vars", 
+    "cloudchamber", 
+    "definedEnvironments", 
+    "ai_search", 
+    "secrets_store_secrets"
+  ];
+
+  fieldsToRemove.forEach(field => {
+    if (cfg[field]) {
+      delete cfg[field];
+      console.log(`[fix-wrangler] Removed '${field}' field.`);
+    }
+  });
+
+  // ফাইলটি আবার সেভ করা হচ্ছে
+  writeFileSync(target, JSON.stringify(cfg, null, 2));
+  console.log("[fix-wrangler] Final Clean: Wrote cleaned wrangler.json");
 } catch (err) {
-  console.error("[fix-wrangler] Failed to parse wrangler.json:", err);
+  console.error("[fix-wrangler] Error:", err);
   process.exit(1);
 }
-
-// Remove fields unsupported by Cloudflare Pages
-const UNSUPPORTED = ["triggers", "vars", "cloudchamber", "assets"];
-for (const key of UNSUPPORTED) {
-  if (key in cfg) {
-    delete cfg[key];
-    console.log(`[fix-wrangler] Removed \`${key}\` field.`);
-  }
-}
-
-// Strip empty objects that Cloudflare's validator dislikes
-for (const key of Object.keys(cfg)) {
-  const v = cfg[key];
-  if (v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0) {
-    delete cfg[key];
-    console.log(`[fix-wrangler] Removed empty \`${key}\` field.`);
-  }
-}
-
-writeFileSync(target, JSON.stringify(cfg, null, 2) + "\n");
-console.log("[fix-wrangler] Wrote cleaned wrangler.json");
