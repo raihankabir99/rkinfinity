@@ -4,9 +4,10 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite build && rm -f dist/client/wrangler.json",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "dev": "vite build && node scripts/fix-wrangler.js",
+    "build": "vite build && node scripts/fix-wrangler.js",
+    "postbuild": "node scripts/fix-wrangler.js",
+    "build:dev": "vite build --mode development && node scripts/fix-wrangler.js",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."
