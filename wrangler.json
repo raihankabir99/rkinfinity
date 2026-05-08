@@ -1,6 +1,5 @@
 {
-  "name": "rkinfinity",
-  "main": "dist/server/server.js",
+  "name": "rk-infinity",
   "compatibility_date": "2024-05-07",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
