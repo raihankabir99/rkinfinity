@@ -1,5 +1,5 @@
 {
-  "name": "rk-infinity",
+  "name": "rkinfinity",
   "compatibility_date": "2024-05-07",
   "compatibility_flags": ["nodejs_compat"]
 }
