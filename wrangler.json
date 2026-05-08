@@ -1,6 +1,6 @@
 {
   "name": "rkinfinity",
-  "main": "./src/entry-server.tsx", 
+  "main": "src/app/ssr.tsx",
   "compatibility_date": "2024-05-07",
   "compatibility_flags": [
     "nodejs_compat"
