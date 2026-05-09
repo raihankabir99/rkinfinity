@@ -155,37 +155,54 @@ export function Chatbot() {
 
   const baseInputRef = useRef<string>("");
 
-  const toggleMic = () => {
-    const SRClass = getSR();
-    if (!SRClass) { toast.error("Voice input isn't supported. Try Chrome or Edge."); return; }
-    if (listening && recogRef.current) { recogRef.current.stop(); return; }
-    const r = new SRClass();
-    r.lang = "en-US"; r.interimResults = true; r.continuous = false;
-    baseInputRef.current = input ? input.trim() + " " : "";
-    r.onresult = (e) => {
-      let finalText = ""; let interimText = "";
-      for (let i = 0; i < e.results.length; i++) {
-        const res = e.results[i];
-        const chunk = res[0]?.transcript ?? "";
-        if (res.isFinal) finalText += chunk + " "; else interimText += chunk;
-      }
-      setInput((baseInputRef.current + finalText + interimText).replace(/\s+/g, " ").trimStart());
-      if (finalText.trim()) {
-        try { r.stop(); } catch { /* noop */ }
-        const toSend = (baseInputRef.current + finalText).replace(/\s+/g, " ").trim();
-        setTimeout(() => { setInput(toSend); void send(toSend); }, 100);
-      }
-    };
-    r.onerror = (e) => {
-      setListening(false);
-      const code = e?.error ?? "error";
-      toast.error(code === "no-speech" ? "I didn't catch that." : `Voice error: ${code}`);
-      try { r.abort(); } catch { /* noop */ }
-    };
-    r.onend = () => { setListening(false); recogRef.current = null; };
-    recogRef.current = r;
-    setListening(true);
-    try { r.start(); } catch { setListening(false); toast.error("Couldn't start microphone."); }
+const send = async (override?: string) => {
+    const text = (override ?? input).trim();
+    if (!text || loading) return;
+    const next: Msg[] = [...messages, { role: "user", content: text }];
+    setMessages(next);
+    setInput("");
+
+    // Capture name logic (আগের মতোই থাকবে)
+    const captured = captureName(text);
+    if (captured && !userName) {
+      setUserName(captured);
+      localStorage.setItem(NAME_KEY, captured);
+      try {
+        await supabase
+          .from("chat_users")
+          .update({ user_name: captured })
+          .eq("session_id", sessionId);
+      } catch { /* noop */ }
+    }
+
+    setLoading(true);
+    try {
+      // --- আপনার নতুন এপিআই কল এখানে ---
+      const response = await fetch("https://rk-infinity-api.rkinfinity.workers.dev/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          messages: next, 
+          session_id: sessionId, 
+          user_name: userName ?? captured ?? "Visitor" 
+      });
+
+      if (!response.ok) throw new Error("Network response was not ok");
+      
+      const data = await response.json();
+      
+      // আপনার ওয়ার্কার যদি { reply: "..." } পাঠায় তবে এটি ব্যবহার করুন:
+      setMessages((m) => [...m, { role: "assistant", content: data.reply || data.content }]);
+      
+    } catch (e) {
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", content: `Hmm, I hit a snag (${e instanceof Error ? e.message : "unknown"}). Please try again in a moment.` },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
   };
 
   const send = async (override?: string) => {
