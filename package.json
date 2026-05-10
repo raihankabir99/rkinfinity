@@ -4,8 +4,8 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --open index.dev.html",
-    "build": "vite build && mv dist/index.dev.html dist/index.html",
+    "dev": "vite dev --open index.html",
+    "build": "vite build",
     "build:dev": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
