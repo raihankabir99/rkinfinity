@@ -7,7 +7,10 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About — rkInfinity" },
-      { name: "description", content: "Meet RK — SEO strategist, marketer, developer, and story writer." },
+      {
+        name: "description",
+        content: "Meet RK — SEO strategist, marketer, developer, and story writer.",
+      },
       { property: "og:title", content: "About rkInfinity" },
       { property: "og:description", content: "Meet RK — the mind behind the brand." },
     ],
@@ -19,7 +22,11 @@ function About() {
   return (
     <PageShell>
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <SectionHeader eyebrow="About" title="The mind behind the brand" sub="Curious by nature, methodical by craft." />
+        <SectionHeader
+          eyebrow="About"
+          title="The mind behind the brand"
+          sub="Curious by nature, methodical by craft."
+        />
 
         <div className="grid lg:grid-cols-12 gap-6">
           <div className="lg:col-span-7 glass rounded-3xl p-8 md:p-12 relative overflow-hidden">
@@ -31,7 +38,9 @@ function About() {
                 className="h-20 w-20 rounded-2xl object-cover ring-2 ring-[color:var(--gold)]/60 shadow-[0_0_24px_oklch(0.78_0.14_85/0.35)] shrink-0"
               />
               <div>
-                <div className="text-xs font-mono uppercase tracking-widest text-primary mb-1">Hello, I'm RK</div>
+                <div className="text-xs font-mono uppercase tracking-widest text-primary mb-1">
+                  Hello, I'm RK
+                </div>
                 <div className="text-sm text-muted-foreground">Raihan Kabir Ovi · Bangladesh</div>
               </div>
             </div>
@@ -39,13 +48,13 @@ function About() {
               I build <span className="text-gradient">digital systems</span> that grow on their own.
             </h3>
             <p className="mt-6 text-muted-foreground leading-relaxed">
-              I'm an SEO and digital marketing learner turning curiosity into craft. Since 2025 I've been
-              building real-world skills across technical SEO, analytics, and modern web development —
-              one project, one experiment, one story at a time.
+              I'm an SEO and digital marketing learner turning curiosity into craft. Since 2025 I've
+              been building real-world skills across technical SEO, analytics, and modern web
+              development — one project, one experiment, one story at a time.
             </p>
             <p className="mt-4 text-muted-foreground leading-relaxed">
-              When I'm not auditing crawl budgets or shipping React, I'm writing — short fiction, essays,
-              and the occasional newsletter. Story is the original algorithm.
+              When I'm not auditing crawl budgets or shipping React, I'm writing — short fiction,
+              essays, and the occasional newsletter. Story is the original algorithm.
             </p>
           </div>
 
@@ -56,7 +65,10 @@ function About() {
               { icon: Coffee, t: "∞ Espressos", d: "Fuel for the craft" },
               { icon: Heart, t: "1 Mission", d: "Build infinite value" },
             ].map(({ icon: Icon, t, d }) => (
-              <div key={t} className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-primary/40 transition">
+              <div
+                key={t}
+                className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-primary/40 transition"
+              >
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
                   <Icon size={20} />
                 </div>
@@ -83,7 +95,10 @@ function About() {
                 <span className="text-primary font-mono">{s.v}%</span>
               </div>
               <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${s.v}%` }} />
+                <div
+                  className="h-full bg-gradient-to-r from-primary to-accent"
+                  style={{ width: `${s.v}%` }}
+                />
               </div>
             </div>
           ))}

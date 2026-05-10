@@ -12,7 +12,11 @@ export interface ChatInput {
 }
 
 const NAV_INTENTS: Array<{ rx: RegExp; path: string; label: string }> = [
-  { rx: /\b(service|seo|marketing|web ?dev|development|offer)/i, path: "/services", label: "Services" },
+  {
+    rx: /\b(service|seo|marketing|web ?dev|development|offer)/i,
+    path: "/services",
+    label: "Services",
+  },
   { rx: /\b(tool|free tool|generator|calculator)/i, path: "/tools", label: "Tools" },
   { rx: /\b(blog|article|post|read)/i, path: "/blog", label: "Blog" },
   { rx: /\b(contact|hire|reach|email|phone|whatsapp|book)/i, path: "/contact", label: "Contact" },
@@ -56,12 +60,13 @@ async function getTrainedAnswer(userText: string): Promise<string | null> {
 }
 
 async function searchKnowledge(userText: string): Promise<string | null> {
-  const words = userText.toLowerCase().split(/\W+/).filter((w) => w.length > 3).slice(0, 5);
+  const words = userText
+    .toLowerCase()
+    .split(/\W+/)
+    .filter((w) => w.length > 3)
+    .slice(0, 5);
   if (!words.length) return null;
-  const { data } = await supabaseAdmin
-    .from("knowledge_base")
-    .select("title, content")
-    .limit(50);
+  const { data } = await supabaseAdmin.from("knowledge_base").select("title, content").limit(50);
   if (!data) return null;
   let best: { score: number; row: { title: string; content: string } } | null = null;
   for (const row of data as Array<{ title: string; content: string }>) {
@@ -74,7 +79,11 @@ async function searchKnowledge(userText: string): Promise<string | null> {
   return `${snippet}${best.row.content.length > 600 ? "…" : ""}`;
 }
 
-async function persistMessage(session_id: string | undefined, role: "user" | "assistant", content: string) {
+async function persistMessage(
+  session_id: string | undefined,
+  role: "user" | "assistant",
+  content: string,
+) {
   if (!session_id) return;
   try {
     await supabaseAdmin.from("chat_messages").insert({ session_id, role, content });
@@ -109,7 +118,10 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
       .eq("session_id", session_id)
       .maybeSingle();
     if (cu?.mode === "manual") {
-      return { content: "👋 An RK team member is jumping in — one moment…", source: "manual" as const };
+      return {
+        content: "👋 An RK team member is jumping in — one moment…",
+        source: "manual" as const,
+      };
     }
   }
 
@@ -157,7 +169,9 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) throw new Error("AI not configured");
 
-  const greeting = user_name ? `The visitor's name is ${user_name}. Greet them by name on first reply.` : "";
+  const greeting = user_name
+    ? `The visitor's name is ${user_name}. Greet them by name on first reply.`
+    : "";
   const system: ChatMsg = {
     role: "system",
     content:

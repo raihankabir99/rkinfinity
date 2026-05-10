@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
-export function Counter({ to, suffix = "", duration = 2000 }: { to: number; suffix?: string; duration?: number }) {
+export function Counter({
+  to,
+  suffix = "",
+  duration = 2000,
+}: {
+  to: number;
+  suffix?: string;
+  duration?: number;
+}) {
   const [n, setN] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const started = useRef(false);
@@ -19,11 +27,16 @@ export function Counter({ to, suffix = "", duration = 2000 }: { to: number; suff
           requestAnimationFrame(tick);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, [to, duration]);
 
-  return <span ref={ref}>{n}{suffix}</span>;
+  return (
+    <span ref={ref}>
+      {n}
+      {suffix}
+    </span>
+  );
 }

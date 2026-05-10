@@ -5,6 +5,7 @@ This is a large multi-part request. I'll group it into focused, shippable phases
 ## Phase 1 — Database & Realtime
 
 New/updated tables (single migration):
+
 - `chat_users` — `id (uuid)`, `session_id (text unique)`, `user_name`, `ip_address`, `country`, `city`, `device`, `last_seen_at`, `created_at`. Public insert/upsert by `session_id`; admin read.
 - `chat_messages` — `id`, `session_id` (FK to chat_users.session_id), `role` ('user'|'assistant'|'admin'), `content`, `created_at`. Public insert + select where `session_id = current session` (we pass via filter); admin read all.
 - `projects` — `id (uuid)`, `project_id (text unique, short code)`, `client_name`, `status`, `progress (int)`, `tracking_url`, `notes`, timestamps. Public select by `project_id`; admin write.
@@ -18,7 +19,7 @@ New/updated tables (single migration):
 - On mount: read/create `session_id` in localStorage; upsert `chat_users` row with IP/geo from existing visitor tracking hook + UA-derived device.
 - Load last 50 messages from `chat_messages` for the session — replay history.
 - If `user_name` exists → greet "Welcome back, [Name]!". Otherwise show new welcome:  
-  *"Hi! I'm rkInfinity's assistant 🤖✨ Ask me anything about SEO, digital marketing, web dev, or RK's services. You can also track your project here using your unique ID — just type away."*
+  _"Hi! I'm rkInfinity's assistant 🤖✨ Ask me anything about SEO, digital marketing, web dev, or RK's services. You can also track your project here using your unique ID — just type away."_
 - Capture name when user introduces themselves (regex: "my name is X" / "I'm X") → update `chat_users.user_name`.
 - Smart Navigation: server function detects intents (services/tools/blog/contact/about) → returns reply with link.
 - Project Tracking: if message matches `/^[A-Z0-9]{4,}$/` or starts with "track" → server looks up `projects.project_id` and returns status + link.
@@ -29,6 +30,7 @@ New/updated tables (single migration):
 ## Phase 3 — Admin Command Center
 
 `/admin/chats` updates:
+
 - Switch from `chat_logs` to `chat_messages` + `chat_users` (richer data: name, location, device, new vs returning based on `created_at`).
 - Per-session toggle "AI Mode / Manual Mode" → updates `chat_users.mode`.
 - Admin reply input → inserts into `chat_messages` with role='admin'.
@@ -36,16 +38,19 @@ New/updated tables (single migration):
 - Browser push notifications: request `Notification.permission` on load; on new inbound user message, show notification (when tab not focused).
 
 `/admin/analytics` (new route):
+
 - Cards: live visitors (last 5 min), today's sessions, total today, returning %.
 - Device breakdown (donut), Country list (top 10), recent visits table.
 - Data from existing `visitor_tracking` table.
 
 `/admin/projects` (new route):
+
 - CRUD for `projects` table so admin can manage project IDs/status.
 
 ## Phase 4 — Knowledge Base file upload
 
 In `/admin/knowledge` "New Article" section:
+
 - Add "Upload PDF / Text File" button.
 - Client parses `.txt` and `.md` directly. For `.pdf` use `pdfjs-dist` (browser, no native deps) — extract text, populate the content textarea, set title from filename.
 - Save flows through existing knowledge_base insert (so the bot retrieves it via the existing trained-answer logic — we'll also extend the chat server to do simple keyword search across `knowledge_base.content`).

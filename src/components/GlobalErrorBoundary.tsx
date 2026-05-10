@@ -1,12 +1,16 @@
 import React from "react";
 import { logErrorFn } from "@/lib/log-error.functions";
 
+// Extend the Window interface to include our custom property
+interface CustomWindow extends Window {
+  __rkErrInstalled?: boolean;
+}
+
+declare const window: CustomWindow;
+
 type State = { error: Error | null };
 
-export class GlobalErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  State
-> {
+export class GlobalErrorBoundary extends React.Component<{ children: React.ReactNode }, State> {
   state: State = { error: null };
 
   static getDerivedStateFromError(error: Error): State {
@@ -55,13 +59,20 @@ export class GlobalErrorBoundary extends React.Component<
 // Install global handlers once on the client to capture uncaught errors / promise rejections.
 export function installClientErrorReporting() {
   if (typeof window === "undefined") return;
-  if ((window as any).__rkErrInstalled) return;
-  (window as any).__rkErrInstalled = true;
+  if (window.__rkErrInstalled) return;
+  window.__rkErrInstalled = true;
 
-  const post = (payload: { message: string; stack?: string; path?: string; level?: "error" | "warn" | "info" }) => {
+  const post = (payload: {
+    message: string;
+    stack?: string;
+    path?: string;
+    level?: "error" | "warn" | "info";
+  }) => {
     try {
       void logErrorFn({ data: payload });
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   };
 
   window.addEventListener("error", (ev) => {
@@ -74,9 +85,10 @@ export function installClientErrorReporting() {
   });
 
   window.addEventListener("unhandledrejection", (ev) => {
-    const reason = ev.reason;
+    const reason = ev.reason as { message?: string; stack?: string };
     post({
-      message: typeof reason === "string" ? reason : reason?.message ?? "Unhandled promise rejection",
+      message:
+        typeof reason === "string" ? reason : (reason?.message ?? "Unhandled promise rejection"),
       stack: reason?.stack,
       path: window.location.pathname,
       level: "error",

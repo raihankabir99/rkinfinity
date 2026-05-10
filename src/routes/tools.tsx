@@ -1,18 +1,57 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, type ReactNode } from "react";
 import { PageShell, SectionHeader } from "@/components/PageShell";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
-  Search, Gauge, FileSearch, KeyRound, Link2, FileCode2, Map, Tags,
-  BarChart3, Network, Calculator, DollarSign,
-  Sparkles, Youtube, FileText, Hash,
-  Code2, Braces, Wand2, Binary, ArrowRight,
-  DollarSign as Coin, Wand, Swords,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Search,
+  Gauge,
+  FileSearch,
+  KeyRound,
+  Link2,
+  FileCode2,
+  Map,
+  Tags,
+  BarChart3,
+  Network,
+  Calculator,
+  DollarSign,
+  Sparkles,
+  Youtube,
+  FileText,
+  Hash,
+  Code2,
+  Braces,
+  Wand2,
+  Binary,
+  ArrowRight,
+  DollarSign as Coin,
+  Wand,
+  Swords,
   type LucideIcon,
 } from "lucide-react";
-import { PageSpeedTool, KeywordTool, SeoAuditTool, BrokenLinkTool, RobotsTool, SitemapTool, MetaTool, DensityTool } from "@/components/tools/SeoTools";
+import {
+  PageSpeedTool,
+  KeywordTool,
+  SeoAuditTool,
+  BrokenLinkTool,
+  RobotsTool,
+  SitemapTool,
+  MetaTool,
+  DensityTool,
+} from "@/components/tools/SeoTools";
 import { CompetitorTool, BacklinkTool, ROITool, CPCTool } from "@/components/tools/AnalyticsTools";
-import { BlogIntroTool, YoutubeScriptTool, SummarizerTool, HashtagTool } from "@/components/tools/AiTools";
+import {
+  BlogIntroTool,
+  YoutubeScriptTool,
+  SummarizerTool,
+  HashtagTool,
+} from "@/components/tools/AiTools";
 import { MinifierTool, JsonTool, BeautifyTool, Base64Tool } from "@/components/tools/CodingTools";
 import { WebsiteWorthTool, HumanizerTool, RankBattleTool } from "@/components/tools/FeaturedTools";
 
@@ -20,9 +59,15 @@ export const Route = createFileRoute("/tools")({
   head: () => ({
     meta: [
       { title: "Tools Hub — rkInfinity" },
-      { name: "description", content: "A curated hub of free SEO, analytics, AI, and coding tools — built by RK." },
+      {
+        name: "description",
+        content: "A curated hub of free SEO, analytics, AI, and coding tools — built by RK.",
+      },
       { property: "og:title", content: "Tools Hub — rkInfinity" },
-      { property: "og:description", content: "Search 24+ free tools across SEO, analytics, AI, and coding." },
+      {
+        property: "og:description",
+        content: "Search 24+ free tools across SEO, analytics, AI, and coding.",
+      },
     ],
   }),
   component: ToolsHub,
@@ -48,10 +93,10 @@ const toolComponents: Record<string, () => ReactNode> = {
   "youtube-script": () => <YoutubeScriptTool />,
   "text-summarizer": () => <SummarizerTool />,
   "hashtag-generator": () => <HashtagTool />,
-  "minifier": () => <MinifierTool />,
+  minifier: () => <MinifierTool />,
   "json-formatter": () => <JsonTool />,
   "code-beautifier": () => <BeautifyTool />,
-  "base64": () => <Base64Tool />,
+  base64: () => <Base64Tool />,
 };
 
 type Tool = { t: string; d: string; icon: LucideIcon; slug: string };
@@ -64,9 +109,24 @@ const categories: Category[] = [
     accent: "from-primary/30 to-accent/10",
     icon: Sparkles,
     tools: [
-      { t: "Website Worth Calculator", d: "Estimate the market value of any website.", icon: Coin, slug: "website-worth" },
-      { t: "AI Content Humanizer", d: "Rewrite AI-sounding text in a natural human voice.", icon: Wand, slug: "ai-humanizer" },
-      { t: "Rank Battle", d: "Head-to-head SEO showdown between two domains.", icon: Swords, slug: "rank-battle" },
+      {
+        t: "Website Worth Calculator",
+        d: "Estimate the market value of any website.",
+        icon: Coin,
+        slug: "website-worth",
+      },
+      {
+        t: "AI Content Humanizer",
+        d: "Rewrite AI-sounding text in a natural human voice.",
+        icon: Wand,
+        slug: "ai-humanizer",
+      },
+      {
+        t: "Rank Battle",
+        d: "Head-to-head SEO showdown between two domains.",
+        icon: Swords,
+        slug: "rank-battle",
+      },
     ],
   },
   {
@@ -75,14 +135,54 @@ const categories: Category[] = [
     accent: "from-primary/20 to-primary/5",
     icon: Search,
     tools: [
-      { t: "Keyword Research", d: "Real keyword suggestions with search intent.", icon: KeyRound, slug: "keyword-research" },
-      { t: "Page Speed", d: "Google PageSpeed API — Core Web Vitals report.", icon: Gauge, slug: "page-speed" },
-      { t: "SEO Audit", d: "On-page audit for any URL in seconds.", icon: FileSearch, slug: "seo-audit" },
-      { t: "Broken Link Checker", d: "Crawl any page and surface 404s instantly.", icon: Link2, slug: "broken-links" },
-      { t: "Robots.txt Generator", d: "Build a clean, crawler-friendly robots.txt.", icon: FileCode2, slug: "robots-generator" },
-      { t: "Sitemap Generator", d: "Generate XML sitemaps from a domain.", icon: Map, slug: "sitemap-generator" },
-      { t: "Meta Tag Generator", d: "Craft perfect title, description & OG tags.", icon: Tags, slug: "meta-generator" },
-      { t: "Keyword Density Checker", d: "Detect stuffing, find content gaps.", icon: BarChart3, slug: "keyword-density" },
+      {
+        t: "Keyword Research",
+        d: "Real keyword suggestions with search intent.",
+        icon: KeyRound,
+        slug: "keyword-research",
+      },
+      {
+        t: "Page Speed",
+        d: "Google PageSpeed API — Core Web Vitals report.",
+        icon: Gauge,
+        slug: "page-speed",
+      },
+      {
+        t: "SEO Audit",
+        d: "On-page audit for any URL in seconds.",
+        icon: FileSearch,
+        slug: "seo-audit",
+      },
+      {
+        t: "Broken Link Checker",
+        d: "Crawl any page and surface 404s instantly.",
+        icon: Link2,
+        slug: "broken-links",
+      },
+      {
+        t: "Robots.txt Generator",
+        d: "Build a clean, crawler-friendly robots.txt.",
+        icon: FileCode2,
+        slug: "robots-generator",
+      },
+      {
+        t: "Sitemap Generator",
+        d: "Generate XML sitemaps from a domain.",
+        icon: Map,
+        slug: "sitemap-generator",
+      },
+      {
+        t: "Meta Tag Generator",
+        d: "Craft perfect title, description & OG tags.",
+        icon: Tags,
+        slug: "meta-generator",
+      },
+      {
+        t: "Keyword Density Checker",
+        d: "Detect stuffing, find content gaps.",
+        icon: BarChart3,
+        slug: "keyword-density",
+      },
     ],
   },
   {
@@ -91,10 +191,30 @@ const categories: Category[] = [
     accent: "from-accent/20 to-accent/5",
     icon: BarChart3,
     tools: [
-      { t: "Competitor Comparison", d: "Side-by-side metrics (realistic mock).", icon: Network, slug: "competitor-comparison" },
-      { t: "Backlink Overview", d: "Domain authority + referring domains (mock).", icon: Link2, slug: "backlink-overview" },
-      { t: "ROI Calculator", d: "Project return on marketing spend.", icon: Calculator, slug: "roi-calculator" },
-      { t: "CPC Calculator", d: "Estimate cost-per-click & ad budgets.", icon: DollarSign, slug: "cpc-calculator" },
+      {
+        t: "Competitor Comparison",
+        d: "Side-by-side metrics (realistic mock).",
+        icon: Network,
+        slug: "competitor-comparison",
+      },
+      {
+        t: "Backlink Overview",
+        d: "Domain authority + referring domains (mock).",
+        icon: Link2,
+        slug: "backlink-overview",
+      },
+      {
+        t: "ROI Calculator",
+        d: "Project return on marketing spend.",
+        icon: Calculator,
+        slug: "roi-calculator",
+      },
+      {
+        t: "CPC Calculator",
+        d: "Estimate cost-per-click & ad budgets.",
+        icon: DollarSign,
+        slug: "cpc-calculator",
+      },
     ],
   },
   {
@@ -103,10 +223,30 @@ const categories: Category[] = [
     accent: "from-primary/20 to-accent/10",
     icon: Sparkles,
     tools: [
-      { t: "AI Blog Intro Generator", d: "Hook-driven intros from a single topic.", icon: Sparkles, slug: "blog-intro" },
-      { t: "YouTube Script Generator", d: "Full scripts with hook, body & CTA.", icon: Youtube, slug: "youtube-script" },
-      { t: "Text Summarizer", d: "Compress long content into key points.", icon: FileText, slug: "text-summarizer" },
-      { t: "Hashtag Generator", d: "On-trend hashtag sets per platform.", icon: Hash, slug: "hashtag-generator" },
+      {
+        t: "AI Blog Intro Generator",
+        d: "Hook-driven intros from a single topic.",
+        icon: Sparkles,
+        slug: "blog-intro",
+      },
+      {
+        t: "YouTube Script Generator",
+        d: "Full scripts with hook, body & CTA.",
+        icon: Youtube,
+        slug: "youtube-script",
+      },
+      {
+        t: "Text Summarizer",
+        d: "Compress long content into key points.",
+        icon: FileText,
+        slug: "text-summarizer",
+      },
+      {
+        t: "Hashtag Generator",
+        d: "On-trend hashtag sets per platform.",
+        icon: Hash,
+        slug: "hashtag-generator",
+      },
     ],
   },
   {
@@ -115,10 +255,30 @@ const categories: Category[] = [
     accent: "from-accent/20 to-primary/10",
     icon: Code2,
     tools: [
-      { t: "HTML / CSS / JS Minifier", d: "Shrink production assets in one click.", icon: Code2, slug: "minifier" },
-      { t: "JSON Formatter", d: "Validate, pretty-print, and tree-view JSON.", icon: Braces, slug: "json-formatter" },
-      { t: "Code Beautifier", d: "Reformat messy code with consistent style.", icon: Wand2, slug: "code-beautifier" },
-      { t: "Base64 Converter", d: "Encode & decode text or files to Base64.", icon: Binary, slug: "base64" },
+      {
+        t: "HTML / CSS / JS Minifier",
+        d: "Shrink production assets in one click.",
+        icon: Code2,
+        slug: "minifier",
+      },
+      {
+        t: "JSON Formatter",
+        d: "Validate, pretty-print, and tree-view JSON.",
+        icon: Braces,
+        slug: "json-formatter",
+      },
+      {
+        t: "Code Beautifier",
+        d: "Reformat messy code with consistent style.",
+        icon: Wand2,
+        slug: "code-beautifier",
+      },
+      {
+        t: "Base64 Converter",
+        d: "Encode & decode text or files to Base64.",
+        icon: Binary,
+        slug: "base64",
+      },
     ],
   },
 ];
@@ -135,7 +295,7 @@ function ToolsHub() {
       .map((c) => ({
         ...c,
         tools: c.tools.filter(
-          (t) => !query || t.t.toLowerCase().includes(query) || t.d.toLowerCase().includes(query)
+          (t) => !query || t.t.toLowerCase().includes(query) || t.d.toLowerCase().includes(query),
         ),
       }))
       .filter((c) => c.tools.length > 0);
@@ -206,14 +366,17 @@ function ToolsHub() {
         {/* CATEGORY SECTIONS */}
         {filtered.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center text-muted-foreground">
-            No tools match <span className="text-foreground font-mono">"{q}"</span>. Try another keyword.
+            No tools match <span className="text-foreground font-mono">"{q}"</span>. Try another
+            keyword.
           </div>
         ) : (
           <div className="space-y-16">
             {filtered.map((cat) => (
               <div key={cat.id}>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${cat.accent} text-primary`}>
+                  <div
+                    className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${cat.accent} text-primary`}
+                  >
                     <cat.icon size={18} />
                   </div>
                   <div>
@@ -236,14 +399,19 @@ function ToolsHub() {
                           <Icon size={20} />
                         </div>
                         <h3 className="text-base font-bold mb-1.5 leading-tight">{t}</h3>
-                        <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">{d}</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">
+                          {d}
+                        </p>
                         <button
                           type="button"
                           onClick={() => setOpenTool(tool)}
                           className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition w-full"
                         >
                           Launch Tool
-                          <ArrowRight size={14} className="group-hover:translate-x-0.5 transition" />
+                          <ArrowRight
+                            size={14}
+                            className="group-hover:translate-x-0.5 transition"
+                          />
                         </button>
                       </div>
                     );
@@ -269,7 +437,9 @@ function ToolsHub() {
                 <DialogDescription>{openTool.d}</DialogDescription>
               </DialogHeader>
               <div className="mt-4">
-                {toolComponents[openTool.slug]?.() ?? <p className="text-sm text-muted-foreground">Coming soon.</p>}
+                {toolComponents[openTool.slug]?.() ?? (
+                  <p className="text-sm text-muted-foreground">Coming soon.</p>
+                )}
               </div>
             </>
           )}

@@ -160,10 +160,7 @@ export function BlogTranslator({ children }: { children: ReactNode }) {
 
   return (
     <div>
-      <div
-        className="flex justify-end mb-4"
-        data-no-translate
-      >
+      <div className="flex justify-end mb-4" data-no-translate>
         <DropdownMenu>
           <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/40 px-4 py-2 text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-primary hover:border-primary/60 transition">
             {working ? (

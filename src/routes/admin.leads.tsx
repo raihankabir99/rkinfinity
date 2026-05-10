@@ -7,10 +7,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/leads")({
   head: () => ({
-    meta: [
-      { title: "Leads — rkInfinity Admin" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Leads — rkInfinity Admin" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: LeadsPage,
 });
@@ -50,7 +47,9 @@ function LeadsPage() {
       setAuthChecking(false);
       if (ok) void load();
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [navigate]);
 
   const load = async () => {
@@ -69,16 +68,14 @@ function LeadsPage() {
     if (!isAdmin) return;
     const ch = supabase
       .channel("admin-leads")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "leads" },
-        (payload) => {
-          setRows((prev) => [payload.new as LeadRow, ...prev].slice(0, 500));
-          toast.success("New lead!");
-        },
-      )
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "leads" }, (payload) => {
+        setRows((prev) => [payload.new as LeadRow, ...prev].slice(0, 500));
+        toast.success("New lead!");
+      })
       .subscribe();
-    return () => { void supabase.removeChannel(ch); };
+    return () => {
+      void supabase.removeChannel(ch);
+    };
   }, [isAdmin]);
 
   if (authChecking) {
@@ -96,7 +93,9 @@ function LeadsPage() {
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-bold">Admin access required</h1>
-          <Link to="/" className="mt-6 inline-block text-primary hover:underline">← Back home</Link>
+          <Link to="/" className="mt-6 inline-block text-primary hover:underline">
+            ← Back home
+          </Link>
         </div>
       </PageShell>
     );
@@ -105,7 +104,10 @@ function LeadsPage() {
   return (
     <PageShell>
       <section className="mx-auto max-w-6xl px-4 py-10">
-        <Link to="/admin" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-4">
+        <Link
+          to="/admin"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-4"
+        >
           <ArrowLeft size={14} /> Back to dashboard
         </Link>
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -115,7 +117,9 @@ function LeadsPage() {
             </div>
             <h1 className="mt-1 text-3xl font-bold md:text-4xl">
               <span className="text-white">All </span>
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Leads</span>
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Leads
+              </span>
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{rows.length} total submissions</p>
           </div>
@@ -150,7 +154,9 @@ function LeadsPage() {
                       {r.source}
                     </span>
                   )}
-                  <div className="text-[10px] text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {new Date(r.created_at).toLocaleString()}
+                  </div>
                 </div>
               </div>
               {r.message && (

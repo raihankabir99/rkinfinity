@@ -7,10 +7,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/trainer")({
   head: () => ({
-    meta: [
-      { title: "Bot Trainer — rkInfinity" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Bot Trainer — rkInfinity" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: TrainerPage,
 });
@@ -50,7 +47,9 @@ function TrainerPage() {
       setAuthChecking(false);
       if (ok) void load();
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [navigate]);
 
   const load = async () => {
@@ -107,7 +106,9 @@ function TrainerPage() {
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-bold">Admin access required</h1>
-          <Link to="/" className="mt-6 inline-block text-primary hover:underline">← Back home</Link>
+          <Link to="/" className="mt-6 inline-block text-primary hover:underline">
+            ← Back home
+          </Link>
         </div>
       </PageShell>
     );
@@ -116,7 +117,10 @@ function TrainerPage() {
   return (
     <PageShell>
       <section className="mx-auto max-w-5xl px-4 py-10">
-        <Link to="/admin" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-4">
+        <Link
+          to="/admin"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-4"
+        >
           <ArrowLeft size={14} /> Back to dashboard
         </Link>
         <div className="mb-8">
@@ -125,7 +129,9 @@ function TrainerPage() {
           </div>
           <h1 className="mt-1 text-3xl font-bold md:text-4xl">
             <span className="text-white">Bot </span>
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Training</span>
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Training
+            </span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Add Q&amp;A pairs. The chatbot checks these first before falling back to the AI.
@@ -180,7 +186,9 @@ function TrainerPage() {
                 <div className="flex-1 min-w-0">
                   <div className="text-[10px] uppercase tracking-wider text-primary mb-1">Q</div>
                   <div className="text-sm font-semibold text-foreground">{r.question}</div>
-                  <div className="text-[10px] uppercase tracking-wider text-secondary mt-3 mb-1">A</div>
+                  <div className="text-[10px] uppercase tracking-wider text-secondary mt-3 mb-1">
+                    A
+                  </div>
                   <div className="text-sm text-foreground/80 whitespace-pre-wrap">{r.answer}</div>
                 </div>
                 <button

@@ -12,7 +12,15 @@ export function PageShell({ children }: { children: ReactNode }) {
   );
 }
 
-export function SectionHeader({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: string }) {
+export function SectionHeader({
+  eyebrow,
+  title,
+  sub,
+}: {
+  eyebrow?: string;
+  title: string;
+  sub?: string;
+}) {
   return (
     <div className="text-center max-w-3xl mx-auto mb-12">
       {eyebrow && (

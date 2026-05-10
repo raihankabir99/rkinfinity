@@ -2,8 +2,15 @@ import { useMemo, useState } from "react";
 import { NeonButton, downloadPdf, PdfButton } from "./ToolHelpers";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 
-const seed = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return Math.abs(h); };
-const rand = (s: string, min: number, max: number) => min + (seed(s) % 1000) / 1000 * (max - min);
+const seed = (s: string) => {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
+};
+const rand = (s: string, min: number, max: number) => min + ((seed(s) % 1000) / 1000) * (max - min);
 
 // ============ COMPETITOR COMPARISON ============
 export function CompetitorTool() {
@@ -20,8 +27,16 @@ export function CompetitorTool() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2">
-        <input value={a} onChange={(e) => setA(e.target.value)} className="glass rounded-lg px-3 py-2 text-sm outline-none" />
-        <input value={b} onChange={(e) => setB(e.target.value)} className="glass rounded-lg px-3 py-2 text-sm outline-none" />
+        <input
+          value={a}
+          onChange={(e) => setA(e.target.value)}
+          className="glass rounded-lg px-3 py-2 text-sm outline-none"
+        />
+        <input
+          value={b}
+          onChange={(e) => setB(e.target.value)}
+          className="glass rounded-lg px-3 py-2 text-sm outline-none"
+        />
       </div>
       <div className="glass rounded-lg p-4 h-72">
         <ResponsiveContainer width="100%" height="100%">
@@ -29,17 +44,30 @@ export function CompetitorTool() {
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis dataKey="metric" tick={{ fontSize: 11, fill: "currentColor" }} />
             <YAxis tick={{ fontSize: 11, fill: "currentColor" }} />
-            <Tooltip contentStyle={{ background: "rgba(0,0,0,0.9)", border: "1px solid hsl(var(--primary))", borderRadius: 8, fontSize: 12 }} />
+            <Tooltip
+              contentStyle={{
+                background: "rgba(0,0,0,0.9)",
+                border: "1px solid hsl(var(--primary))",
+                borderRadius: 8,
+                fontSize: 12,
+              }}
+            />
             <Bar dataKey={a} fill="oklch(0.88 0.28 142)" radius={[4, 4, 0, 0]} />
             <Bar dataKey={b} fill="oklch(0.85 0.18 195)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-xs text-muted-foreground italic">Realistic mock data — for UI demo. Connect a real API key for production.</p>
-      <PdfButton onClick={() => downloadPdf(`Competitor Comparison`, [
-        `${a} vs ${b}`,
-        ...data.map((d) => `${d.metric}: ${a}=${d[a]} | ${b}=${d[b]}`),
-      ])} />
+      <p className="text-xs text-muted-foreground italic">
+        Realistic mock data — for UI demo. Connect a real API key for production.
+      </p>
+      <PdfButton
+        onClick={() =>
+          downloadPdf(`Competitor Comparison`, [
+            `${a} vs ${b}`,
+            ...data.map((d) => `${d.metric}: ${a}=${d[a]} | ${b}=${d[b]}`),
+          ])
+        }
+      />
     </div>
   );
 }
@@ -58,9 +86,15 @@ export function BacklinkTool() {
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="example.com"
-          className="flex-1 glass rounded-lg px-3 py-2 text-sm outline-none" />
-        <NeonButton onClick={() => setShow(true)} disabled={!url}>Check</NeonButton>
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="example.com"
+          className="flex-1 glass rounded-lg px-3 py-2 text-sm outline-none"
+        />
+        <NeonButton onClick={() => setShow(true)} disabled={!url}>
+          Check
+        </NeonButton>
       </div>
       {show && data && (
         <>
@@ -70,10 +104,16 @@ export function BacklinkTool() {
             <Stat label="Total Backlinks" value={data.total.toLocaleString()} />
           </div>
           <p className="text-xs text-muted-foreground italic">Realistic mock data — for UI demo.</p>
-          <PdfButton onClick={() => downloadPdf(`Backlink Overview - ${url}`, [
-            `Domain: ${url}`, `Domain Authority: ${data.da}`,
-            `Referring Domains: ${data.refs}`, `Total Backlinks: ${data.total}`,
-          ])} />
+          <PdfButton
+            onClick={() =>
+              downloadPdf(`Backlink Overview - ${url}`, [
+                `Domain: ${url}`,
+                `Domain Authority: ${data.da}`,
+                `Referring Domains: ${data.refs}`,
+                `Total Backlinks: ${data.total}`,
+              ])
+            }
+          />
         </>
       )}
     </div>
@@ -85,11 +125,30 @@ function DAGauge({ value }: { value: number }) {
     <div className="glass rounded-lg p-4 text-center">
       <div className="relative h-20 w-20 mx-auto">
         <svg viewBox="0 0 100 100" className="-rotate-90">
-          <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="none" opacity="0.2" />
-          <circle cx="50" cy="50" r="40" stroke="oklch(0.88 0.28 142)" strokeWidth="8" fill="none" strokeLinecap="round"
-            strokeDasharray={2 * Math.PI * 40} strokeDashoffset={2 * Math.PI * 40 * (1 - value / 100)} />
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            stroke="currentColor"
+            strokeWidth="8"
+            fill="none"
+            opacity="0.2"
+          />
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            stroke="oklch(0.88 0.28 142)"
+            strokeWidth="8"
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray={2 * Math.PI * 40}
+            strokeDashoffset={2 * Math.PI * 40 * (1 - value / 100)}
+          />
         </svg>
-        <div className="absolute inset-0 grid place-items-center text-xl font-black text-primary">{value}</div>
+        <div className="absolute inset-0 grid place-items-center text-xl font-black text-primary">
+          {value}
+        </div>
       </div>
       <div className="text-xs uppercase mt-2 text-muted-foreground">Domain Auth</div>
     </div>
@@ -160,12 +219,24 @@ export function CPCTool() {
   );
 }
 
-function Field({ label, value, onChange }: { label: string; value: number; onChange: (n: number) => void }) {
+function Field({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (n: number) => void;
+}) {
   return (
     <label className="block">
       <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
-      <input type="number" value={value} onChange={(e) => onChange(Number(e.target.value) || 0)}
-        className="w-full glass rounded-lg px-3 py-2 mt-1 outline-none focus:border-primary/50" />
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value) || 0)}
+        className="w-full glass rounded-lg px-3 py-2 mt-1 outline-none focus:border-primary/50"
+      />
     </label>
   );
 }

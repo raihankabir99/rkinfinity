@@ -7,7 +7,11 @@ export const Route = createFileRoute("/story")({
   head: () => ({
     meta: [
       { title: "Story — rkInfinity" },
-      { name: "description", content: "The journey of RK — launch pad, internship, and growth in SEO and digital marketing." },
+      {
+        name: "description",
+        content:
+          "The journey of RK — launch pad, internship, and growth in SEO and digital marketing.",
+      },
       { property: "og:title", content: "RK's Story" },
       { property: "og:description", content: "From The Launch Pad to Growth & Analysis." },
     ],
@@ -39,15 +43,18 @@ const timeline = [
 const stories = [
   {
     title: "The Letter I Never Sent",
-    teaser: "A short story about courage, regret, and the small words that change everything — written under a forest sky.",
+    teaser:
+      "A short story about courage, regret, and the small words that change everything — written under a forest sky.",
   },
   {
     title: "Echoes in the Marketplace",
-    teaser: "Where commerce meets character. A glimpse into the people behind the transactions that move our world.",
+    teaser:
+      "Where commerce meets character. A glimpse into the people behind the transactions that move our world.",
   },
   {
     title: "Midnight Algorithms",
-    teaser: "An essay-poem on what it feels like to write code at 3 AM — when machines feel almost human.",
+    teaser:
+      "An essay-poem on what it feels like to write code at 3 AM — when machines feel almost human.",
   },
 ];
 
@@ -70,14 +77,21 @@ function Story() {
               const Icon = item.icon;
               const left = i % 2 === 0;
               return (
-                <div key={item.t} className={`relative md:flex items-center ${left ? "" : "md:flex-row-reverse"}`}>
+                <div
+                  key={item.t}
+                  className={`relative md:flex items-center ${left ? "" : "md:flex-row-reverse"}`}
+                >
                   <div className="absolute left-4 md:left-1/2 -translate-x-1/2 grid h-8 w-8 place-items-center rounded-full bg-background border-2 border-primary z-10">
                     <Icon size={14} className="text-primary" />
                   </div>
 
-                  <div className={`md:w-1/2 pl-14 md:pl-0 ${left ? "md:pr-12 md:text-right" : "md:pl-12"}`}>
+                  <div
+                    className={`md:w-1/2 pl-14 md:pl-0 ${left ? "md:pr-12 md:text-right" : "md:pl-12"}`}
+                  >
                     <div className="glass rounded-2xl p-6 hover:border-primary/40 transition">
-                      <div className="text-xs font-mono text-primary tracking-widest mb-2">{item.y}</div>
+                      <div className="text-xs font-mono text-primary tracking-widest mb-2">
+                        {item.y}
+                      </div>
                       <h3 className="text-xl font-bold mb-2">{item.t}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{item.d}</p>
                     </div>
@@ -108,7 +122,10 @@ function Story() {
           </h2>
           <p
             className="mt-6 text-2xl md:text-3xl italic text-[color:var(--gold-bright)]"
-            style={{ fontFamily: '"Playfair Display", Georgia, serif', textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}
+            style={{
+              fontFamily: '"Playfair Display", Georgia, serif',
+              textShadow: "0 2px 20px rgba(0,0,0,0.6)",
+            }}
           >
             "My pen knows the language of love."
           </p>

@@ -74,13 +74,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   useVisitorTracking();
-  useEffect(() => { installClientErrorReporting(); }, []);
+  useEffect(() => {
+    installClientErrorReporting();
+  }, []);
   return (
-      <GlobalErrorBoundary>
-        <Outlet />
-        <FloatingWhatsApp />
-        <Chatbot />
-        <Toaster position="bottom-center" theme="dark" richColors />
-      </GlobalErrorBoundary>
+    <GlobalErrorBoundary>
+      <Outlet />
+      <FloatingWhatsApp />
+      <Chatbot />
+      <Toaster position="bottom-center" theme="dark" richColors />
+    </GlobalErrorBoundary>
   );
 }

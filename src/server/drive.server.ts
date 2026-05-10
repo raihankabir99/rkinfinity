@@ -68,17 +68,14 @@ export async function uploadReportToDrive(opts: {
     `${opts.body}\r\n` +
     `--${boundary}--`;
 
-  const res = await fetch(
-    `${DRIVE_UPLOAD}?uploadType=multipart&fields=id,webViewLink`,
-    {
-      method: "POST",
-      headers: {
-        ...headers,
-        "Content-Type": `multipart/related; boundary=${boundary}`,
-      },
-      body: multipartBody,
+  const res = await fetch(`${DRIVE_UPLOAD}?uploadType=multipart&fields=id,webViewLink`, {
+    method: "POST",
+    headers: {
+      ...headers,
+      "Content-Type": `multipart/related; boundary=${boundary}`,
     },
-  );
+    body: multipartBody,
+  });
   if (!res.ok) {
     throw new Error(`Drive upload failed: ${res.status} ${await res.text()}`);
   }

@@ -11,7 +11,11 @@ export function Spinner({ label = "Working..." }: { label?: string }) {
 }
 
 export function NeonButton({
-  children, onClick, type = "button", disabled, className = "",
+  children,
+  onClick,
+  type = "button",
+  disabled,
+  className = "",
 }: {
   children: React.ReactNode;
   onClick?: () => void;
@@ -40,15 +44,33 @@ export function CircularScore({ value, label }: { value: number; label: string }
     <div className="flex flex-col items-center gap-2">
       <div className="relative h-28 w-28">
         <svg className="-rotate-90" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r={r} stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" opacity="0.3" />
           <circle
-            cx="50" cy="50" r={r} strokeWidth="8" fill="none"
-            stroke={color} strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round"
+            cx="50"
+            cy="50"
+            r={r}
+            stroke="currentColor"
+            strokeWidth="8"
+            fill="none"
+            className="text-muted"
+            opacity="0.3"
+          />
+          <circle
+            cx="50"
+            cy="50"
+            r={r}
+            strokeWidth="8"
+            fill="none"
+            stroke={color}
+            strokeDasharray={c}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
             style={{ transition: "stroke-dashoffset 1s ease" }}
           />
         </svg>
         <div className="absolute inset-0 grid place-items-center">
-          <span className="text-2xl font-black" style={{ color }}>{value}</span>
+          <span className="text-2xl font-black" style={{ color }}>
+            {value}
+          </span>
         </div>
       </div>
       <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
@@ -69,7 +91,10 @@ export function downloadPdf(title: string, lines: string[]) {
   for (const line of lines) {
     const wrapped = doc.splitTextToSize(line, 180);
     for (const w of wrapped) {
-      if (y > 280) { doc.addPage(); y = 18; }
+      if (y > 280) {
+        doc.addPage();
+        y = 18;
+      }
       doc.text(w, 14, y);
       y += 6;
     }

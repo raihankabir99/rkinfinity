@@ -242,9 +242,7 @@ function BlogAdminPage() {
           className="glass rounded-2xl border border-white/5 p-5 space-y-3 mb-8"
         >
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold">
-              {editingId ? "Edit post" : "New post"}
-            </h2>
+            <h2 className="text-sm font-semibold">{editingId ? "Edit post" : "New post"}</h2>
             {editingId && (
               <button
                 type="button"

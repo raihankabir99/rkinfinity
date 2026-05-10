@@ -28,88 +28,88 @@ export function Navbar() {
 
   return (
     <>
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled ? "py-2" : "py-4"
-      }`}
-    >
-      <div className="mx-auto max-w-7xl px-4">
-        <nav className="glass flex items-center justify-between rounded-2xl px-4 py-3 md:px-6">
-          <Link to="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
-            <img
-              src={logo}
-              alt="rkInfinity logo"
-              className="h-10 w-10 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50 shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
-            />
-            <span className="hidden sm:inline">
-              <span className="text-white">rk</span>
-              <span className="text-gradient">Infinity</span>
-            </span>
-          </Link>
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+          scrolled ? "py-2" : "py-4"
+        }`}
+      >
+        <div className="mx-auto max-w-7xl px-4">
+          <nav className="glass flex items-center justify-between rounded-2xl px-4 py-3 md:px-6">
+            <Link to="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
+              <img
+                src={logo}
+                alt="rkInfinity logo"
+                className="h-10 w-10 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50 shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
+              />
+              <span className="hidden sm:inline">
+                <span className="text-white">rk</span>
+                <span className="text-gradient">Infinity</span>
+              </span>
+            </Link>
 
-          <div className="hidden lg:flex items-center gap-1.5">
-            {links.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="nav-pill"
-                activeProps={{ className: "nav-pill nav-pill-active" }}
-                activeOptions={{ exact: l.to === "/" }}
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setSubOpen(true)}
-              className="btn-gold btn-pill hidden sm:inline-flex !py-2 !px-5 text-sm pulse-glow"
-            >
-              Subscribe
-            </button>
-            <button
-              onClick={() => setOpen(!open)}
-              className="lg:hidden p-2 text-foreground"
-              aria-label="Toggle menu"
-            >
-              {open ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </div>
-        </nav>
-
-        {open && (
-          <div className="glass mt-2 rounded-2xl p-3 lg:hidden animate-fade-in">
-            <div className="flex flex-col gap-1.5">
+            <div className="hidden lg:flex items-center gap-1.5">
               {links.map((l) => (
                 <Link
                   key={l.to}
                   to={l.to}
-                  onClick={() => setOpen(false)}
-                  className="nav-pill !justify-start"
-                  activeProps={{ className: "nav-pill nav-pill-active !justify-start" }}
+                  className="nav-pill"
+                  activeProps={{ className: "nav-pill nav-pill-active" }}
                   activeOptions={{ exact: l.to === "/" }}
                 >
                   {l.label}
                 </Link>
               ))}
+            </div>
+
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  setOpen(false);
-                  setSubOpen(true);
-                }}
-                className="btn-gold btn-pill mt-2 text-sm"
+                onClick={() => setSubOpen(true)}
+                className="btn-gold btn-pill hidden sm:inline-flex !py-2 !px-5 text-sm pulse-glow"
               >
                 Subscribe
               </button>
+              <button
+                onClick={() => setOpen(!open)}
+                className="lg:hidden p-2 text-foreground"
+                aria-label="Toggle menu"
+              >
+                {open ? <X size={22} /> : <Menu size={22} />}
+              </button>
             </div>
-          </div>
-        )}
-      </div>
-    </header>
-    <SubscribeModal open={subOpen} onClose={() => setSubOpen(false)} />
+          </nav>
+
+          {open && (
+            <div className="glass mt-2 rounded-2xl p-3 lg:hidden animate-fade-in">
+              <div className="flex flex-col gap-1.5">
+                {links.map((l) => (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => setOpen(false)}
+                    className="nav-pill !justify-start"
+                    activeProps={{ className: "nav-pill nav-pill-active !justify-start" }}
+                    activeOptions={{ exact: l.to === "/" }}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    setSubOpen(true);
+                  }}
+                  className="btn-gold btn-pill mt-2 text-sm"
+                >
+                  Subscribe
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+      <SubscribeModal open={subOpen} onClose={() => setSubOpen(false)} />
     </>
   );
 }

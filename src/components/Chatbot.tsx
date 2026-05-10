@@ -37,10 +37,26 @@ function captureName(text: string): string | null {
 }
 
 // SpeechRecognition Types
+interface CustomSpeechRecognitionEvent {
+  results: {
+    isFinal: boolean;
+    [key: number]: { transcript: string };
+  }[];
+}
+interface CustomSpeechRecognitionErrorEvent {
+  error: string;
+}
+
 interface SRInstance {
-  lang: string; interimResults: boolean; continuous: boolean;
-  onresult: (e: any) => void; onerror: (e: any) => void; onend: () => void;
-  start: () => void; stop: () => void; abort: () => void;
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onresult: (e: CustomSpeechRecognitionEvent) => void;
+  onerror: (e: CustomSpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
 }
 type SRCtor = new () => SRInstance;
 function getSR(): SRCtor | null {
@@ -90,7 +106,7 @@ export function Chatbot() {
             device: detectDevice(),
             last_seen_at: new Date().toISOString(),
           },
-          { onConflict: "session_id" }
+          { onConflict: "session_id" },
         );
 
         const { data: hist } = await supabase
@@ -108,7 +124,10 @@ export function Chatbot() {
           }));
 
         if (past.length) setMessages(past);
-        else setMessages([{ role: "assistant", content: name ? `Welcome back, ${name}! 👋` : NEW_GREETING }]);
+        else
+          setMessages([
+            { role: "assistant", content: name ? `Welcome back, ${name}! 👋` : NEW_GREETING },
+          ]);
       } catch (err) {
         setMessages([{ role: "assistant", content: NEW_GREETING }]);
       }
@@ -117,14 +136,26 @@ export function Chatbot() {
 
   useEffect(() => {
     if (!sessionId) return;
-    const ch = supabase.channel(`chat-${sessionId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages", filter: `session_id=eq.${sessionId}` },
+    const ch = supabase
+      .channel(`chat-${sessionId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+          filter: `session_id=eq.${sessionId}`,
+        },
         (payload) => {
           const row = payload.new as { role: string; content: string };
-          if (row.role === "admin") setMessages((m) => [...m, { role: "assistant", content: `💬 ${row.content}` }]);
-        })
+          if (row.role === "admin")
+            setMessages((m) => [...m, { role: "assistant", content: `💬 ${row.content}` }]);
+        },
+      )
       .subscribe();
-    return () => { void supabase.removeChannel(ch); };
+    return () => {
+      void supabase.removeChannel(ch);
+    };
   }, [sessionId]);
 
   useEffect(() => {
@@ -133,17 +164,31 @@ export function Chatbot() {
 
   const toggleMic = () => {
     const SRClass = getSR();
-    if (!SRClass) { toast.error("Voice input not supported."); return; }
-    if (listening && recogRef.current) { recogRef.current.stop(); return; }
+    if (!SRClass) {
+      toast.error("Voice input not supported.");
+      return;
+    }
+    if (listening && recogRef.current) {
+      recogRef.current.stop();
+      return;
+    }
     const r = new SRClass();
-    r.lang = "en-US"; r.interimResults = true;
+    r.lang = "en-US";
+    r.interimResults = true;
     r.onresult = (e) => {
-      const text = Array.from(e.results).map((res: any) => res[0].transcript).join("");
+      const text = Array.from(e.results)
+        .map((res) => res[0].transcript)
+        .join("");
       setInput(text);
-      if (e.results[0].isFinal) { setInput(text); r.stop(); }
+      if (e.results[0].isFinal) {
+        setInput(text);
+        r.stop();
+      }
     };
     r.onend = () => setListening(false);
-    recogRef.current = r; setListening(true); r.start();
+    recogRef.current = r;
+    setListening(true);
+    r.start();
   };
 
   const send = async (override?: string) => {
@@ -165,10 +210,10 @@ export function Chatbot() {
       const response = await fetch("https://rk-infinity-api.rkinfinity.workers.dev/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          messages: next, 
-          session_id: sessionId, 
-          user_name: userName ?? captured ?? "Visitor" 
+        body: JSON.stringify({
+          messages: next,
+          session_id: sessionId,
+          user_name: userName ?? captured ?? "Visitor",
         }),
       });
 
@@ -185,36 +230,80 @@ export function Chatbot() {
   return (
     <>
       {!open && (
-        <button onClick={() => setOpen(true)} className="fixed bottom-24 right-6 z-[60] h-16 w-16 rounded-full border-2 border-[color:var(--gold)] bg-black overflow-hidden shadow-lg hover:scale-105 transition">
+        <button
+          onClick={() => setOpen(true)}
+          className="fixed bottom-24 right-6 z-[60] h-16 w-16 rounded-full border-2 border-[color:var(--gold)] bg-black overflow-hidden shadow-lg hover:scale-105 transition"
+        >
           <img src={robotLogo} alt="AI" className="h-full w-full object-cover" />
         </button>
       )}
 
       {open && (
-        <div className="fixed bottom-6 right-6 z-[70] w-[min(380px,calc(100vw-2rem))] h-[min(560px,calc(100vh-3rem))] rounded-2xl flex flex-col bg-black border border-[color:var(--gold)]/60 shadow-2xl overflow-hidden"
-             style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url(${chatbotBg})`, backgroundSize: 'cover' }}>
-          
+        <div
+          className="fixed bottom-6 right-6 z-[70] w-[min(380px,calc(100vw-2rem))] h-[min(560px,calc(100vh-3rem))] rounded-2xl flex flex-col bg-black border border-[color:var(--gold)]/60 shadow-2xl overflow-hidden"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url(${chatbotBg})`,
+            backgroundSize: "cover",
+          }}
+        >
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[color:var(--gold)]/30 bg-black/40 backdrop-blur-md">
-            <img src={robotLogo} className="h-9 w-9 rounded-full border border-[color:var(--gold)]/50" />
-            <div className="flex-1 text-sm font-bold text-white">rk<span className="text-[color:var(--gold)]">Infinity</span> AI</div>
-            <button onClick={() => setOpen(false)} className="text-muted-foreground"><X size={18} /></button>
+            <img
+              src={robotLogo}
+              className="h-9 w-9 rounded-full border border-[color:var(--gold)]/50"
+            />
+            <div className="flex-1 text-sm font-bold text-white">
+              rk<span className="text-[color:var(--gold)]">Infinity</span> AI
+            </div>
+            <button onClick={() => setOpen(false)} className="text-muted-foreground">
+              <X size={18} />
+            </button>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[85%] px-4 py-2 rounded-2xl text-sm ${m.role === "user" ? "bg-[color:var(--gold)]/20 text-white border border-[color:var(--gold)]/30" : "bg-white/10 text-gray-200 border border-white/10"}`}>
+              <div
+                key={i}
+                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[85%] px-4 py-2 rounded-2xl text-sm ${m.role === "user" ? "bg-[color:var(--gold)]/20 text-white border border-[color:var(--gold)]/30" : "bg-white/10 text-gray-200 border border-white/10"}`}
+                >
                   {m.content}
                 </div>
               </div>
             ))}
-            {loading && <div className="text-xs text-gray-500 animate-pulse">Assistant is thinking...</div>}
+            {loading && (
+              <div className="text-xs text-gray-500 animate-pulse">Assistant is thinking...</div>
+            )}
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); send(); }} className="p-3 border-t border-[color:var(--gold)]/20 flex gap-2 bg-black/60">
-            <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask anything..." className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-white text-sm outline-none focus:border-[color:var(--gold)]" />
-            <button type="button" onClick={toggleMic} className={`p-2 rounded-full ${listening ? "bg-red-500/20 text-red-500" : "text-[color:var(--gold)]"}`}><Mic size={18} /></button>
-            <button type="submit" disabled={!input.trim() || loading} className="p-2 bg-[color:var(--gold)] rounded-full text-black disabled:opacity-50"><Send size={18} /></button>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              send();
+            }}
+            className="p-3 border-t border-[color:var(--gold)]/20 flex gap-2 bg-black/60"
+          >
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask anything..."
+              className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-white text-sm outline-none focus:border-[color:var(--gold)]"
+            />
+            <button
+              type="button"
+              onClick={toggleMic}
+              className={`p-2 rounded-full ${listening ? "bg-red-500/20 text-red-500" : "text-[color:var(--gold)]"}`}
+            >
+              <Mic size={18} />
+            </button>
+            <button
+              type="submit"
+              disabled={!input.trim() || loading}
+              className="p-2 bg-[color:var(--gold)] rounded-full text-black disabled:opacity-50"
+            >
+              <Send size={18} />
+            </button>
           </form>
         </div>
       )}

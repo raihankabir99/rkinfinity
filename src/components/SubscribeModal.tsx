@@ -68,11 +68,7 @@ export function SubscribeModal({ open, onClose }: { open: boolean; onClose: () =
             <p className="text-muted-foreground">
               Thanks for subscribing. A welcome email is on its way to your inbox.
             </p>
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-gold btn-pill mt-6 inline-flex"
-            >
+            <button type="button" onClick={onClose} className="btn-gold btn-pill mt-6 inline-flex">
               Close
             </button>
           </div>

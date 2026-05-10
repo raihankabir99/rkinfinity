@@ -63,14 +63,30 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.9fr)] lg:items-start">
         <div className="max-w-md">
           <div className="flex items-center gap-2.5 font-bold text-lg">
-            <img src={logo} alt="rkInfinity logo" className="h-9 w-9 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50" />
-            <span><span className="text-white">rk</span><span className="text-gradient">Infinity</span></span>
+            <img
+              src={logo}
+              alt="rkInfinity logo"
+              className="h-9 w-9 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50"
+            />
+            <span>
+              <span className="text-white">rk</span>
+              <span className="text-gradient">Infinity</span>
+            </span>
           </div>
           <p className="mt-4 text-sm font-medium text-foreground/80 leading-relaxed">
-            {["SEO Specialist", "Digital Solutions Architect", "Content Strategist", "AI-Powered Web Creator"].map((title, idx, arr) => (
+            {[
+              "SEO Specialist",
+              "Digital Solutions Architect",
+              "Content Strategist",
+              "AI-Powered Web Creator",
+            ].map((title, idx, arr) => (
               <span key={title}>
                 <span>{title}</span>
-                {idx < arr.length - 1 && <span className="mx-2 text-[color:var(--gold)]" aria-hidden="true">·</span>}
+                {idx < arr.length - 1 && (
+                  <span className="mx-2 text-[color:var(--gold)]" aria-hidden="true">
+                    ·
+                  </span>
+                )}
               </span>
             ))}
           </p>
@@ -96,7 +112,9 @@ export function Footer() {
 
         <div className="grid gap-10 sm:grid-cols-3 lg:justify-items-end">
           <div className="w-full sm:max-w-[11rem]">
-            <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Services</h4>
+            <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">
+              Services
+            </h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               {services.map((s) => (
                 <li key={s.label}>
@@ -109,7 +127,9 @@ export function Footer() {
           </div>
 
           <div className="w-full sm:max-w-[11rem]">
-            <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Tools</h4>
+            <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">
+              Tools
+            </h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               {tools.map((t) => (
                 <li key={t.label}>
@@ -122,7 +142,9 @@ export function Footer() {
           </div>
 
           <div className="w-full sm:max-w-[11rem]">
-            <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">Company</h4>
+            <h4 className="text-sm font-semibold mb-4 text-[color:var(--gold)] uppercase tracking-wider">
+              Company
+            </h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               {company.map((c) => (
                 <li key={c.label}>

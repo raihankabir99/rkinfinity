@@ -42,7 +42,10 @@ export function CommentForm() {
           <p className="text-sm text-muted-foreground">Join the conversation.</p>
         </div>
       </div>
-      <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-black/40 border border-[color:var(--gold)]/20 p-6">
+      <form
+        onSubmit={onSubmit}
+        className="space-y-4 rounded-2xl bg-black/40 border border-[color:var(--gold)]/20 p-6"
+      >
         <div className="grid sm:grid-cols-2 gap-4">
           <input
             type="text"
@@ -72,11 +75,7 @@ export function CommentForm() {
           className={fieldClass}
           required
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="btn-gold disabled:opacity-60"
-        >
+        <button type="submit" disabled={loading} className="btn-gold disabled:opacity-60">
           {loading ? "Posting…" : "Post Comment"} <Send size={16} />
         </button>
       </form>

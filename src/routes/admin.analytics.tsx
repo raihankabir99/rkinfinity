@@ -2,7 +2,16 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/PageShell";
-import { BarChart3, Loader2, ShieldCheck, ArrowLeft, Globe, Users, FileText, RefreshCw } from "lucide-react";
+import {
+  BarChart3,
+  Loader2,
+  ShieldCheck,
+  ArrowLeft,
+  Globe,
+  Users,
+  FileText,
+  RefreshCw,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/analytics")({
@@ -36,7 +45,10 @@ function AnalyticsPage() {
     let mounted = true;
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/login" }); return; }
+      if (!sess.session) {
+        navigate({ to: "/login" });
+        return;
+      }
       const { data: roleRows } = await supabase
         .from("user_roles")
         .select("role")
@@ -48,7 +60,9 @@ function AnalyticsPage() {
       setAuthChecking(false);
       if (ok) void load();
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [navigate]);
 
   const load = async () => {
@@ -78,14 +92,19 @@ function AnalyticsPage() {
         const v = (r[key] as string | null) || "—";
         map.set(v, (map.get(v) ?? 0) + 1);
       }
-      return Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      return Array.from(map.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
     };
 
     // Daily series last 14 days
     const days: { label: string; count: number }[] = [];
     for (let i = 13; i >= 0; i--) {
-      const start = new Date(); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - i);
-      const end = new Date(start); end.setDate(end.getDate() + 1);
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      start.setDate(start.getDate() - i);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 1);
       const c = rows.filter((r) => {
         const t = +new Date(r.created_at);
         return t >= +start && t < +end;
@@ -121,7 +140,9 @@ function AnalyticsPage() {
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-bold">Admin access required</h1>
-          <Link to="/" className="mt-6 inline-block text-primary hover:underline">← Back home</Link>
+          <Link to="/" className="mt-6 inline-block text-primary hover:underline">
+            ← Back home
+          </Link>
         </div>
       </PageShell>
     );
@@ -132,7 +153,10 @@ function AnalyticsPage() {
   return (
     <PageShell>
       <section className="mx-auto max-w-7xl px-4 py-10">
-        <Link to="/admin" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-4">
+        <Link
+          to="/admin"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-4"
+        >
           <ArrowLeft size={14} /> Back to dashboard
         </Link>
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -142,9 +166,13 @@ function AnalyticsPage() {
             </div>
             <h1 className="mt-1 text-3xl font-bold md:text-4xl">
               <span className="text-white">Site </span>
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Analytics</span>
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Analytics
+              </span>
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">Last 30 days · {rows.length} pageviews</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Last 30 days · {rows.length} pageviews
+            </p>
           </div>
           <button
             onClick={load}
@@ -195,7 +223,9 @@ function Kpi({ icon, label, value }: { icon: React.ReactNode; label: string; val
     <div className="glass rounded-2xl border border-white/5 p-5">
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-primary/15 text-primary">{icon}</span>
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-primary/15 text-primary">
+          {icon}
+        </span>
       </div>
       <div className="mt-3 text-3xl font-bold">{value}</div>
     </div>
@@ -216,7 +246,10 @@ function TopList({ title, rows }: { title: string; rows: [string, number][] }) {
               <span className="font-mono text-primary">{count}</span>
             </div>
             <div className="h-1 rounded-full bg-white/5 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${(count / max) * 100}%` }} />
+              <div
+                className="h-full bg-gradient-to-r from-primary to-accent"
+                style={{ width: `${(count / max) * 100}%` }}
+              />
             </div>
           </li>
         ))}

@@ -74,8 +74,14 @@ function KbPage() {
       } else {
         text = await file.text();
       }
-      text = text.replace(/\s+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-      if (!text) { toast.error("No text extracted"); return; }
+      text = text
+        .replace(/\s+\n/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+      if (!text) {
+        toast.error("No text extracted");
+        return;
+      }
       if (!title.trim()) setTitle(file.name.replace(/\.[^.]+$/, ""));
       setContent(text.slice(0, 8000));
       toast.success(`Extracted ${text.length.toLocaleString()} characters`);
@@ -228,9 +234,7 @@ function KbPage() {
           className="glass rounded-2xl border border-white/5 p-5 space-y-3 mb-8"
         >
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold">
-              {editingId ? "Edit article" : "New article"}
-            </h2>
+            <h2 className="text-sm font-semibold">{editingId ? "Edit article" : "New article"}</h2>
             {editingId && (
               <button
                 type="button"
@@ -243,9 +247,18 @@ function KbPage() {
           </div>
           <div className="flex items-center justify-between gap-2 rounded-xl border border-dashed border-[color:var(--gold)]/40 bg-[color:var(--gold)]/5 px-3 py-2">
             <p className="text-xs text-muted-foreground">
-              <span className="text-[color:var(--gold-bright)] font-semibold">Train from a document</span> — upload a PDF, TXT, or MD file to auto-fill the content below.
+              <span className="text-[color:var(--gold-bright)] font-semibold">
+                Train from a document
+              </span>{" "}
+              — upload a PDF, TXT, or MD file to auto-fill the content below.
             </p>
-            <input ref={fileRef} type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={onFile} className="hidden" />
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown"
+              onChange={onFile}
+              className="hidden"
+            />
             <button
               type="button"
               onClick={() => fileRef.current?.click()}

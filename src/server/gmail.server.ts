@@ -3,10 +3,7 @@
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 
-export const ALERT_RECIPIENTS = [
-  "maskrklo@gmail.com",
-  "rkinfinity.official@gmail.com",
-];
+export const ALERT_RECIPIENTS = ["maskrklo@gmail.com", "rkinfinity.official@gmail.com"];
 
 function toBase64Url(input: string): string {
   // btoa works in the worker runtime; for unicode safety encode first.

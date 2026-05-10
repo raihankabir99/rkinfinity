@@ -22,8 +22,9 @@ function Contact() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
+  const update =
+    (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,21 +45,29 @@ function Contact() {
   return (
     <PageShell>
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <SectionHeader eyebrow="Contact" title="Let's build something infinite." sub="Tell me about the project. I read every message." />
+        <SectionHeader
+          eyebrow="Contact"
+          title="Let's build something infinite."
+          sub="Tell me about the project. I read every message."
+        />
 
         <div className="grid lg:grid-cols-5 gap-6">
           <div className="lg:col-span-2 space-y-4">
-            {[{ icon: Mail, t: "Email", d: "rkinfinity.official@gmail.com" }].map(({ icon: Icon, t, d }) => (
-              <div key={t} className="glass rounded-2xl p-6 flex items-center gap-4">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
-                  <Icon size={20} />
+            {[{ icon: Mail, t: "Email", d: "rkinfinity.official@gmail.com" }].map(
+              ({ icon: Icon, t, d }) => (
+                <div key={t} className="glass rounded-2xl p-6 flex items-center gap-4">
+                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {t}
+                    </div>
+                    <div className="font-semibold">{d}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground">{t}</div>
-                  <div className="font-semibold">{d}</div>
-                </div>
-              </div>
-            ))}
+              ),
+            )}
 
             <a
               href="https://wa.me/966540742748"
@@ -72,27 +81,57 @@ function Contact() {
               <div className="font-semibold">Chat on WhatsApp</div>
             </a>
 
-            {[{ icon: MapPin, t: "Based in", d: "Remote · Worldwide" }].map(({ icon: Icon, t, d }) => (
-              <div key={t} className="glass rounded-2xl p-6 flex items-center gap-4">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
-                  <Icon size={20} />
+            {[{ icon: MapPin, t: "Based in", d: "Remote · Worldwide" }].map(
+              ({ icon: Icon, t, d }) => (
+                <div key={t} className="glass rounded-2xl p-6 flex items-center gap-4">
+                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {t}
+                    </div>
+                    <div className="font-semibold">{d}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground">{t}</div>
-                  <div className="font-semibold">{d}</div>
-                </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
 
-          <form id="contact-form" onSubmit={submit} className="lg:col-span-3 glass rounded-3xl p-8 md:p-10 space-y-5">
+          <form
+            id="contact-form"
+            onSubmit={submit}
+            className="lg:col-span-3 glass rounded-3xl p-8 md:p-10 space-y-5"
+          >
             <div className="grid sm:grid-cols-2 gap-5">
-              <Field label="Name" name="name" placeholder="Your name" value={form.name} onChange={update("name")} />
-              <Field label="Email" name="email" type="email" placeholder="you@domain.com" value={form.email} onChange={update("email")} />
+              <Field
+                label="Name"
+                name="name"
+                placeholder="Your name"
+                value={form.name}
+                onChange={update("name")}
+              />
+              <Field
+                label="Email"
+                name="email"
+                type="email"
+                placeholder="you@domain.com"
+                value={form.email}
+                onChange={update("email")}
+              />
             </div>
-            <Field label="Subject" name="subject" placeholder="What's this about?" value={form.subject} onChange={update("subject")} required={false} />
+            <Field
+              label="Subject"
+              name="subject"
+              placeholder="What's this about?"
+              value={form.subject}
+              onChange={update("subject")}
+              required={false}
+            />
             <div>
-              <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">Message</label>
+              <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
+                Message
+              </label>
               <textarea
                 required
                 rows={5}
@@ -108,8 +147,17 @@ function Contact() {
               disabled={loading}
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-3.5 font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-60"
             >
-              {loading ? (<><Loader2 size={16} className="animate-spin" /> Sending…</>) :
-               sent ? "Sent — talk soon ✨" : (<>Send message <Send size={16} /></>)}
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" /> Sending…
+                </>
+              ) : sent ? (
+                "Sent — talk soon ✨"
+              ) : (
+                <>
+                  Send message <Send size={16} />
+                </>
+              )}
             </button>
           </form>
         </div>
@@ -119,15 +167,27 @@ function Contact() {
 }
 
 function Field({
-  label, name, type = "text", placeholder, value, onChange, required = true,
+  label,
+  name,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  required = true,
 }: {
-  label: string; name: string; type?: string; placeholder: string;
-  value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  label: string;
+  name: string;
+  type?: string;
+  placeholder: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
 }) {
   return (
     <div>
-      <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">{label}</label>
+      <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
+        {label}
+      </label>
       <input
         required={required}
         name={name}

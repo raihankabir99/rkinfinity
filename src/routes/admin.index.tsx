@@ -100,7 +100,11 @@ function AdminPage() {
   const loadAll = async () => {
     setRefreshing(true);
     const [v, l, e, c] = await Promise.all([
-      supabase.from("visitor_tracking").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase
+        .from("visitor_tracking")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50),
       supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(25),
       supabase.from("site_errors").select("*").order("created_at", { ascending: false }).limit(25),
       supabase.from("chat_logs").select("*").order("created_at", { ascending: false }).limit(25),
@@ -126,14 +130,10 @@ function AdminPage() {
           setVisitors((prev) => [payload.new as Visitor, ...prev].slice(0, 50));
         },
       )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "leads" },
-        (payload) => {
-          setLeads((prev) => [payload.new as Lead, ...prev].slice(0, 25));
-          toast.success("New lead received");
-        },
-      )
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "leads" }, (payload) => {
+        setLeads((prev) => [payload.new as Lead, ...prev].slice(0, 25));
+        toast.success("New lead received");
+      })
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "site_errors" },
@@ -269,9 +269,18 @@ function AdminPage() {
         {/* KPI cards */}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <KpiCard icon={<Users size={18} />} label="Pageviews (24h)" value={stats.pageviews24h} />
-          <KpiCard icon={<Globe size={18} />} label="Unique sessions" value={stats.uniqueSessions} />
+          <KpiCard
+            icon={<Globe size={18} />}
+            label="Unique sessions"
+            value={stats.uniqueSessions}
+          />
           <KpiCard icon={<Mail size={18} />} label="Recent leads" value={stats.leads} />
-          <KpiCard icon={<AlertTriangle size={18} />} label="Recent errors" value={stats.errors} accent="destructive" />
+          <KpiCard
+            icon={<AlertTriangle size={18} />}
+            label="Recent errors"
+            value={stats.errors}
+            accent="destructive"
+          />
         </div>
 
         {/* Two-column tables */}

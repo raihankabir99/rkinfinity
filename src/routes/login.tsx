@@ -85,12 +85,18 @@ function Login() {
                 />
                 <span className="text-2xl font-extrabold tracking-tight">
                   <span className="text-white">rk</span>
-                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Infinity</span>
+                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Infinity
+                  </span>
                 </span>
               </div>
-              <h1 className="text-3xl font-bold">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
+              <h1 className="text-3xl font-bold">
+                {mode === "signin" ? "Welcome back" : "Create your account"}
+              </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                {mode === "signin" ? "Sign in to your dashboard" : "Sign up to access the rkInfinity dashboard"}
+                {mode === "signin"
+                  ? "Sign in to your dashboard"
+                  : "Sign up to access the rkInfinity dashboard"}
               </p>
             </div>
 
@@ -114,7 +120,10 @@ function Login() {
             <form className="space-y-4" onSubmit={handleSubmit}>
               {mode === "signup" && (
                 <div className="relative">
-                  <UserIcon size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <UserIcon
+                    size={16}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <input
                     type="text"
                     value={name}
@@ -125,7 +134,10 @@ function Login() {
                 </div>
               )}
               <div className="relative">
-                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Mail
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
                 <input
                   type="email"
                   required
@@ -136,7 +148,10 @@ function Login() {
                 />
               </div>
               <div className="relative">
-                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Lock
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
                 <input
                   type="password"
                   required
@@ -153,19 +168,43 @@ function Login() {
                 disabled={loading}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-3.5 font-semibold text-primary-foreground hover:opacity-90 transition pulse-glow disabled:opacity-60"
               >
-                {loading ? <Loader2 size={16} className="animate-spin" /> : <>{mode === "signin" ? "Sign in" : "Create account"} <ArrowRight size={16} /></>}
+                {loading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <>
+                    {mode === "signin" ? "Sign in" : "Create account"} <ArrowRight size={16} />
+                  </>
+                )}
               </button>
             </form>
 
             <div className="mt-6 text-center text-xs text-muted-foreground">
               {mode === "signin" ? (
-                <>New here? <button onClick={() => setMode("signup")} className="text-primary hover:underline">Create an account</button></>
+                <>
+                  New here?{" "}
+                  <button
+                    onClick={() => setMode("signup")}
+                    className="text-primary hover:underline"
+                  >
+                    Create an account
+                  </button>
+                </>
               ) : (
-                <>Already have an account? <button onClick={() => setMode("signin")} className="text-primary hover:underline">Sign in</button></>
+                <>
+                  Already have an account?{" "}
+                  <button
+                    onClick={() => setMode("signin")}
+                    className="text-primary hover:underline"
+                  >
+                    Sign in
+                  </button>
+                </>
               )}
             </div>
             <div className="mt-2 text-center text-xs text-muted-foreground">
-              <Link to="/" className="hover:underline">← Back to home</Link>
+              <Link to="/" className="hover:underline">
+                ← Back to home
+              </Link>
             </div>
           </div>
         </div>
