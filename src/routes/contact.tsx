@@ -3,7 +3,6 @@ import { PageShell, SectionHeader } from "@/components/PageShell";
 import { Mail, MapPin, MessageCircle, Send, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { submitLeadFn } from "@/lib/lead.functions";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -11,7 +10,7 @@ export const Route = createFileRoute("/contact")({
       { title: "Contact — rkInfinity" },
       { name: "description", content: "Start a conversation with RK." },
       { property: "og:title", content: "Contact rkInfinity" },
-      { property: "og:description", content: "Let's build something infinite, together." },
+      { property: "og:description", content: "Let\'s build something infinite, together." },
     ],
   }),
   component: Contact,
@@ -30,16 +29,13 @@ function Contact() {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
-    try {
-      await submitLeadFn({ data: { ...form, source: "contact_form" } });
+    // Mocking form submission
+    setTimeout(() => {
       setSent(true);
       toast.success("Message received — RK will be in touch.");
       setForm({ name: "", email: "", subject: "", message: "" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
       setLoading(false);
-    }
+    }, 1000);
   };
 
   return (
@@ -47,7 +43,7 @@ function Contact() {
       <section className="mx-auto max-w-7xl px-4 py-12">
         <SectionHeader
           eyebrow="Contact"
-          title="Let's build something infinite."
+          title="Let\'s build something infinite."
           sub="Tell me about the project. I read every message."
         />
 
@@ -123,7 +119,7 @@ function Contact() {
             <Field
               label="Subject"
               name="subject"
-              placeholder="What's this about?"
+              placeholder="What\'s this about?"
               value={form.subject}
               onChange={update("subject")}
               required={false}

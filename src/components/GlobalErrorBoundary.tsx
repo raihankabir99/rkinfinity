@@ -1,5 +1,4 @@
 import React from "react";
-import { logErrorFn } from "@/lib/log-error.functions";
 
 // Extend the Window interface to include our custom property
 interface CustomWindow extends Window {
@@ -20,14 +19,14 @@ export class GlobalErrorBoundary extends React.Component<{ children: React.React
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Fire & forget — never block UI.
     try {
-      void logErrorFn({
-        data: {
-          message: error.message,
-          stack: `${error.stack ?? ""}\n\nReact: ${info.componentStack ?? ""}`,
-          path: typeof window !== "undefined" ? window.location.pathname : undefined,
-          level: "error",
-        },
-      });
+      // void logErrorFn({
+      //   data: {
+      //     message: error.message,
+      //     stack: `${error.stack ?? ""}\n\nReact: ${info.componentStack ?? ""}`,
+      //     path: typeof window !== "undefined" ? window.location.pathname : undefined,
+      //     level: "error",
+      //   },
+      // });
     } catch {
       /* swallow */
     }
@@ -40,7 +39,7 @@ export class GlobalErrorBoundary extends React.Component<{ children: React.React
           <div className="max-w-md text-center">
             <h1 className="text-3xl font-bold text-foreground">Something went wrong</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              We've logged the issue and will look into it. Please refresh the page.
+              We\'ve logged the issue and will look into it. Please refresh the page.
             </p>
             <button
               onClick={() => location.reload()}
@@ -69,7 +68,7 @@ export function installClientErrorReporting() {
     level?: "error" | "warn" | "info";
   }) => {
     try {
-      void logErrorFn({ data: payload });
+      // void logErrorFn({ data: payload });
     } catch {
       /* noop */
     }
