@@ -4,7 +4,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "vite dev --open index.dev.html",
     "build": "vite build && mv dist/index.dev.html dist/index.html",
     "build:dev": "vite build",
     "preview": "vite preview",

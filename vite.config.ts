@@ -9,4 +9,11 @@ export default defineConfig({
     tsconfigPaths(),
     TanStackRouterVite(),
   ],
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.dev.html'
+      }
+    }
+  }
 });
