@@ -5,5 +5,6 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  base: '/', // Add this line for Cloudflare
   plugins: [TanStackRouterVite(), react(), tsconfigPaths(), tailwindcss()],
 });
