@@ -244,6 +244,7 @@ export function Chatbot() {
           style={{
             backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url(${chatbotBg})`,
             backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[color:var(--gold)]/30 bg-black/40 backdrop-blur-md">
