@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && mv dist/index.dev.html dist/index.html",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."
@@ -54,7 +54,6 @@
     "lucide-react": "^0.575.0",
     "pdfjs-dist": "^5.7.284",
     "react": "^19.2.0",
-    "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.2",
     "react-resizable-panels": "^4.6.5",
