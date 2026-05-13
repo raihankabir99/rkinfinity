@@ -65,7 +65,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setSubOpen(true)}
-                className="btn-gold btn-pill hidden sm:inline-flex !py-2 !px-5 text-sm pulse-glow"
+                className="btn-gold btn-pill hidden lg:inline-flex !py-2 !px-5 text-sm pulse-glow"
               >
                 Subscribe
               </button>
