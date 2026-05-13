@@ -181,8 +181,8 @@ export function Chatbot() {
         .join("");
       setInput(text);
       if (e.results[0].isFinal) {
-        setInput(text);
         r.stop();
+        void send(text);
       }
     };
     r.onend = () => setListening(false);
@@ -213,7 +213,7 @@ export function Chatbot() {
         body: JSON.stringify({
           messages: next,
           session_id: sessionId,
-          user_name: userName ?? captured ?? "Visitor",
+          user_name: userName ?? captured ?? "Anonymous",
         }),
       });
 
@@ -253,7 +253,7 @@ export function Chatbot() {
               className="h-9 w-9 rounded-full border border-[color:var(--gold)]/50"
             />
             <div className="flex-1 text-sm font-bold text-white">
-              rk<span className="text-[color:var(--gold)]">Infinity</span> AI
+              rk<span className="text-[color:var(--gold)]">Infinity</span> Bot
             </div>
             <button onClick={() => setOpen(false)} className="text-muted-foreground">
               <X size={18} />
