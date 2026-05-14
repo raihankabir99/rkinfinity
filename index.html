@@ -6,9 +6,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="TDY9vgSAD0gWzIrGFqeAbv_Nk9JYyEX31Ud9BzJMqPw" />
     <title>rkInfinity Studio</title>
+    <style>
+      /* --- Loader styles --- */
+      /* This is the background of the page while it loads */
+      body {
+        background-color: #020817;
+      }
+      
+      .loader-container {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: inherit; /* Inherits from body */
+        transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Hide the loader with this class */
+      .loader-container.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .spinner {
+        width: 48px;
+        height: 48px;
+        border: 5px solid #3b82f6; /* A nice blue color */
+        border-bottom-color: transparent;
+        border-radius: 50%;
+        animation: rotation 1s linear infinite;
+      }
+
+      @keyframes rotation {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      /* --- End Loader styles --- */
+    </style>
   </head>
   <body>
+    <!-- This loader is visible immediately -->
+    <div id="initial-loader" class="loader-container">
+      <div class="spinner"></div>
+    </div>
+    
+    <!-- React app will mount here -->
     <div id="root"></div>
+    
+    <!-- The main script for the app -->
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Small script to hide the loader when the app is ready -->
+    <script>
+      const loader = document.getElementById('initial-loader');
+      const root = document.getElementById('root');
+
+      // Create an observer to watch for changes in the #root element
+      const observer = new MutationObserver(function(mutations, me) {
+        // If #root has any children, it means React has rendered something
+        if (root.children.length > 0) {
+          // Hide the loader
+          loader.classList.add('hidden');
+          // Stop observing
+          me.disconnect();
+        }
+      });
+
+      // Start observing the #root element for child list changes
+      observer.observe(root, {
+        childList: true
+      });
+    </script>
   </body>
 </html>
