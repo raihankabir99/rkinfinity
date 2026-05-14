@@ -5,7 +5,6 @@ import { Chatbot } from "@/components/Chatbot";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import { GlobalErrorBoundary, installClientErrorReporting } from "@/components/GlobalErrorBoundary";
 import { Toaster } from "@/components/ui/sonner";
-import loadingIcon from "@/assets/loading-icon.png";
 
 function NotFoundComponent() {
   return (
@@ -14,7 +13,7 @@ function NotFoundComponent() {
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          The page you'''re looking for doesn'''t exist or has been moved.
         </p>
         <div className="mt-6">
           <Link
@@ -32,11 +31,7 @@ function NotFoundComponent() {
 function PendingComponent() {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-in fade-in">
-      <img
-        src={loadingIcon}
-        alt="Loading..."
-        className="h-24 w-24 animate-[spin_2s_linear_infinite]"
-      />
+      <div className="h-24 w-24 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
     </div>
   );
 }
