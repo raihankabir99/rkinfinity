@@ -5,37 +5,37 @@
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <url>
-  <loc>https://rkinfinity.com/</loc>
+  <loc>https://rkinfinity.pages.dev/</loc>
   <lastmod>2024-05-23T12:00:00+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>https://rkinfinity.com/about</loc>
+  <loc>https://rkinfinity.pages.dev/about</loc>
   <lastmod>2024-05-23T12:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://rkinfinity.com/services</loc>
+  <loc>https://rkinfinity.pages.dev/services</loc>
   <lastmod>2024-05-23T12:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://rkinfinity.com/blog</loc>
+  <loc>https://rkinfinity.pages.dev/blog</loc>
   <lastmod>2024-05-23T12:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://rkinfinity.com/contact</loc>
+  <loc>https://rkinfinity.pages.dev/contact</loc>
   <lastmod>2024-05-23T12:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://rkinfinity.com/story</loc>
+  <loc>https://rkinfinity.pages.dev/story</loc>
   <lastmod>2024-05-23T12:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://rkinfinity.com/tools</loc>
+  <loc>https://rkinfinity.pages.dev/tools</loc>
   <lastmod>2024-05-23T12:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>

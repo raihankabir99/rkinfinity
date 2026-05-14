@@ -6,4 +6,4 @@ Disallow: /admin/
 Disallow: /login/
 
 # Point to the sitemap
-Sitemap: https://rkinfinity.com/sitemap.xml
+Sitemap: https://rkinfinity.pages.dev/sitemap.xml
