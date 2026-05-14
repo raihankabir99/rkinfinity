@@ -5,6 +5,7 @@ import { Chatbot } from "@/components/Chatbot";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import { GlobalErrorBoundary, installClientErrorReporting } from "@/components/GlobalErrorBoundary";
 import { Toaster } from "@/components/ui/sonner";
+import loadingIcon from "@/assets/loading-icon.png";
 
 function NotFoundComponent() {
   return (
@@ -28,9 +29,22 @@ function NotFoundComponent() {
   );
 }
 
+function PendingComponent() {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-in fade-in">
+      <img
+        src={loadingIcon}
+        alt="Loading..."
+        className="h-24 w-24 animate-[spin_2s_linear_infinite]"
+      />
+    </div>
+  );
+}
+
 export const Route = createRootRoute({
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
+  pendingComponent: PendingComponent,
 });
 
 function RootComponent() {
