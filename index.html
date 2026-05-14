@@ -8,11 +8,6 @@
     <title>rkInfinity Studio</title>
     <style>
       /* --- Loader styles --- */
-      /* This is the background of the page while it loads */
-      body {
-        background-color: #020817;
-      }
-      
       .loader-container {
         position: fixed;
         inset: 0;
@@ -20,7 +15,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: inherit; /* Inherits from body */
+        background-color: #020817; /* Dark background ONLY for the loader screen */
         transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
         opacity: 1;
         visibility: visible;
@@ -35,7 +30,7 @@
       .spinner {
         width: 48px;
         height: 48px;
-        border: 5px solid #3b82f6; /* A nice blue color */
+        border: 5px solid #3b82f6; /* Blue spinner color */
         border-bottom-color: transparent;
         border-radius: 50%;
         animation: rotation 1s linear infinite;
