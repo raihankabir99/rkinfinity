@@ -1,0 +1,9 @@
+# Allow all crawlers
+User-agent: *
+
+# Disallow the admin and login pages
+Disallow: /admin/
+Disallow: /login/
+
+# Point to the sitemap
+Sitemap: https://rkinfinity.com/sitemap.xml
