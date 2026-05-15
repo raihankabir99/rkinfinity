@@ -5,7 +5,8 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="TDY9vgSAD0gWzIrGFqeAbv_Nk9JYyEX31Ud9BzJMqPw" />
-    <title>rkInfinity Studio</title>
+    <title>rkInfinity</title>
+    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "36e7df933f1a489fb6f1870d6b819b2e"}'></script><!-- End Cloudflare Web Analytics -->
     <style>
       /* --- Loader styles --- */
       .loader-container {
@@ -16,7 +17,7 @@
         justify-content: center;
         align-items: center;
         background-color: #020817; /* Dark background ONLY for the loader screen */
-        transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
         opacity: 1;
         visibility: visible;
       }
@@ -27,13 +28,10 @@
         visibility: hidden;
       }
 
-      .spinner {
-        width: 48px;
-        height: 48px;
-        border: 5px solid #3b82f6; /* Blue spinner color */
-        border-bottom-color: transparent;
-        border-radius: 50%;
-        animation: rotation 1s linear infinite;
+      .spinner-image {
+        width: 80px; /* Adjust size as needed */
+        height: 80px; /* Adjust size as needed */
+        animation: rotation 2s linear infinite;
       }
 
       @keyframes rotation {
@@ -46,7 +44,7 @@
   <body>
     <!-- This loader is visible immediately -->
     <div id="initial-loader" class="loader-container">
-      <div class="spinner"></div>
+      <img src="/loading-icon.png-.png" class="spinner-image" alt="Loading..." />
     </div>
     
     <!-- React app will mount here -->
