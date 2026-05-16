@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/loading-icon.png-.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="TDY9vgSAD0gWzIrGFqeAbv_Nk9JYyEX31Ud9BzJMqPw" />
     <title>rkinfinity</title>
@@ -28,15 +28,17 @@
         visibility: hidden;
       }
 
-      .spinner-image {
-        width: 80px; /* Adjust size as needed */
-        height: 80px; /* Adjust size as needed */
-        animation: rotation 2s linear infinite;
-      }
+      .spinner-video {
+        /* Start with a larger size for desktop */
+        width: 250px;
+        height: 250px;
+        
+        /* Ensure it doesn't overflow smaller screens */
+        max-width: 80vw;
+        max-height: 80vh;
 
-      @keyframes rotation {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        /* Maintain aspect ratio */
+        object-fit: contain;
       }
       /* --- End Loader styles --- */
     </style>
@@ -44,7 +46,8 @@
   <body>
     <!-- This loader is visible immediately -->
     <div id="initial-loader" class="loader-container">
-      <img src="/loading-icon.png-.png" class="spinner-image" alt="Loading..." />
+      <!-- Using a video for the pre-loader -->
+      <video class="spinner-video" src="/canva loading icon 6.mp4" autoplay loop muted playsinline></video>
     </div>
     
     <!-- React app will mount here -->
