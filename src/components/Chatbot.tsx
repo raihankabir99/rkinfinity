@@ -195,7 +195,8 @@ export function Chatbot() {
     const text = (override ?? input).trim();
     if (!text || loading) return;
 
-    setMessages((m) => [...m, { role: "user", content: text }]);
+    const nextMessages: Msg[] = [...messages, { role: "user", content: text }];
+    setMessages(nextMessages);
     setInput("");
     setLoading(true);
 
@@ -211,7 +212,7 @@ export function Chatbot() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages,
+          messages: nextMessages,
           session_id: sessionId,
           user_name: userName ?? captured ?? "Anonymous",
         }),
@@ -267,7 +268,11 @@ export function Chatbot() {
                 className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] px-4 py-2 rounded-2xl text-sm ${m.role === "user" ? "bg-[color:var(--gold)]/20 text-white border border-[color:var(--gold)]/30" : "bg-white/10 text-gray-200 border border-white/10"}`}
+                  className={`max-w-[85%] px-4 py-2 rounded-2xl text-sm ${
+                    m.role === "user"
+                      ? "bg-[color:var(--gold)]/20 text-white border border-[color:var(--gold)]/30"
+                      : "bg-white/10 text-gray-200 border border-white/10"
+                  }`}
                 >
                   {m.content}
                 </div>
@@ -301,7 +306,9 @@ export function Chatbot() {
             <button
               type="button"
               onClick={toggleMic}
-              className={`p-2 rounded-full ${listening ? "bg-red-500/20 text-red-500" : "text-[color:var(--gold)]"}`}
+              className={`p-2 rounded-full ${
+                listening ? "bg-red-500/20 text-red-500" : "text-[color:var(--gold)]"
+              }`}
             >
               <Mic size={18} />
             </button>
