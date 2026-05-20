@@ -48,16 +48,25 @@ export default {
         const { messages } = await request.json();
 
         // System prompt to define the AI's personality and role
-        const systemPrompt = {
-          role: "system",
-          content: "You are rkInfinity\'s friendly and helpful assistant. Your name is Infinity. You are an expert in SEO, digital marketing, and web development. Answer questions about RK-Infinity\'s services, help users track their projects with their unique ID, and provide concise, informative, and friendly responses. Keep your answers under 50 words unless asked for more detail."
-        };
+        const systemPrompt = "You are rkInfinity\'s friendly and helpful assistant. Your name is Infinity. You are an expert in SEO, digital marketing, and web development. Answer questions about RK-Infinity\'s services, help users track their projects with their unique ID, and provide concise, informative, and friendly responses. Keep your answers under 50 words unless asked for more detail.";
+
+        // Workaround: Frame the system prompt as a user/assistant conversation
+        const primer = [
+            {
+                role: "user",
+                content: systemPrompt
+            },
+            {
+                role: "assistant",
+                content: "Okay, I am ready to help. How can I assist you today?"
+            }
+        ];
 
         // Call the Gemini Pro model via Cloudflare AI
         const response = await ai.run(
           '@cf/google/gemini-pro',
           {
-            messages: [systemPrompt, ...messages],
+            messages: [...primer, ...messages],
           }
         );
 
