@@ -47,26 +47,25 @@ export default {
         const ai = new Ai(env.AI);
         const { messages } = await request.json();
 
-        // System prompt to define the AI's personality and role
-        const systemPrompt = "You are rkInfinity\'s friendly and helpful assistant. Your name is Infinity. You are an expert in SEO, digital marketing, and web development. Answer questions about RK-Infinity\'s services, help users track their projects with their unique ID, and provide concise, informative, and friendly responses. Keep your answers under 50 words unless asked for more detail.";
+        // The conversation history from the client might include an initial greeting from the assistant.
+        // The Gemini model expects the sequence after the system prompt to start with a user message.
+        // This logic removes the initial assistant message if it's the first in the history, ensuring the correct alternating role sequence.
+        let processedMessages = messages;
+        if (processedMessages.length > 0 && processedMessages[0].role === 'assistant') {
+            processedMessages = processedMessages.slice(1);
+        }
 
-        // Workaround: Frame the system prompt as a user/assistant conversation
-        const primer = [
-            {
-                role: "user",
-                content: systemPrompt
-            },
-            {
-                role: "assistant",
-                content: "Okay, I am ready to help. How can I assist you today?"
-            }
-        ];
+        // System prompt to define the AI's personality and role
+        const systemPrompt = {
+          role: "system",
+          content: "You are rkInfinity\'s friendly and helpful assistant. Your name is Infinity. You are an expert in SEO, digital marketing, and web development. Answer questions about RK-Infinity\'s services, help users track their projects with their unique ID, and provide concise, informative, and friendly responses. Keep your answers under 50 words unless asked for more detail."
+        };
 
         // Call the Gemini Pro model via Cloudflare AI
         const response = await ai.run(
           '@cf/google/gemini-pro',
           {
-            messages: [...primer, ...messages],
+            messages: [systemPrompt, ...processedMessages],
           }
         );
 
