@@ -62,6 +62,7 @@ export function Navbar() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* This button is now hidden on screens smaller than 'lg' (tablets/mobiles) */}
               <button
                 type="button"
                 onClick={() => setSubOpen(true)}
@@ -69,6 +70,7 @@ export function Navbar() {
               >
                 Subscribe
               </button>
+              {/* This is the hamburger menu button, visible only on smaller screens */}
               <button
                 onClick={() => setOpen(!open)}
                 className="lg:hidden p-2 text-foreground"
@@ -79,6 +81,7 @@ export function Navbar() {
             </div>
           </nav>
 
+          {/* This is the mobile menu content */}
           {open && (
             <div className="glass mt-2 rounded-2xl p-3 lg:hidden animate-fade-in">
               <div className="flex flex-col gap-1.5">
@@ -94,6 +97,7 @@ export function Navbar() {
                     {l.label}
                   </Link>
                 ))}
+                {/* This is the Subscribe button inside the mobile menu */}
                 <button
                   type="button"
                   onClick={() => {

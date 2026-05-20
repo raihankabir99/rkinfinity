@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Send, Loader2, Mic, MicOff } from "lucide-react";
+import { X, Send, Loader2, Mic } from "lucide-react";
 import { toast } from "sonner";
 import robotLogo from "@/assets/chatbot-robot.png";
 import chatbotBg from "@/assets/chatbot-bg.png";
@@ -160,7 +160,7 @@ export function Chatbot() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, open]);
+  }, [messages, open, loading]);
 
   const toggleMic = () => {
     const SRClass = getSR();
@@ -194,8 +194,8 @@ export function Chatbot() {
   const send = async (override?: string) => {
     const text = (override ?? input).trim();
     if (!text || loading) return;
-    const next: Msg[] = [...messages, { role: "user", content: text }];
-    setMessages(next);
+
+    setMessages((m) => [...m, { role: "user", content: text }]);
     setInput("");
     setLoading(true);
 
@@ -203,7 +203,7 @@ export function Chatbot() {
     if (captured && !userName) {
       setUserName(captured);
       localStorage.setItem(NAME_KEY, captured);
-      await supabase.from("chat_users").update({ user_name: captured }).eq("session_id", sessionId);
+      void supabase.from("chat_users").update({ user_name: captured }).eq("session_id", sessionId);
     }
 
     try {
@@ -211,7 +211,7 @@ export function Chatbot() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: next,
+          messages,
           session_id: sessionId,
           user_name: userName ?? captured ?? "Anonymous",
         }),
@@ -240,7 +240,7 @@ export function Chatbot() {
 
       {open && (
         <div
-          className="fixed bottom-6 right-6 z-[70] w-[min(380px,calc(100vw-2rem))] h-[min(560px,calc(100vh-3rem))] rounded-2xl flex flex-col bg-black border border-[color:var(--gold)]/60 shadow-2xl overflow-hidden"
+          className="fixed inset-0 z-[70] flex flex-col overflow-hidden border border-[color:var(--gold)]/60 bg-black shadow-2xl md:bottom-6 md:right-6 md:top-auto md:left-auto md:h-[min(560px,calc(100vh-3rem))] md:w-[min(380px,calc(100vw-2rem))] md:rounded-2xl"
           style={{
             backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url(${chatbotBg})`,
             backgroundSize: "cover",
@@ -274,7 +274,14 @@ export function Chatbot() {
               </div>
             ))}
             {loading && (
-              <div className="text-xs text-gray-500 animate-pulse">Assistant is thinking...</div>
+              <div className="flex justify-start">
+                <div
+                  className={`max-w-[85%] px-4 py-2 rounded-2xl text-sm bg-white/10 text-gray-200 border border-white/10 flex items-center gap-2`}
+                >
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Thinking...</span>
+                </div>
+              </div>
             )}
           </div>
 
