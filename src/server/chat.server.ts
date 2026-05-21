@@ -22,6 +22,7 @@ const NAV_INTENTS: Array<{ rx: RegExp; path: string; label: string }> = [
   { rx: /\b(blog|article|post|read)/i, path: "/blog", label: "Blog" },
   { rx: /\b(contact|hire|reach|email|phone|whatsapp|book)/i, path: "/contact", label: "Contact" },
   { rx: /\b(about|who is rk|story|background)/i, path: "/about", label: "About" },
+  { rx: /\b(kpi|stats|analytics|performance|metrics)/i, path: "/admin/analytics", label: "Analytics" },
 ];
 
 function detectNav(text: string): { path: string; label: string } | null {
@@ -128,17 +129,25 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
 
   // 1. Project tracking
   const pid = detectProjectId(lastUser);
-  if (pid && /track|status|progress|update/i.test(lastUser)) {
-    const proj = await lookupProject(pid);
-    let reply: string;
-    if (proj) {
-      reply = `**Project ${proj.project_id}** — ${proj.client_name ?? "Client"}\nStatus: **${proj.status}** · Progress: **${proj.progress}%**${proj.tracking_url ? `\n\n[Open tracker →](${proj.tracking_url})` : ""}`;
-    } else {
-      reply = `I couldn't find project **${pid}**. Double-check the ID or [contact RK](/contact) for help.`;
-    }
-    await persistMessage(session_id, "assistant", reply);
-    await legacyLog(lastUser, reply, session_id);
-    return { content: reply, source: "project" as const };
+  const PROJECT_TRACKING_RX = /track|status|progress|update|kaj|kototok|amader|কাজ|কতটুক|banglai|bon|hoice|koto|dur|kivabe|cholche|obostha/i;
+  if (PROJECT_TRACKING_RX.test(lastUser)) {
+      if (pid) {
+        const proj = await lookupProject(pid);
+        let reply: string;
+        if (proj) {
+          reply = `**Project ${proj.project_id}** — ${proj.client_name ?? "Client"}\\nStatus: **${proj.status}** · Progress: **${proj.progress}%**${proj.tracking_url ? `\\n\\n[Open tracker →](${proj.tracking_url})` : ""}`;
+        } else {
+          reply = `I couldn't find project **${pid}**. Double-check the ID or [contact RK](/contact) for help.`;
+        }
+        await persistMessage(session_id, "assistant", reply);
+        await legacyLog(lastUser, reply, session_id);
+        return { content: reply, source: "project" as const };
+      } else {
+        const reply = "I can help with that. What is the project ID you would like me to check?";
+        await persistMessage(session_id, "assistant", reply);
+        await legacyLog(lastUser, reply, session_id);
+        return { content: reply, source: "project" as const };
+      }
   }
 
   // 2. Smart navigation
