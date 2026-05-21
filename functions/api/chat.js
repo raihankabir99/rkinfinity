@@ -1,22 +1,38 @@
+import { createClient } from "@supabase/supabase-js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// This is a placeholder for a real Supabase client, which you would initialize properly.
-const supabaseAdmin = {
-    from: (tableName) => ({
-        select: (...args) => ({
-            ilike: () => ({ maybeSingle: async () => ({ data: null }) }),
-            order: () => ({ limit: async () => ({ data: [] }) }),
-            limit: async () => ({ data: [] })
-        }),
-        insert: async () => ({}),
-    })
+// Function to get a Supabase client
+const getSupabaseClient = (env) => {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
+    throw new Error("Supabase environment variables are not set.");
+  }
+  return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
 };
+
+const PROJECT_RX = /\b([A-Z]{2,5}-[A-Z0-9]{3,10})\b/i;
+const PROJECT_TRACKING_RX = /\b(track|status|progress|update|kaj|kototok|amader|কাজ|কতটুক|koto|dur|kivabe|cholche|obostha)\b/i;
 
 async function runChatUnsafe({ messages, session_id, user_name }, env) {
     const lastUserMessage = messages[messages.length - 1]?.content ?? "";
+    const supabase = getSupabaseClient(env);
 
-    // In a real application, you would persist the message to your database here.
-
+    // 1. Project tracking
+    const pid = lastUserMessage.match(PROJECT_RX)?.[1].toUpperCase();
+    if (pid || PROJECT_TRACKING_RX.test(lastUserMessage)) {
+        if (pid) {
+            const { data: proj } = await supabase.from("projects").select("project_id, client_name, status, progress, tracking_url").ilike("project_id", pid).maybeSingle();
+            if (proj) {
+                 const reply = `Got it. Project ${proj.project_id} for ${proj.client_name} is currently ${proj.status} (${proj.progress}% complete). You can view details here: ${proj.tracking_url}`;
+                 return { content: reply, source: "project" };
+            } else {
+                 return { content: `Sorry, I couldn't find a project with the ID ${pid}. Please double-check the ID.`, source: "project" };
+            }
+        } else {
+            return { content: "I can help with that. What is your project ID?", source: "project" };
+        }
+    }
+    
+    // 2. AI Fallback
     const apiKey = env.GEMINI_API_KEY;
     if (!apiKey) {
         console.error("AI not configured. Missing GEMINI_API_KEY environment variable.");
