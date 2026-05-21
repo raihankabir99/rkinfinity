@@ -1,4 +1,79 @@
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+Bot Analytics shows how bots crawl your website. Data is collected via Cloudflare integration.
+Method
+
+Cloudflare Worker
+To set up Worker manually, follow these steps:
+Go to your Cloudflare dashboard and select your website's domain.
+Find your $ACCOUNT_ID and $ZONE_ID in the dashboard.
+Click "Get your API token" and create a new token with the following permissions:
+Account → Workers Scripts → Edit
+Zone → Workers Routes → Edit
+Zone → Zone → Read
+Once you have your $ACCOUNT_ID, $ZONE_ID, and $CF_TOKEN, run the following commands:
+Step 1: Upload the worker script
+
+Copy
+curl "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/workers/scripts/ahrefs--bot-analytics" \
+  -X PUT \
+  -H "Authorization: Bearer $CF_TOKEN" \
+  -H "Content-Type: application/javascript" \
+  --data-binary '
+const WA_ENDPOINT = "https://analytics.ahrefs.com/api/cf_worker";
+const WA_SCRIPT = "https://analytics.ahrefs.com/analytics.js";
+const WA_CF_DATA_KEY = "4HjdOdhYGOx3pOM75K79AQ";
+const WA_DATA_KEY = "";
+async function handleBotAnalytics(event, response) {
+  let request = event.request;
+  event.waitUntil(sendAnalytics(request, response));
+  return response;
+}
+
+async function sendAnalytics(request, response) {
+  try {
+    let referer = request.headers.get("referer") || "";
+    let userAgent = request.headers.get("user-agent") || "";
+    let ip = request.headers.get("cf-connecting-ip") || "";
+    let contentType = response.headers.get("content-type") || "";
+    let payload = {
+      n: "serverpageview",
+      u: request.url,
+      ip: ip,
+      ua: userAgent,
+      ct: contentType,
+      m: request.method,
+      s: response.status,
+      k: WA_CF_DATA_KEY,
+      r: referer,
+    }
+    let analyticsResponse = await fetch(WA_ENDPOINT, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    })
+    if (!analyticsResponse.ok) {
+      console.error("ahrefs bot analytics error:", analyticsResponse.status, analyticsResponse.statusText)
+    }
+  } catch (error) {
+    console.error("ahrefs bot analytics error:", error.message)
+  }
+}
+
+addEventListener("fetch", event => {
+  event.respondWith((async () => {
+    let response = await fetch(event.request);
+        response = await handleBotAnalytics(event, response);
+    return response;
+  })());
+});
+'
+Step 2: Create the route
+
+Copy
+curl "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes" \
+  -X POST \
+  -H "Authorization: Bearer $CF_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-binary '{"pattern":"*pages.dev/*","script":"ahrefs--bot-analytics"}'
+Once done, click below to verify we're receiving data.import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export interface ChatMsg {
@@ -129,8 +204,8 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
 
   // 1. Project tracking
   const pid = detectProjectId(lastUser);
-  const PROJECT_TRACKING_RX = /track|status|progress|update|kaj|kototok|amader|কাজ|কতটুক|banglai|bon|hoice|koto|dur|kivabe|cholche|obostha/i;
-  if (PROJECT_TRACKING_RX.test(lastUser)) {
+  const PROJECT_TRACKING_RX = /\b(track|status|progress|update|kaj|kototok|amader|কাজ|কতটুক|koto|dur|kivabe|cholche|obostha)\b/i;
+  if (pid || PROJECT_TRACKING_RX.test(lastUser)) {
       if (pid) {
         const proj = await lookupProject(pid);
         let reply: string;
@@ -187,8 +262,6 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
     const greeting = user_name
       ? `The visitor's name is ${user_name}. Greet them by name on first reply.`
       : "";
@@ -197,13 +270,17 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
         greeting +
         " You can suggest these pages: /services, /tools, /blog, /about, /contact. Keep replies short (2-4 sentences) and use markdown sparingly.";
 
-    const primer = [
-        { role: "user", parts: [{ text: primer_instruction }] },
-        { role: "model", parts: [{ text: "Understood. I'm ready to assist." }] }
-    ];
+    const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        systemInstruction: primer_instruction,
+    });
 
     const firstUserIndex = messages.findIndex(m => m.role === 'user');
-    if (firstUserIndex === -1) throw new Error("No user message in history");
+    if (firstUserIndex === -1) {
+        const content = "I see you're here, but I didn't get your message. Could you please send it again?";
+        await persistMessage(session_id, "assistant", content);
+        return { content, source: "ai" as const };
+    }
     const historySlice = messages.slice(firstUserIndex);
 
     const history = historySlice.map(msg => ({
@@ -211,9 +288,7 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
       parts: [{ text: msg.content }],
     }));
 
-    const contents = [...primer, ...history];
-
-    const result = await model.generateContent({ contents });
+    const result = await model.generateContent({ contents: history });
 
     const response = result.response;
     const content = response.text();
