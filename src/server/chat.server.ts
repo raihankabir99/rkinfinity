@@ -189,10 +189,23 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction });
 
-    const history = messages.filter(m => m.role !== 'system').map(msg => ({
+    const firstUserIndex = messages.findIndex(m => m.role === 'user');
+
+    if (firstUserIndex === -1) {
+      throw new Error("No user message found in history.");
+    }
+
+    // Create a history slice that starts with the first user message.
+    // This is crucial because the Gemini API requires the conversation to start with a 'user' role.
+    const historySlice = messages.slice(firstUserIndex);
+
+    // Convert the history to the format expected by the Gemini API.
+    const history = historySlice.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }],
-    }));
+    }))
+    // As an additional safeguard, filter out any consecutive messages from the same role.
+    .filter((msg, i, arr) => i === 0 || msg.role !== arr[i-1].role);
 
     const result = await model.generateContent({
         contents: history,
