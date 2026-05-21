@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export interface ChatMsg {
   role: "system" | "user" | "assistant";
@@ -166,34 +167,48 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
   }
 
   // 5. AI fallback
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("AI not configured");
-
-  const greeting = user_name
-    ? `The visitor's name is ${user_name}. Greet them by name on first reply.`
-    : "";
-  const system: ChatMsg = {
-    role: "system",
-    content:
-      "You are RK's friendly assistant for rkInfinity — RK is an SEO Specialist, Digital Marketer, Content Creator and Story Writer. Be warm, concise, and helpful. " +
-      greeting +
-      " You can suggest these pages: /services, /tools, /blog, /about, /contact. Keep replies short (2-4 sentences) and use markdown sparingly.",
-  };
-
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: "google/gemini-2.5-flash", messages: [system, ...messages] }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Gateway ${res.status}: ${text.slice(0, 200)}`);
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+      console.error("AI not configured. Missing GEMINI_API_KEY");
+      const content = "Sorry, I'm having a little trouble thinking right now. Please try again in a moment.";
+      await persistMessage(session_id, "assistant", content);
+      await legacyLog(lastUser, content, session_id);
+      return { content, source: "ai" as const };
   }
 
-  const json = await res.json();
-  const content: string = json?.choices?.[0]?.message?.content ?? "Sorry, I didn't catch that.";
-  await persistMessage(session_id, "assistant", content);
-  await legacyLog(lastUser, content, session_id);
-  return { content, source: "ai" as const };
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+
+    const greeting = user_name
+      ? `The visitor's name is ${user_name}. Greet them by name on first reply.`
+      : "";
+    const systemInstruction =
+        "You are RK's friendly assistant for rkInfinity — RK is an SEO Specialist, Digital Marketer, Content Creator and Story Writer. Be warm, concise, and helpful. " +
+        greeting +
+        " You can suggest these pages: /services, /tools, /blog, /about, /contact. Keep replies short (2-4 sentences) and use markdown sparingly.";
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction });
+
+    const history = messages.filter(m => m.role !== 'system').map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }],
+    }));
+
+    const result = await model.generateContent({
+        contents: history,
+    });
+
+    const response = result.response;
+    const content = response.text();
+
+    await persistMessage(session_id, "assistant", content);
+    await legacyLog(lastUser, content, session_id);
+    return { content, source: "ai" as const };
+  } catch(e) {
+      console.error("AI fallback failed", e);
+      const content = "Sorry, I'm having a little trouble thinking right now. Please try again in a moment.";
+      await persistMessage(session_id, "assistant", content);
+      await legacyLog(lastUser, content, session_id);
+      return { content, source: "ai" as const };
+  }
 }
