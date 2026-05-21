@@ -178,38 +178,33 @@ export async function runChat({ messages, session_id, user_name }: ChatInput) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const greeting = user_name
       ? `The visitor's name is ${user_name}. Greet them by name on first reply.`
       : "";
-    const systemInstruction =
+    const primer_instruction =
         "You are RK's friendly assistant for rkInfinity — RK is an SEO Specialist, Digital Marketer, Content Creator and Story Writer. Be warm, concise, and helpful. " +
         greeting +
         " You can suggest these pages: /services, /tools, /blog, /about, /contact. Keep replies short (2-4 sentences) and use markdown sparingly.";
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction });
+    const primer = [
+        { role: "user", parts: [{ text: primer_instruction }] },
+        { role: "model", parts: [{ text: "Understood. I'm ready to assist." }] }
+    ];
 
     const firstUserIndex = messages.findIndex(m => m.role === 'user');
-
-    if (firstUserIndex === -1) {
-      throw new Error("No user message found in history.");
-    }
-
-    // Create a history slice that starts with the first user message.
-    // This is crucial because the Gemini API requires the conversation to start with a 'user' role.
+    if (firstUserIndex === -1) throw new Error("No user message in history");
     const historySlice = messages.slice(firstUserIndex);
 
-    // Convert the history to the format expected by the Gemini API.
     const history = historySlice.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }],
-    }))
-    // As an additional safeguard, filter out any consecutive messages from the same role.
-    .filter((msg, i, arr) => i === 0 || msg.role !== arr[i-1].role);
+    }));
 
-    const result = await model.generateContent({
-        contents: history,
-    });
+    const contents = [...primer, ...history];
+
+    const result = await model.generateContent({ contents });
 
     const response = result.response;
     const content = response.text();
