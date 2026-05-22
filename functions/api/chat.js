@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Function to get a Supabase client
 const getSupabaseClient = (env) => {
@@ -25,14 +24,14 @@ async function runChatUnsafe({ messages, session_id, user_name }, env) {
                  const reply = `Got it. Project ${proj.project_id} for ${proj.client_name} is currently ${proj.status} (${proj.progress}% complete). You can view details here: ${proj.tracking_url}`;
                  return { content: reply, source: "project" };
             } else {
-                 return { content: `Sorry, I couldn't find a project with the ID ${pid}. Please double-check the ID.`, source: "project" };
+                 return { content: `Sorry, I couldn\'t find a project with the ID ${pid}. Please double-check the ID.`, source: "project" };
             }
         } else {
             return { content: "I can help with that. What is your project ID?", source: "project" };
         }
     }
     
-    // 2. AI Fallback
+    // 2. AI Fallback (using direct fetch as recommended by Cloudflare)
     const apiKey = env.GEMINI_API_KEY;
     if (!apiKey) {
         console.error("AI not configured. Missing GEMINI_API_KEY environment variable.");
@@ -40,18 +39,46 @@ async function runChatUnsafe({ messages, session_id, user_name }, env) {
     }
 
     try {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const primer = `You are rkInfinity\'s friendly AI assistant. Be warm, concise, and helpful. Keep replies short.`;
 
-        const primer = `You are rkInfinity's friendly AI assistant. Be warm, concise, and helpful. Keep replies short.`;
-        
-        const history = messages.map(msg => ({
+        const historyForApi = messages.map(msg => ({
             role: msg.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: msg.content }],
         }));
 
-        const result = await model.generateContent({ contents: history });
-        const responseText = result.response.text();
+        const body = {
+             contents: historyForApi,
+             system_instruction: {
+                parts: [{ text: primer }]
+            }
+        };
+
+        const apiResponse = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            }
+        );
+        
+        if (!apiResponse.ok) {
+            const errorBody = await apiResponse.text();
+            console.error("Gemini API request failed:", apiResponse.status, errorBody);
+            return { content: `Sorry, I'm having trouble connecting to the AI. (Error: ${apiResponse.status})`, source: "error" };
+        }
+
+        const data = await apiResponse.json();
+
+        if (!data.candidates || data.candidates.length === 0) {
+            console.error("Gemini API Error: No candidates in response", JSON.stringify(data));
+            if (data.promptFeedback && data.promptFeedback.blockReason) {
+                return { content: `My response was blocked because: ${data.promptFeedback.blockReason}. Please try rephrasing.`, source: "error" };
+            }
+            return { content: "Sorry, I received an empty response from the AI. Please try again.", source: "error" };
+        }
+        
+        const responseText = data.candidates[0]?.content?.parts?.[0]?.text || "Sorry, I couldn\'t come up with a response.";
         return { content: responseText, source: "ai" };
 
     } catch (e) {
