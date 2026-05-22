@@ -1,57 +1,53 @@
-import { createClient } from "@supabase/supabase-js";
-import { isBengali } from "./src/utils.js";
-import { handleProjectTracking } from "./src/project-tracker.js";
-import { handleAiFallback } from "./src/ai-fallback.js";
 
-// Function to get a Supabase client
-const getSupabaseClient = (env) => {
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
-    throw new Error("Supabase environment variables are not set.");
+export async function onRequestPost(context) {
+  try {
+    const { message } = await context.request.json();
+    const apiKey = context.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: "GEMINI_API_KEY is not set" }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            role: 'user',
+            parts: [{ text: message }],
+          }],
+        }),
+      }
+    );
+
+    if (!response.ok) {
+        const error = await response.text();
+        console.error("Gemini API Error:", error);
+        return new Response(JSON.stringify({ error: "Gemini API request failed" }), {
+          status: response.status,
+          headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    const data = await response.json();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't get a response.";
+
+    return new Response(JSON.stringify({ reply }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (e) {
+    console.error("Error in onRequestPost:", e);
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-  return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
-};
-
-async function runChatUnsafe({ messages, session_id, user_name }, env) {
-    const lastUserMessage = messages[messages.length - 1]?.content ?? "";
-    const supabase = getSupabaseClient(env);
-    const userIsBengali = isBengali(lastUserMessage);
-    const language = userIsBengali ? 'Bengali' : 'English';
-
-    // 1. Attempt to handle as a project tracking query
-    const projectResult = await handleProjectTracking(lastUserMessage, supabase, userIsBengali);
-    if (projectResult) {
-        return projectResult;
-    }
-
-    // 2. If not a project query, fall back to the general AI
-    return await handleAiFallback(messages, env, language);
 }
-
-export const onRequestPost = async ({ request, env }) => {
-    try {
-        const input = await request.json();
-        
-        if (!input || !Array.isArray(input.messages)) {
-            return new Response(JSON.stringify({ content: "Invalid request format.", source: "error" }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        }
-
-        const result = await runChatUnsafe(input, env);
-
-        return new Response(JSON.stringify(result), {
-            headers: { 'Content-Type': 'application/json' },
-        });
-    } catch (e) {
-        console.error("Unhandled error in onRequestPost:", e.message);
-        const errorResult = {
-            content: "A server error occurred. Please try again later.",
-            source: "error",
-        };
-        return new Response(JSON.stringify(errorResult), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
-    }
-};
