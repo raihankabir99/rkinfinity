@@ -208,7 +208,7 @@ export function Chatbot() {
     }
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("https://rkinfinity.pages.dev/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
