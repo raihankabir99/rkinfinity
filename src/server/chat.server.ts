@@ -39,7 +39,7 @@ async function persistMessage(session_id: string | undefined, role: "user" | "as
 
 // --- Main Chat Logic --- //
 
-async function runChatUnsafe({ messages, session_id, user_name }: ChatInput) {
+async function runChatUnsafe({ messages, session_id, user_name }: ChatInput, context: any) {
   const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
 
   await persistMessage(session_id, "user", lastUser);
@@ -103,7 +103,7 @@ async function runChatUnsafe({ messages, session_id, user_name }: ChatInput) {
   }
 
   // 6. AI Fallback
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = context.env.GEMINI_API_KEY;
   if (!apiKey) {
     console.error("AI not configured. Missing GEMINI_API_KEY");
     return { content: "Sorry, I'm having a little trouble thinking right now. Please try again in a moment.", source: "ai" as const };
@@ -122,9 +122,9 @@ async function runChatUnsafe({ messages, session_id, user_name }: ChatInput) {
   return { content: result.response.text(), source: "ai" as const };
 }
 
-export async function runChat(input: ChatInput) {
+export async function runChat(input: ChatInput, context: any) {
   try {
-    const result = await runChatUnsafe(input);
+    const result = await runChatUnsafe(input, context);
     if (result.source !== 'manual') {
         await persistMessage(input.session_id, "assistant", result.content);
     }
