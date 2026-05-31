@@ -1,5 +1,4 @@
-tsx
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { PerspectiveCamera, Float, useTexture, Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -121,9 +120,9 @@ export const ThreeCircuitBackground = () => {
         <ambientLight intensity={0.2} />
         <pointLight position={[10, 10, 10]} intensity={1} color={BRIGHT_GOLD} />
         
-        <React.Suspense fallback={null}>
+        <Suspense fallback={null}>
           <CircuitLayers />
-        </React.Suspense>
+        </Suspense>
       </Canvas>
       
       {/* Iron Man HUD style Vignette & HUD lines via CSS */}
