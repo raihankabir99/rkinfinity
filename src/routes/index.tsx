@@ -24,6 +24,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import heroCircuit from "@/assets/hero-circuit.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -49,7 +50,33 @@ function Home() {
     <PageShell>
       {/* HERO */}
       <section className="relative overflow-hidden">
-        {/* Interactive 3D Circuit Background */}
+        {/* Circuit board gears — deep metallic gold + dark forest green blend */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-center bg-cover opacity-[0.3] md:opacity-[0.25] [filter:sepia(0.6)_hue-rotate(5deg)_saturate(1.4)_brightness(0.7)_contrast(1.15)] [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_100%)]"
+          style={{ backgroundImage: `url(${heroCircuit})` }}
+        />
+        {/* Forest green tint layer blended over the gears */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 mix-blend-color"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, oklch(0.32 0.08 150 / 0.55) 0%, oklch(0.18 0.06 130 / 0.35) 45%, transparent 80%)",
+          }}
+        />
+        {/* Dark overlay for text contrast */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-b from-background/75 via-background/60 to-background"
+        />
+        {/* Faint grid accent */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 grid-bg opacity-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"
+        />
+
+        {/* Interactive 3D Circuit Background Data Flow Overlay */}
         <div className="absolute inset-0 z-0">
           <ThreeCircuitBackground />
         </div>
@@ -123,7 +150,6 @@ function Home() {
           {[
             {
               icon: Search,
-              t: "SEO Engineering",
               t: "SEO Engineering",
               d: "Technical SEO, content architecture, and ranking systems built to compound.",
             },
