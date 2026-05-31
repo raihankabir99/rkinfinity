@@ -1,134 +1,168 @@
 import React, { useRef, useMemo, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { PerspectiveCamera, Float, useTexture, Points, PointMaterial } from '@react-three/drei';
+import { PerspectiveCamera, Float, Stars, Box, Line } from '@react-three/drei';
 import * as THREE from 'three';
-import heroCircuit from "@/assets/hero-circuit.png";
 
 const GOLDEN_COLOR = "#c1a35a";
 const BRIGHT_GOLD = "#ffd700";
-const DARK_BG = "#020202";
+const DARK_BG = "#050505";
 
-// Component for the floating energy particles (Data Packets)
-const DataPackets = ({ count = 100 }) => {
-  const points = useMemo(() => {
-    const p = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      p[i * 3] = (Math.random() - 0.5) * 20;
-      p[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      p[i * 3 + 2] = (Math.random() - 0.5) * 5;
-    }
-    return p;
-  }, [count]);
-
-  const pointsRef = useRef<THREE.Points>(null);
+// Component to render individual 3D circuit traces with moving energy pulses
+const CircuitTrace = ({ points, delay }: { points: THREE.Vector3[]; delay: number }) => {
+  const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
+  const pulseRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
-    if (pointsRef.current) {
-      pointsRef.current.position.z = (state.clock.elapsedTime * 0.2) % 2;
-      pointsRef.current.rotation.z += 0.001;
+    if (pulseRef.current) {
+      // Animate the pulseRef mesh along the curve
+      const t = (state.clock.elapsedTime * 0.3 + delay) % 1;
+      const pos = curve.getPointAt(t);
+      pulseRef.current.position.copy(pos);
     }
   });
 
   return (
-    <Points ref={pointsRef} positions={points} stride={3} frustumCulled={false}>
-      <PointMaterial
-        transparent
-        color={BRIGHT_GOLD}
-        size={0.05}
-        sizeAttenuation={true}
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </Points>
+    <group>
+      {/* The Physical Trace */}
+      <mesh>
+        <tubeGeometry args={[curve, 32, 0.006, 8, false]} />
+        <meshStandardMaterial color={GOLDEN_COLOR} metalness={1} roughness={0.3} transparent opacity={0.3} />
+      </mesh>
+      
+      {/* The Energy Pulse - Small glowing golden sphere */}
+      <mesh ref={pulseRef}>
+        <sphereGeometry args={[0.018, 16, 16]} />
+        <meshBasicMaterial color={BRIGHT_GOLD} />
+        <pointLight color={BRIGHT_GOLD} intensity={0.8} distance={0.4} />
+      </mesh>
+    </group>
   );
 };
 
-// Component for the layered circuit boards using the user's asset
-const CircuitLayers = () => {
-  const texture = useTexture(heroCircuit);
-  const groupRef = useRef<THREE.Group>(null);
+// Component for floating 3D microchips with glowing edges
+const Chip = ({ position, scale = [1, 1, 1] }: { position: [number, number, number]; scale?: [number, number, number] }) => {
+  return (
+    <Float speed={1.5} rotationIntensity={0.4} floatIntensity={0.4} position={position}>
+      <Box args={[0.6 * scale[0], 0.6 * scale[1], 0.15 * scale[2]]}>
+        <meshStandardMaterial color="#0a0a0a" metalness={0.9} roughness={0.1} />
+      </Box>
+      {/* Golden Glowing Edges */}
+      <Box args={[0.62 * scale[0], 0.62 * scale[1], 0.02 * scale[2]]}>
+        <meshBasicMaterial color={GOLDEN_COLOR} transparent opacity={0.4} />
+      </Box>
+      <pointLight position={[0, 0, 0.1]} color={GOLDEN_COLOR} intensity={0.3} distance={1} />
+    </Float>
+  );
+};
+
+// Main Motherboard structure
+const Motherboard = () => {
+  const traces = useMemo(() => {
+    return Array.from({ length: 45 }).map((_, i) => {
+      const startX = (Math.random() - 0.5) * 14;
+      const startY = (Math.random() - 0.5) * 14;
+      const z = (Math.random() - 0.5) * 1.5;
+      
+      const points = [
+        new THREE.Vector3(startX, startY, z),
+        new THREE.Vector3(startX + (Math.random() - 0.5) * 3, startY + (Math.random() - 0.5) * 3, z),
+        new THREE.Vector3(startX + (Math.random() - 0.5) * 6, startY + (Math.random() - 0.5) * 6, z),
+      ];
+      return { points, delay: Math.random() };
+    });
+  }, []);
+
+  // Grid lines representing background circuit paths
+  const gridLines = useMemo(() => {
+    const lines = [];
+    for (let i = -10; i <= 10; i += 2) {
+      lines.push(
+        <Line 
+          key={`h-${i}`}
+          points={[[-15, i, -2], [15, i, -2]]} 
+          color={GOLDEN_COLOR} 
+          lineWidth={0.5} 
+          transparent 
+          opacity={0.05} 
+        />
+      );
+      lines.push(
+        <Line 
+          key={`v-${i}`}
+          points={[[i, -15, -2], [i, 15, -2]]} 
+          color={GOLDEN_COLOR} 
+          lineWidth={0.5} 
+          transparent 
+          opacity={0.05} 
+        />
+      );
+    }
+    return lines;
+  }, []);
+
+  return (
+    <group>
+      {/* Passive Grid */}
+      {gridLines}
+
+      {/* Active Data Flow Traces */}
+      {traces.map((t, i) => (
+        <CircuitTrace key={i} points={t.points} delay={t.delay} />
+      ))}
+
+      {/* Integrated Components */}
+      <Chip position={[3, 2, 0.5]} scale={[1.2, 1.2, 1]} />
+      <Chip position={[-4, -1, -0.5]} scale={[0.8, 0.8, 1]} />
+      <Chip position={[1, -3, 0.2]} scale={[1.5, 1, 1]} />
+      <Chip position={[-2, 3.5, 0.8]} scale={[0.5, 0.5, 1]} />
+    </group>
+  );
+};
+
+const Scene = () => {
+  const boardRef = useRef<THREE.Group>(null);
   const { mouse } = useThree();
 
   useFrame(() => {
-    if (groupRef.current) {
-      // Smooth parallax effect
-      const targetRotationX = -mouse.y * 0.15;
-      const targetRotationY = mouse.x * 0.15;
-      
-      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotationX, 0.05);
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotationY, 0.05);
+    if (boardRef.current) {
+      // Smooth Parallax Interaction
+      const targetRotationX = -mouse.y * 0.25;
+      const targetRotationY = mouse.x * 0.25;
+      boardRef.current.rotation.x = THREE.MathUtils.lerp(boardRef.current.rotation.x, targetRotationX, 0.04);
+      boardRef.current.rotation.y = THREE.MathUtils.lerp(boardRef.current.rotation.y, targetRotationY, 0.04);
     }
   });
 
   return (
-    <group ref={groupRef}>
-      {/* Deepest Layer */}
-      <Float speed={1} rotationIntensity={0.1} floatIntensity={0.2}>
-        <mesh position={[0, 0, -4]}>
-          <planeGeometry args={[30, 20]} />
-          <meshBasicMaterial 
-            map={texture} 
-            transparent 
-            opacity={0.05} 
-            color={GOLDEN_COLOR} 
-            blending={THREE.AdditiveBlending} 
-          />
-        </mesh>
-      </Float>
-
-      {/* Middle Layer */}
-      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.4}>
-        <mesh position={[0, 0, -1.5]}>
-          <planeGeometry args={[25, 18]} />
-          <meshBasicMaterial 
-            map={texture} 
-            transparent 
-            opacity={0.12} 
-            color={GOLDEN_COLOR} 
-            blending={THREE.AdditiveBlending} 
-          />
-        </mesh>
-      </Float>
-
-      {/* Front Layer - more contrast */}
-      <Float speed={2} rotationIntensity={0.3} floatIntensity={0.5}>
-        <mesh position={[0, 0, 0]}>
-          <planeGeometry args={[20, 15]} />
-          <meshBasicMaterial 
-            map={texture} 
-            transparent 
-            opacity={0.25} 
-            color={BRIGHT_GOLD} 
-            blending={THREE.AdditiveBlending} 
-            depthTest={false}
-          />
-        </mesh>
-      </Float>
+    <>
+      <ambientLight intensity={0.25} />
+      <pointLight position={[10, 10, 10]} intensity={1.5} color={GOLDEN_COLOR} />
+      <pointLight position={[-10, -10, 5]} intensity={0.5} color={BRIGHT_GOLD} />
       
-      <DataPackets count={150} />
-    </group>
+      <group ref={boardRef}>
+        <Motherboard />
+      </group>
+
+      <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
+    </>
   );
 };
 
 export const ThreeCircuitBackground = () => {
   return (
-    <div className="absolute inset-0 z-0 bg-[#020202] overflow-hidden">
+    <div className="absolute inset-0 z-0 bg-[#050505] overflow-hidden pointer-events-none">
       <Canvas dpr={[1, 2]}>
-        <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={50} />
-        <fog attach="fog" args={[DARK_BG, 1, 10]} />
-        
-        <ambientLight intensity={0.2} />
-        <pointLight position={[10, 10, 10]} intensity={1} color={BRIGHT_GOLD} />
+        <PerspectiveCamera makeDefault position={[0, 0, 7]} fov={50} />
+        <fog attach="fog" args={[DARK_BG, 5, 18]} />
         
         <Suspense fallback={null}>
-          <CircuitLayers />
+          <Scene />
         </Suspense>
       </Canvas>
       
-      {/* Iron Man HUD style Vignette & HUD lines via CSS */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)]" />
-      <div className="absolute inset-0 pointer-events-none border-[1px] border-gold/5 m-4 rounded-3xl" />
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/40 via-transparent to-black" />
+      {/* Premium UI Overlay Layers */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.85)_100%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050505]" />
     </div>
   );
 };
