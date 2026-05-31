@@ -1,4 +1,3 @@
-tsx
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float, PerspectiveCamera, Fog, MeshDistortMaterial } from '@react-three/drei';

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { TypingText } from "@/components/TypingText";
-import { ThreeCircuit } from "@/components/ThreeCircuit";
+import { ThreeCircuitBackground } from "@/components/ThreeCircuit";
 import {
   ArrowRight,
   Sparkles,
@@ -51,7 +51,7 @@ function Home() {
       <section className="relative overflow-hidden">
         {/* Interactive 3D Circuit Background */}
         <div className="absolute inset-0 z-0">
-          <ThreeCircuit />
+          <ThreeCircuitBackground />
         </div>
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 md:py-32">
@@ -123,6 +123,7 @@ function Home() {
           {[
             {
               icon: Search,
+              t: "SEO Engineering",
               t: "SEO Engineering",
               d: "Technical SEO, content architecture, and ranking systems built to compound.",
             },
