@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { TypingText } from "@/components/TypingText";
+import { ThreeCircuit } from "@/components/ThreeCircuit";
 import {
   ArrowRight,
   Sparkles,
@@ -23,7 +24,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import heroCircuit from "@/assets/hero-circuit.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -49,32 +49,12 @@ function Home() {
     <PageShell>
       {/* HERO */}
       <section className="relative overflow-hidden">
-        {/* Circuit board gears — deep metallic gold + dark forest green blend */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-center bg-cover opacity-[0.18] md:opacity-[0.22] [filter:sepia(0.6)_hue-rotate(5deg)_saturate(1.4)_brightness(0.7)_contrast(1.15)] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]"
-          style={{ backgroundImage: `url(${heroCircuit})` }}
-        />
-        {/* Forest green tint layer blended over the gears */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 mix-blend-color"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, oklch(0.32 0.08 150 / 0.55) 0%, oklch(0.18 0.06 130 / 0.35) 45%, transparent 80%)",
-          }}
-        />
-        {/* Dark overlay for text contrast */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-background/75 via-background/60 to-background"
-        />
-        {/* Faint grid accent */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 grid-bg opacity-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"
-        />
-        <div className="relative mx-auto max-w-7xl px-4 py-20 md:py-32">
+        {/* Interactive 3D Circuit Background */}
+        <div className="absolute inset-0 z-0">
+          <ThreeCircuit />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 md:py-32">
           <div className="text-center max-w-4xl mx-auto">
             <span className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-mono uppercase tracking-wider text-primary mb-6">
               <Sparkles size={12} /> Available for new projects · 2026

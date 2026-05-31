@@ -384,6 +384,22 @@
       0 0 28px oklch(0.85 0.2 142 / 0.55),
       inset 0 0 18px oklch(0.85 0.2 142 / 0.12);
   }
+
+  /* 3D Circuit Canvas styles */
+  .circuit-canvas-container {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.8;
+  }
+
+  /* Allow mouse events only on specific content while canvas is background */
+  .hero-content-overlay {
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+  }
 }
 
 @keyframes spin {
