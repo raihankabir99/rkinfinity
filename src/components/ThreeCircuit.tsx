@@ -5,40 +5,85 @@ import * as THREE from 'three';
 
 const BRIGHT_GOLD = "#ffdf00";
 
+// New, more detailed paths based on the image
 const getCircuitPaths = () => {
   const paths = [];
 
-  // Path 1: Top-left tree structure
-  paths.push({ points: [ new THREE.Vector3(-4.5, 2.5, 0), new THREE.Vector3(-3.5, 2.5, 0), new THREE.Vector3(-3, 3, 0), new THREE.Vector3(-2.8, 4, 0) ], delay: 0 });
-  paths.push({ points: [ new THREE.Vector3(-3.5, 2.5, 0), new THREE.Vector3(-3.5, 1.5, 0) ], delay: 0.1 });
-  paths.push({ points: [ new THREE.Vector3(-3, 3, 0), new THREE.Vector3(-2, 3, 0) ], delay: 0.2 });
+  // 1. Main artery on the right side
+  paths.push({
+    points: [
+      new THREE.Vector3(4.5, 4, 0),
+      new THREE.Vector3(4.5, 1, 0),
+      new THREE.Vector3(3, 0, 0),
+      new THREE.Vector3(3, -2, 0),
+      new THREE.Vector3(4, -3, 0),
+    ],
+    delay: 0,
+  });
 
-  // Path 2: Central horizontal line with branches
-  paths.push({ points: [ new THREE.Vector3(-2, 0, 0), new THREE.Vector3(0, 0, 0), new THREE.Vector3(1.5, 0, 0) ], delay: 0.3 });
-  paths.push({ points: [ new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, -1, 0), new THREE.Vector3(-0.5, -1.5, 0) ], delay: 0.4 });
+  // 2. Top-left tree structure
+  paths.push({
+    points: [
+      new THREE.Vector3(-4.5, -1, 0),
+      new THREE.Vector3(-4.5, 2, 0),
+      new THREE.Vector3(-3.5, 3, 0),
+      new THREE.Vector3(-3, 3.5, 0),
+    ],
+    delay: 0.5,
+  });
+  // Branch of top-left tree
+  paths.push({
+    points: [
+      new THREE.Vector3(-4.5, 1, 0),
+      new THREE.Vector3(-3.5, 1, 0),
+    ],
+    delay: 0.6,
+  });
 
-  // Path 3: Right side connections to chips
-  paths.push({ points: [ new THREE.Vector3(4.5, 1, 0), new THREE.Vector3(2.5, 1, 0), new THREE.Vector3(2, 1.5, 0) ], delay: 0.5 });
-  paths.push({ points: [ new THREE.Vector3(4.5, 0.5, 0), new THREE.Vector3(2.5, 0.5, 0), new THREE.Vector3(2, 1, 0) ], delay: 0.6 });
-  paths.push({ points: [ new THREE.Vector3(2, 1.5, 0), new THREE.Vector3(1.5, 2.5, 0) ], delay: 0.7 });
+  // 3. Central horizontal line connecting to gears
+  paths.push({
+    points: [
+      new THREE.Vector3(-2.5, 2, 0),
+      new THREE.Vector3(0, 2, 0),
+      new THREE.Vector3(1, 2.5, 0),
+    ],
+    delay: 1.0,
+  });
 
-  // Path 4: Top-right hub-like structures
-  paths.push({ points: [ new THREE.Vector3(2.5, 3.5, 0), new THREE.Vector3(3.5, 3.5, 0) ], delay: 0.8 });
-  paths.push({ points: [ new THREE.Vector3(3.5, 3.5, 0), new THREE.Vector3(4, 3, 0) ], delay: 0.9 });
-  paths.push({ points: [ new THREE.Vector3(3.5, 3.5, 0), new THREE.Vector3(4, 4, 0) ], delay: 1.0 });
+  // 4. Bottom-right structure
+  paths.push({
+    points: [
+      new THREE.Vector3(1, -4, 0),
+      new THREE.Vector3(2.5, -4, 0),
+      new THREE.Vector3(3.5, -3, 0),
+    ],
+    delay: 1.5,
+  });
 
-  // Path 5: Bottom-right tree
-  paths.push({ points: [ new THREE.Vector3(4, -4.5, 0), new THREE.Vector3(4, -3, 0), new THREE.Vector3(3.5, -2.5, 0) ], delay: 1.1 });
-  paths.push({ points: [ new THREE.Vector3(3, -4.5, 0), new THREE.Vector3(3.5, -4, 0), new THREE.Vector3(3.5, -2.5, 0) ], delay: 1.2 });
+   // 5. Connection to the central chip on the right
+   paths.push({
+    points: [
+      new THREE.Vector3(2, 0.5, 0),
+      new THREE.Vector3(1, 0.5, 0),
+      new THREE.Vector3(1, -0.5, 0),
+      new THREE.Vector3(2, -0.5, 0),
+    ],
+    delay: 2.0,
+  });
 
-  // Path 6: Connection between gears on the left
-  paths.push({ points: [ new THREE.Vector3(-1.5, -2.5, 0), new THREE.Vector3(-2.5, -3, 0), new THREE.Vector3(-2.5, -4, 0) ], delay: 1.3 });
-
-  // Path 7: Long vertical line on the right
-  paths.push({ points: [ new THREE.Vector3(4.5, 4.5, 0), new THREE.Vector3(4.5, -1, 0) ], delay: 1.4 });
+  // 6. From bottom-left corner upwards
+  paths.push({
+    points: [
+      new THREE.Vector3(-4.5, -4.5, 0),
+      new THREE.Vector3(-4.5, -3, 0),
+      new THREE.Vector3(-3.5, -2, 0),
+    ],
+    delay: 2.5,
+  });
 
   return paths;
 };
+
 
 const DataPulse = ({ points, delay }: { points: THREE.Vector3[]; delay: number }) => {
   const curve = useMemo(() => new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.5), [points]);
@@ -48,7 +93,8 @@ const DataPulse = ({ points, delay }: { points: THREE.Vector3[]; delay: number }
   useFrame((state) => {
     if (pulseRef.current && pointLightRef.current) {
       const elapsedTime = state.clock.elapsedTime;
-      const animationProgress = (elapsedTime * 0.15 + delay) % 1;
+      // Slower animation speed
+      const animationProgress = (elapsedTime * 0.1 + delay) % 1;
       const pos = curve.getPointAt(animationProgress);
       pulseRef.current.position.copy(pos);
       pointLightRef.current.position.copy(pos);
@@ -98,7 +144,8 @@ export const ThreeCircuitBackground = () => {
     <div className="absolute inset-0 z-0">
       <Canvas
         gl={{ antialias: true, physicallyCorrectLights: true }}
-        camera={{ position: [0, 0, 7], fov: 50 }}
+        // Adjusted camera for better view
+        camera={{ position: [0, 0, 9], fov: 60 }}
         style={{ background: 'transparent' }}
         dpr={[1, 2]}
       >
