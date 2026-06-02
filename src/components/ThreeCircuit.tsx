@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
 
-const BRIGHT_GOLD = "#ffdf00";
+const ELECTRIC_GREEN = "#39ff14"; // Neon Green for a "Matrix" feel
 
 // A completely new, highly detailed set of paths meticulously mapped from the user's image.
 const getCircuitPaths = () => {
@@ -101,12 +101,12 @@ const DataPulse = ({ points, delay }: { points: THREE.Vector3[]; delay: number }
   useFrame((state) => {
     if (pulseRef.current && pointLightRef.current) {
       const elapsedTime = state.clock.elapsedTime;
-      // Slower animation speed
-      const animationProgress = (elapsedTime * 0.08 + delay) % 1;
+      // Adjusted animation speed for a more energetic flow
+      const animationProgress = (elapsedTime * 0.12 + delay) % 1;
       const pos = curve.getPointAt(animationProgress);
       pulseRef.current.position.copy(pos);
       pointLightRef.current.position.copy(pos);
-      pointLightRef.current.intensity = 2.8 * (1 + Math.sin(animationProgress * Math.PI * 2));
+      pointLightRef.current.intensity = 3.0 * (1 + Math.sin(animationProgress * Math.PI * 2));
     }
   });
 
@@ -114,12 +114,12 @@ const DataPulse = ({ points, delay }: { points: THREE.Vector3[]; delay: number }
     <group>
       <mesh>
         <tubeGeometry args={[curve, 100, 0.01, 8, false]} />
-        <meshStandardMaterial color={BRIGHT_GOLD} emissive={BRIGHT_GOLD} emissiveIntensity={0.7} transparent opacity={0.2} />
+        <meshStandardMaterial color={ELECTRIC_GREEN} emissive={ELECTRIC_GREEN} emissiveIntensity={0.6} transparent opacity={0.35} />
       </mesh>
       <Sphere ref={pulseRef} args={[0.05, 16, 16]}>
-        <meshBasicMaterial color={BRIGHT_GOLD} />
+        <meshBasicMaterial color={ELECTRIC_GREEN} />
       </Sphere>
-      <pointLight ref={pointLightRef} color={BRIGHT_GOLD} intensity={1.8} distance={1.5} />
+      <pointLight ref={pointLightRef} color={ELECTRIC_GREEN} intensity={2} distance={2} />
     </group>
   );
 };
@@ -157,9 +157,9 @@ export const ThreeCircuitBackground = () => {
         style={{ background: 'transparent' }}
         dpr={[1, 2]}
       >
-        <ambientLight intensity={0.15} color="#ffdf00" />
-        <pointLight position={[-5, -5, -5]} intensity={0.4} color={BRIGHT_GOLD} />
-        <pointLight position={[5, 5, 5]} intensity={0.4} color={BRIGHT_GOLD} />
+        <ambientLight intensity={0.2} color={ELECTRIC_GREEN} />
+        <pointLight position={[-5, -5, -5]} intensity={0.5} color={ELECTRIC_GREEN} />
+        <pointLight position={[5, 5, 5]} intensity={0.5} color={ELECTRIC_GREEN} />
 
         <Suspense fallback={null}>
           <CircuitOverlay />
