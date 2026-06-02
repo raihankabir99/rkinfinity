@@ -154,7 +154,7 @@ export const ThreeCircuitBackground = () => {
         <pointLight position={[-5, -5, -5]} intensity={0.4} color={BRIGHT_GOLD} />
         <pointLight position={[5, 5, 5]} intensity={0.4} color={BRIGHT_GOLD} />
 
-        <Suspense fallback={null)>
+        <Suspense fallback={null}>
           <CircuitOverlay />
         </Suspense>
       </Canvas>
