@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Force re-deploy
 const BRIGHT_GOLD = "#ffdf00";
 
 // New, more detailed paths based on the image
@@ -153,7 +154,7 @@ export const ThreeCircuitBackground = () => {
         <pointLight position={[-5, -5, -5]} intensity={0.4} color={BRIGHT_GOLD} />
         <pointLight position={[5, 5, 5]} intensity={0.4} color={BRIGHT_GOLD} />
 
-        <Suspense fallback={null}>
+        <Suspense fallback={null)>
           <CircuitOverlay />
         </Suspense>
       </Canvas>
