@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { TypingText } from "@/components/TypingText";
-import { ThreeCircuitBackground } from "@/components/ThreeCircuit";
 import {
   ArrowRight,
   Sparkles,
@@ -66,11 +65,6 @@ function Home() {
           aria-hidden="true"
           className="absolute inset-0 grid-bg opacity-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"
         />
-
-        {/* Interactive 3D Circuit Background Data Flow Overlay */}
-        <div className="absolute inset-0 z-0">
-          <ThreeCircuitBackground />
-        </div>
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 md:py-32">
           <div className="text-center max-w-4xl mx-auto">
