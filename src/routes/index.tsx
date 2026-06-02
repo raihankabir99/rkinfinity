@@ -24,7 +24,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import goldenCircuit from "@/assets/golden-circuit-bg.png";
+import goldenCircuit from "@/assets/golden cercit png.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
