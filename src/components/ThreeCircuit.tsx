@@ -3,91 +3,78 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
 
-const ELECTRIC_GREEN = "#39ff14"; // Neon Green for a "Matrix" feel
+const BRIGHT_GOLD = "#ffdf00";
 
-// A completely new, highly detailed set of paths meticulously mapped from the user's image.
+// New, meticulously crafted paths to match the golden circuit image
 const getCircuitPaths = () => {
   const paths = [];
 
-  // Path 1: Top-left, curving around "Hi," text.
+  // Path 1: Main central artery from top to bottom-right
   paths.push({
     points: [
-      new THREE.Vector3(-1.8, 4.0, 0),
-      new THREE.Vector3(-2.8, 3.8, 0),
-      new THREE.Vector3(-3.8, 2.5, 0),
-      new THREE.Vector3(-4.2, 1, 0),
-      new THREE.Vector3(-4, -1.5, 0),
+      new THREE.Vector3(0.5, 4.5, 0),
+      new THREE.Vector3(0.8, 2.5, 0),
+      new THREE.Vector3(1.5, 1.5, 0),
+      new THREE.Vector3(3, 0.5, 0),
+      new THREE.Vector3(4, -1, 0),
+      new THREE.Vector3(4.5, -3, 0),
     ],
     delay: 0,
   });
 
-  // Path 2: Long, prominent line on the right side.
+  // Path 2: Left-side "tree" structure
   paths.push({
     points: [
-      new THREE.Vector3(4.8, 4.5, 0),
-      new THREE.Vector3(4.7, 1, 0),
-      new THREE.Vector3(3.5, 0, 0),
-      new THREE.Vector3(3.3, -1.5, 0),
-      new THREE.Vector3(4, -2.8, 0),
-      new THREE.Vector3(3.5, -4.2, 0),
+      new THREE.Vector3(-4.5, 4, 0),
+      new THREE.Vector3(-4, 2, 0),
+      new THREE.Vector3(-3.5, 1, 0),
+      new THREE.Vector3(-3, 0, 0),
+      new THREE.Vector3(-3.5, -1.5, 0),
+      new THREE.Vector3(-4, -4, 0),
+    ],
+    delay: 0.5,
+  });
+
+  // Path 3: Branching off the left tree
+  paths.push({
+    points: [
+      new THREE.Vector3(-3.5, 1, 0),
+      new THREE.Vector3(-2.5, 1.5, 0),
+      new THREE.Vector3(-2, 2.5, 0),
     ],
     delay: 0.8,
   });
 
-  // Path 3: Under "Digita" text, connecting to the lower right chip.
+  // Path 4: Lower horizontal line connecting gears
   paths.push({
     points: [
-      new THREE.Vector3(0.5, -3.8, 0),
-      new THREE.Vector3(1.5, -3.9, 0),
-      new THREE.Vector3(2.8, -3.5, 0),
-      new THREE.Vector3(3.4, -2.5, 0),
+      new THREE.Vector3(-2, -3, 0),
+      new THREE.Vector3(0, -3, 0),
+      new THREE.Vector3(2, -2.8, 0),
     ],
-    delay: 1.5,
+    delay: 1.2,
   });
 
-  // Path 4: Above "I'm RK", curving down.
+  // Path 5: Top-right complex network
   paths.push({
     points: [
-      new THREE.Vector3(0.8, 3.9, 0),
-      new THREE.Vector3(2, 4.2, 0),
-      new THREE.Vector3(2.9, 3.5, 0),
-      new THREE.Vector3(3.3, 2.5, 0),
-      new THREE.Vector3(3.3, 1.5, 0),
+      new THREE.Vector3(4.5, 4.5, 0),
+      new THREE.Vector3(4, 3.5, 0),
+      new THREE.Vector3(3, 3, 0),
+      new THREE.Vector3(2, 4, 0),
     ],
-    delay: 2.2,
+    delay: 1.8,
   });
 
-  // Path 5: Bottom-left corner, going up.
+  // Path 6: Connecting upper gears
   paths.push({
     points: [
-        new THREE.Vector3(-4.8, -4.5, 0),
-        new THREE.Vector3(-4.7, -3, 0),
-        new THREE.Vector3(-4, -2.2, 0),
-        new THREE.Vector3(-3, -2, 0),
+        new THREE.Vector3(-1, 3.5, 0),
+        new THREE.Vector3(0, 3.8, 0),
+        new THREE.Vector3(1, 3.5, 0),
     ],
-    delay: 3.0,
+    delay: 2.5,
   });
-
-  // Path 6: Small connector line on the middle left, branching from path 1.
-  paths.push({
-      points: [
-          new THREE.Vector3(-4.2, 1, 0),
-          new THREE.Vector3(-3.5, 1.1, 0),
-          new THREE.Vector3(-2.5, 0.8, 0),
-      ],
-      delay: 0.2,
-  });
-
-    // Path 7: Top-middle faint line
-    paths.push({
-        points: [
-            new THREE.Vector3(0, 4.5, 0),
-            new THREE.Vector3(0.5, 3.5, 0),
-            new THREE.Vector3(0, 2.5, 0),
-        ],
-        delay: 4.0,
-    });
-
 
   return paths;
 };
@@ -101,25 +88,24 @@ const DataPulse = ({ points, delay }: { points: THREE.Vector3[]; delay: number }
   useFrame((state) => {
     if (pulseRef.current && pointLightRef.current) {
       const elapsedTime = state.clock.elapsedTime;
-      // Adjusted animation speed for a more energetic flow
-      const animationProgress = (elapsedTime * 0.12 + delay) % 1;
-      const pos = curve.getPointAt(animationProgress);
+      const animationProgress = (elapsedTime * 0.15 + delay) % 1.2; // Slowed down and offset
+      const pos = curve.getPointAt(animationProgress > 1 ? 0 : animationProgress);
       pulseRef.current.position.copy(pos);
       pointLightRef.current.position.copy(pos);
-      pointLightRef.current.intensity = 3.0 * (1 + Math.sin(animationProgress * Math.PI * 2));
+      pointLightRef.current.intensity = 4 * (1 + Math.sin(animationProgress * Math.PI * 2));
     }
   });
 
   return (
     <group>
       <mesh>
-        <tubeGeometry args={[curve, 100, 0.01, 8, false]} />
-        <meshStandardMaterial color={ELECTRIC_GREEN} emissive={ELECTRIC_GREEN} emissiveIntensity={0.6} transparent opacity={0.35} />
+        <tubeGeometry args={[curve, 128, 0.015, 8, false]} />
+        <meshStandardMaterial color={BRIGHT_GOLD} emissive={BRIGHT_GOLD} emissiveIntensity={0.8} transparent opacity={0.3} />
       </mesh>
-      <Sphere ref={pulseRef} args={[0.05, 16, 16]}>
-        <meshBasicMaterial color={ELECTRIC_GREEN} />
+      <Sphere ref={pulseRef} args={[0.06, 16, 16]}>
+        <meshBasicMaterial color={BRIGHT_GOLD} />
       </Sphere>
-      <pointLight ref={pointLightRef} color={ELECTRIC_GREEN} intensity={2} distance={2} />
+      <pointLight ref={pointLightRef} color={BRIGHT_GOLD} intensity={3} distance={2} />
     </group>
   );
 };
@@ -152,14 +138,13 @@ export const ThreeCircuitBackground = () => {
     <div className="absolute inset-0 z-0">
       <Canvas
         gl={{ antialias: true, physicallyCorrectLights: true }}
-        // Adjusted camera for better view
-        camera={{ position: [0, 0, 9], fov: 60 }}
+        camera={{ position: [0, 0, 10], fov: 55 }}
         style={{ background: 'transparent' }}
         dpr={[1, 2]}
       >
-        <ambientLight intensity={0.2} color={ELECTRIC_GREEN} />
-        <pointLight position={[-5, -5, -5]} intensity={0.5} color={ELECTRIC_GREEN} />
-        <pointLight position={[5, 5, 5]} intensity={0.5} color={ELECTRIC_GREEN} />
+        <ambientLight intensity={0.25} color={BRIGHT_GOLD} />
+        <pointLight position={[-10, -10, -5]} intensity={0.6} color={BRIGHT_GOLD} />
+        <pointLight position={[10, 10, 5]} intensity={0.6} color={BRIGHT_GOLD} />
 
         <Suspense fallback={null}>
           <CircuitOverlay />

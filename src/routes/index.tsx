@@ -24,7 +24,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import heroCircuit from "@/assets/hero-circuit.png";
+import goldenCircuit from "@/assets/golden-circuit-bg.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -50,20 +50,11 @@ function Home() {
     <PageShell>
       {/* HERO */}
       <section className="relative overflow-hidden">
-        {/* Circuit board gears — deep metallic gold + dark forest green blend */}
+        {/* New Golden Circuit Background */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-center bg-cover opacity-[0.3] md:opacity-[0.25] [filter:sepia(0.6)_hue-rotate(5deg)_saturate(1.4)_brightness(0.7)_contrast(1.15)] [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_100%)]"
-          style={{ backgroundImage: `url(${heroCircuit})` }}
-        />
-        {/* Forest green tint layer blended over the gears */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 mix-blend-color"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, oklch(0.32 0.08 150 / 0.55) 0%, oklch(0.18 0.06 130 / 0.35) 45%, transparent 80%)",
-          }}
+          className="absolute inset-0 bg-center bg-cover"
+          style={{ backgroundImage: `url(${goldenCircuit})` }}
         />
         {/* Dark overlay for text contrast */}
         <div
