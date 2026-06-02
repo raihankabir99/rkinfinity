@@ -3,84 +3,91 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Force re-deploy
 const BRIGHT_GOLD = "#ffdf00";
 
-// New, more detailed paths based on the image
+// A completely new, highly detailed set of paths meticulously mapped from the user's image.
 const getCircuitPaths = () => {
   const paths = [];
 
-  // 1. Main artery on the right side
+  // Path 1: Top-left, curving around "Hi," text.
   paths.push({
     points: [
-      new THREE.Vector3(4.5, 4, 0),
-      new THREE.Vector3(4.5, 1, 0),
-      new THREE.Vector3(3, 0, 0),
-      new THREE.Vector3(3, -2, 0),
-      new THREE.Vector3(4, -3, 0),
+      new THREE.Vector3(-1.8, 4.0, 0),
+      new THREE.Vector3(-2.8, 3.8, 0),
+      new THREE.Vector3(-3.8, 2.5, 0),
+      new THREE.Vector3(-4.2, 1, 0),
+      new THREE.Vector3(-4, -1.5, 0),
     ],
     delay: 0,
   });
 
-  // 2. Top-left tree structure
+  // Path 2: Long, prominent line on the right side.
   paths.push({
     points: [
-      new THREE.Vector3(-4.5, -1, 0),
-      new THREE.Vector3(-4.5, 2, 0),
-      new THREE.Vector3(-3.5, 3, 0),
-      new THREE.Vector3(-3, 3.5, 0),
+      new THREE.Vector3(4.8, 4.5, 0),
+      new THREE.Vector3(4.7, 1, 0),
+      new THREE.Vector3(3.5, 0, 0),
+      new THREE.Vector3(3.3, -1.5, 0),
+      new THREE.Vector3(4, -2.8, 0),
+      new THREE.Vector3(3.5, -4.2, 0),
     ],
-    delay: 0.5,
-  });
-  // Branch of top-left tree
-  paths.push({
-    points: [
-      new THREE.Vector3(-4.5, 1, 0),
-      new THREE.Vector3(-3.5, 1, 0),
-    ],
-    delay: 0.6,
+    delay: 0.8,
   });
 
-  // 3. Central horizontal line connecting to gears
+  // Path 3: Under "Digita" text, connecting to the lower right chip.
   paths.push({
     points: [
-      new THREE.Vector3(-2.5, 2, 0),
-      new THREE.Vector3(0, 2, 0),
-      new THREE.Vector3(1, 2.5, 0),
-    ],
-    delay: 1.0,
-  });
-
-  // 4. Bottom-right structure
-  paths.push({
-    points: [
-      new THREE.Vector3(1, -4, 0),
-      new THREE.Vector3(2.5, -4, 0),
-      new THREE.Vector3(3.5, -3, 0),
+      new THREE.Vector3(0.5, -3.8, 0),
+      new THREE.Vector3(1.5, -3.9, 0),
+      new THREE.Vector3(2.8, -3.5, 0),
+      new THREE.Vector3(3.4, -2.5, 0),
     ],
     delay: 1.5,
   });
 
-   // 5. Connection to the central chip on the right
-   paths.push({
-    points: [
-      new THREE.Vector3(2, 0.5, 0),
-      new THREE.Vector3(1, 0.5, 0),
-      new THREE.Vector3(1, -0.5, 0),
-      new THREE.Vector3(2, -0.5, 0),
-    ],
-    delay: 2.0,
-  });
-
-  // 6. From bottom-left corner upwards
+  // Path 4: Above "I'm RK", curving down.
   paths.push({
     points: [
-      new THREE.Vector3(-4.5, -4.5, 0),
-      new THREE.Vector3(-4.5, -3, 0),
-      new THREE.Vector3(-3.5, -2, 0),
+      new THREE.Vector3(0.8, 3.9, 0),
+      new THREE.Vector3(2, 4.2, 0),
+      new THREE.Vector3(2.9, 3.5, 0),
+      new THREE.Vector3(3.3, 2.5, 0),
+      new THREE.Vector3(3.3, 1.5, 0),
     ],
-    delay: 2.5,
+    delay: 2.2,
   });
+
+  // Path 5: Bottom-left corner, going up.
+  paths.push({
+    points: [
+        new THREE.Vector3(-4.8, -4.5, 0),
+        new THREE.Vector3(-4.7, -3, 0),
+        new THREE.Vector3(-4, -2.2, 0),
+        new THREE.Vector3(-3, -2, 0),
+    ],
+    delay: 3.0,
+  });
+
+  // Path 6: Small connector line on the middle left, branching from path 1.
+  paths.push({
+      points: [
+          new THREE.Vector3(-4.2, 1, 0),
+          new THREE.Vector3(-3.5, 1.1, 0),
+          new THREE.Vector3(-2.5, 0.8, 0),
+      ],
+      delay: 0.2,
+  });
+
+    // Path 7: Top-middle faint line
+    paths.push({
+        points: [
+            new THREE.Vector3(0, 4.5, 0),
+            new THREE.Vector3(0.5, 3.5, 0),
+            new THREE.Vector3(0, 2.5, 0),
+        ],
+        delay: 4.0,
+    });
+
 
   return paths;
 };
@@ -95,24 +102,24 @@ const DataPulse = ({ points, delay }: { points: THREE.Vector3[]; delay: number }
     if (pulseRef.current && pointLightRef.current) {
       const elapsedTime = state.clock.elapsedTime;
       // Slower animation speed
-      const animationProgress = (elapsedTime * 0.1 + delay) % 1;
+      const animationProgress = (elapsedTime * 0.08 + delay) % 1;
       const pos = curve.getPointAt(animationProgress);
       pulseRef.current.position.copy(pos);
       pointLightRef.current.position.copy(pos);
-      pointLightRef.current.intensity = 2.5 * (1 + Math.sin(animationProgress * Math.PI * 2));
+      pointLightRef.current.intensity = 2.8 * (1 + Math.sin(animationProgress * Math.PI * 2));
     }
   });
 
   return (
     <group>
       <mesh>
-        <tubeGeometry args={[curve, 100, 0.007, 8, false]} />
-        <meshStandardMaterial color={BRIGHT_GOLD} emissive={BRIGHT_GOLD} emissiveIntensity={0.6} transparent opacity={0.25} />
+        <tubeGeometry args={[curve, 100, 0.01, 8, false]} />
+        <meshStandardMaterial color={BRIGHT_GOLD} emissive={BRIGHT_GOLD} emissiveIntensity={0.7} transparent opacity={0.2} />
       </mesh>
-      <Sphere ref={pulseRef} args={[0.04, 16, 16]}>
+      <Sphere ref={pulseRef} args={[0.05, 16, 16]}>
         <meshBasicMaterial color={BRIGHT_GOLD} />
       </Sphere>
-      <pointLight ref={pointLightRef} color={BRIGHT_GOLD} intensity={1.5} distance={1.5} />
+      <pointLight ref={pointLightRef} color={BRIGHT_GOLD} intensity={1.8} distance={1.5} />
     </group>
   );
 };
