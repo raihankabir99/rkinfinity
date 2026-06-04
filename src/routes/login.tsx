@@ -4,7 +4,7 @@ import { Lock, Mail, ArrowRight, User as UserIcon, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import logo from "@/assets/rkinfinity logo.png";
+import logo from "@/assets/rkinfinity-logo.png";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
