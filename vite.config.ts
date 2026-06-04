@@ -1,10 +1,15 @@
 import { defineConfig } from "vite";
 import { TanStackRouterVite } from "@tanstack/router-vite-plugin";
 import react from "@vitejs/plugin-react";
-import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
 export default defineConfig({
-  base: '/', // Add this line for Cloudflare
-  plugins: [TanStackRouterVite(), react(), tsconfigPaths(), tailwindcss()],
+  base: '/',
+  plugins: [TanStackRouterVite(), react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
 });
