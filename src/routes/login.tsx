@@ -4,7 +4,6 @@ import { Lock, Mail, ArrowRight, User as UserIcon, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import logo from "@/assets/rkinfinity-logo.png";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -79,7 +78,7 @@ function Login() {
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center gap-2 mb-4">
                 <img
-                  src={logo}
+                  src="/assets/rkinfinity-logo.png"
                   alt="rkInfinity logo"
                   className="h-14 w-14 rounded-full object-contain ring-1 ring-[color:var(--gold,_oklch(0.78_0.14_85))]/60 shadow-[0_0_22px_oklch(0.78_0.14_85/0.45)]"
                 />

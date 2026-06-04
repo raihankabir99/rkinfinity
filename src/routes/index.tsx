@@ -23,7 +23,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import goldenCircuit from "@/assets/golden-circuit.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,7 +52,7 @@ function Home() {
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-center bg-cover"
-          style={{ backgroundImage: `url(${goldenCircuit})` }}
+          style={{ backgroundImage: `url(/assets/golden-circuit.png)` }}
         />
         {/* Dark overlay for text contrast */}
         <div

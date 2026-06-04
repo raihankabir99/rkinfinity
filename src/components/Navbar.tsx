@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import logo from "@/assets/rkinfinity-logo.png";
 import { SubscribeModal } from "./SubscribeModal";
 
 const links = [
@@ -37,7 +36,7 @@ export function Navbar() {
           <nav className="glass flex items-center justify-between rounded-2xl px-4 py-3 md:px-6">
             <Link to="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
               <img
-                src={logo}
+                src="/assets/rkinfinity-logo.png"
                 alt="rkInfinity logo"
                 className="h-10 w-10 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50 shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
               />

@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { Linkedin, Mail, Facebook, Github, Instagram } from "lucide-react";
-import logo from "@/assets/rkinfinity-logo.png";
 
 // Custom TikTok Icon Component
 const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -63,7 +62,7 @@ export function Footer() {
           {/* LOGO & SOCIALS */}
           <div className="col-span-2 md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
-              <img src={logo} alt="rkInfinity Logo" className="h-8 w-8" />
+              <img src="/assets/rkinfinity-logo.png" alt="rkInfinity Logo" className="h-8 w-8" />
               <span className="font-black text-2xl tracking-tight">rkInfinity</span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
