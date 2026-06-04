@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Linkedin, Mail, Facebook, Github, Instagram } from "lucide-react";
-import logo from "@/assets/rkinfinity . logo.png";
+import logo from "@/assets/rkinfinity logo.png";
 
 // Custom TikTok Icon Component
 const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (

@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import logo from "@/assets/rkinfinity . logo.png";
+import logo from "@/assets/rkinfinity logo.png";
 import { SubscribeModal } from "./SubscribeModal";
 
 const links = [
