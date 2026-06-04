@@ -23,7 +23,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import goldenCircuit from "@/assets/golden cercit png.png";
+import goldenCircuit from "@/assets/golden cercit png-clean.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -220,7 +220,7 @@ function Home() {
                 <Icon size={20} />
               </div>
               <h3 className="text-lg font-bold mb-1.5">{t}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">{d}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{d}</p>
             </Link>
           ))}
         </div>
