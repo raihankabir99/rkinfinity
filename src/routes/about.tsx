@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { Award, Coffee, Globe, Heart } from "lucide-react";
-import aboutMe from "@/assets/about-me.png";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -33,7 +32,7 @@ function About() {
             <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
             <div className="flex items-start gap-5 mb-6">
               <img
-                src={aboutMe}
+                src="/assets/about-me.png"
                 alt="RK portrait"
                 className="h-20 w-20 rounded-2xl object-cover ring-2 ring-[color:var(--gold)]/60 shadow-[0_0_24px_oklch(0.78_0.14_85/0.35)] shrink-0"
               />
