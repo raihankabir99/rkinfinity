@@ -124,7 +124,7 @@ export function Footer() {
                     to={c.to}
                     className="text-sm text-muted-foreground hover:text-white transition"
                   >
-                    {s.label}
+                    {c.label}
                   </Link>
                 </li>
               ))}
