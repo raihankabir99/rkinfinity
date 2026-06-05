@@ -118,7 +118,7 @@ async function runChatUnsafe({ messages, session_id, user_name }: ChatInput, con
     parts: [{ text: msg.content }],
   }));
 
-  const result = await model.generateContent([primer, ...history]);
+  const result = await model.generateContent([primer, ...history] as any);
   return { content: result.response.text(), source: "ai" as const };
 }
 
