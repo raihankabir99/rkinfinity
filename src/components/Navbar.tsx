@@ -1,3 +1,4 @@
+
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
@@ -36,7 +37,7 @@ export function Navbar() {
           <nav className="glass flex items-center justify-between rounded-2xl px-4 py-3 md:px-6">
             <Link to="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
               <img
-                src="/assets/rkinfinity-logo.png"
+                src="/rkinfinity-logo.png"
                 alt="rkInfinity logo"
                 className="h-10 w-10 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50 shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
               />
@@ -83,6 +84,19 @@ export function Navbar() {
           {/* This is the mobile menu content */}
           {open && (
             <div className="glass mt-2 rounded-2xl p-3 lg:hidden animate-fade-in">
+              <div className="flex justify-center mb-4">
+                <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
+                  <img
+                    src="/rkinfinity-logo.png"
+                    alt="rkInfinity logo"
+                    className="h-10 w-10 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50 shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
+                  />
+                  <span className="inline">
+                    <span className="text-white">rk</span>
+                    <span className="text-gradient">Infinity</span>
+                  </span>
+                </Link>
+              </div>
               <div className="flex flex-col gap-1.5">
                 {links.map((l) => (
                   <Link

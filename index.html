@@ -2,9 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" href="/rkinfinity-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="TDY9vgSAD0gWzIrGFqeAbv_Nk9JYyEX31Ud9BzJMqPw" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.rkinfinity.com/" />
+    <meta property="og:title" content="rkInfinity - SEO & Digital Solutions" />
+    <meta property="og:description" content="Crafting digital experiences that scale with precision and creativity. SEO Specialist, Digital Solutions Architect, and AI-Powered Web Creator." />
+    <meta property="og:image" content="/rkinfinity-logo.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://www.rkinfinity.com/" />
+    <meta property="twitter:title" content="rkInfinity - SEO & Digital Solutions" />
+    <meta property="twitter:description" content="Crafting digital experiences that scale with precision and creativity. SEO Specialist, Digital Solutions Architect, and AI-Powered Web Creator." />
+    <meta property="twitter:image" content="/rkinfinity-logo.png" />
+
     <title>rkinfinity</title>
     <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "36e7df933f1a489fb6f1870d6b819b2e"}'></script><!-- End Cloudflare Web Analytics -->
     <script src="https://analytics.ahrefs.com/analytics.js" data-key="KcP/Nu929vCXqlirojC9Ww" async></script>
@@ -17,29 +32,30 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: #020817; /* Dark background ONLY for the loader screen */
+        background-color: #020817;
         transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
         opacity: 1;
         visibility: visible;
       }
 
-      /* Hide the loader with this class */
       .loader-container.hidden {
         opacity: 0;
         visibility: hidden;
       }
 
-      .spinner-video {
-        /* Start with a larger size for desktop */
-        width: 250px;
-        height: 250px;
-        
-        /* Ensure it doesn't overflow smaller screens */
-        max-width: 80vw;
-        max-height: 80vh;
+      .spinner-logo {
+        width: 150px;
+        height: 150px;
+        animation: spin 2.5s linear infinite;
+      }
 
-        /* Maintain aspect ratio */
-        object-fit: contain;
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
       }
       /* --- End Loader styles --- */
     </style>
@@ -47,8 +63,8 @@
   <body>
     <!-- This loader is visible immediately -->
     <div id="initial-loader" class="loader-container">
-      <!-- Using a video for the pre-loader -->
-      <video class="spinner-video" src="/canva loading icon 6.mp4" autoplay loop muted playsinline></video>
+      <!-- Using the logo for the pre-loader -->
+      <img src="/rkinfinity-logo.png" alt="Loading..." class="spinner-logo" />
     </div>
     
     <!-- React app will mount here -->
@@ -60,20 +76,14 @@
     <!-- Small script to hide the loader when the app is ready -->
     <script>
       const loader = document.getElementById('initial-loader');
-      const root = document.getElementById('root');
-
-      // Create an observer to watch for changes in the #root element
+      const root = document.getElementById('root'
       const observer = new MutationObserver(function(mutations, me) {
-        // If #root has any children, it means React has rendered something
         if (root.children.length > 0) {
-          // Hide the loader
           loader.classList.add('hidden');
-          // Stop observing
           me.disconnect();
         }
       });
 
-      // Start observing the #root element for child list changes
       observer.observe(root, {
         childList: true
       });

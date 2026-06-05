@@ -1,13 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { Linkedin, Mail, Facebook, PenSquare } from "lucide-react";
+import { Linkedin, Mail, Facebook, PenSquare, Instagram, Music } from "lucide-react";
 
 const facebookUrl = "https://www.facebook.com/profile.php?id=61590233936241";
 const linkedinUrl = "https://www.linkedin.com/in/raihan-kabir-ovi99";
 const emailUrl = "mailto:rkinfinity.official@gmail.com";
+const instagramUrl = "https://www.instagram.com/rkinfinity_/";
+const tiktokUrl = "https://www.tiktok.com/@rkinfinity_";
 
 const socials = [
   { Icon: Facebook, href: facebookUrl, label: "Facebook" },
   { Icon: Linkedin, href: linkedinUrl, label: "LinkedIn" },
+  { Icon: Instagram, href: instagramUrl, label: "Instagram" },
+  { Icon: Music, href: tiktokUrl, label: "TikTok" }, // Using Music icon for TikTok
   { Icon: PenSquare, href: "/blog", label: "Blog" },
   { Icon: Mail, href: emailUrl, label: "Email" },
 ];
@@ -45,7 +49,7 @@ export function Footer() {
           {/* LOGO & SOCIALS */}
           <div className="col-span-2 md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
-              <img src="/assets/rkinfinity-logo.png" alt="rkInfinity Logo" className="h-8 w-8" />
+              <img src="/rkinfinity-logo.png" alt="rkInfinity Logo" className="h-8 w-8" />
               <span className="text-2xl tracking-tight text-primary">
                 <span className="font-medium">rk</span>
                 <span className="font-bold">Infinity</span>
@@ -58,7 +62,7 @@ export function Footer() {
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mt-4">
               Crafting digital experiences that scale with precision and creativity.
             </p>
-            <div className="mt-6 flex items-center gap-2.5">
+            <div className="mt-6 flex items-center gap-2.5 flex-wrap">
               {socials.map(({ Icon, href, label }) => (
                 <a
                   key={href}
