@@ -46,11 +46,14 @@ export function Footer() {
           <div className="col-span-2 md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
               <img src="/assets/rkinfinity-logo.png" alt="rkInfinity Logo" className="h-8 w-8" />
-              <span className="font-black text-2xl tracking-tight text-primary">rkInfinity</span>
+              <span className="text-2xl tracking-tight text-primary">
+                <span className="font-medium">rk</span>
+                <span className="font-bold">Infinity</span>
+              </span>
             </Link>
-            <div className="text-sm text-white/90 space-y-1 font-bold">
-              <p>SEO Specialist <span className="text-primary/50 mx-1">|</span> Digital Solutions Architect <span className="text-primary/50 mx-1">|</span> Content</p>
-              <p>Strategist <span className="text-primary/50 mx-1">|</span> AI-Powered Web Creator</p>
+            <div className="text-sm text-white/90 space-y-1 font-semibold">
+              <p>SEO Specialist <span className="text-primary/50 mx-1.5"> • </span> Digital Solutions Architect <span className="text-primary/50 mx-1.5"> • </span> Content</p>
+              <p>Strategist <span className="text-primary/50 mx-1.5"> • </span> AI-Powered Web Creator</p>
             </div>
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mt-4">
               Crafting digital experiences that scale with precision and creativity.
@@ -121,7 +124,7 @@ export function Footer() {
                     to={c.to}
                     className="text-sm text-muted-foreground hover:text-white transition"
                   >
-                    {c.label}
+                    {s.label}
                   </Link>
                 </li>
               ))}
