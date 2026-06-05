@@ -46,11 +46,11 @@ export function Footer() {
           <div className="col-span-2 md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
               <img src="/assets/rkinfinity-logo.png" alt="rkInfinity Logo" className="h-8 w-8" />
-              <span className="font-black text-2xl tracking-tight text-white">rkInfinity</span>
+              <span className="font-black text-2xl tracking-tight text-primary">rkInfinity</span>
             </Link>
-            <div className="text-sm text-white/90 space-y-1 font-semibold">
-              <p>SEO Specialist • Digital Solutions Architect • Content</p>
-              <p>Strategist • AI-Powered Web Creator</p>
+            <div className="text-sm text-white/90 space-y-1 font-bold">
+              <p>SEO Specialist <span className="text-primary/50 mx-1">|</span> Digital Solutions Architect <span className="text-primary/50 mx-1">|</span> Content</p>
+              <p>Strategist <span className="text-primary/50 mx-1">|</span> AI-Powered Web Creator</p>
             </div>
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mt-4">
               Crafting digital experiences that scale with precision and creativity.
