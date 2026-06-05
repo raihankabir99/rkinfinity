@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { Rocket, Briefcase, TrendingUp, Pen, Facebook, ArrowUpRight } from "lucide-react";
-import storytellerBg from "@/assets/storyteller-bg.png";
 
 export const Route = createFileRoute("/story")({
   head: () => ({
@@ -108,7 +107,7 @@ function Story() {
       <section
         className="relative mt-12 overflow-hidden"
         style={{
-          backgroundImage: `url(${storytellerBg})`,
+          backgroundImage: `url(/assets/storyteller-bg.png)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
