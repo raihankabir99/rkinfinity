@@ -47,7 +47,7 @@ export function Footer() {
               <img src="/assets/rkinfinity-logo.png" alt="rkInfinity Logo" className="h-8 w-8" />
               <span className="font-black text-2xl tracking-tight">rkInfinity</span>
             </Link>
-            <div className="text-sm text-muted-foreground space-y-1 font-semibold">
+            <div className="text-sm text-muted-foreground space-y-1 font-bold">
               <p>SEO Specialist • Digital Solutions Architect • Content</p>
               <p>Strategist • AI-Powered Web Creator</p>
             </div>
@@ -62,7 +62,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="text-muted-foreground hover:text-primary transition h-10 w-10 grid place-items-center bg-white/5 rounded-lg"
+                  className="text-muted-foreground hover:text-primary transition h-10 w-10 grid place-items-center border border-primary/40 rounded-lg hover:bg-primary/10"
                 >
                   <Icon size={18} />
                 </a>
