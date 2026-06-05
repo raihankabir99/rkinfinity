@@ -52,7 +52,7 @@ function Home() {
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-center bg-cover"
-          style={{ backgroundImage: `url(/assets/golden-circuit.png)` }}
+          style={{ backgroundImage: `url("/assets/golden-circuit.png")` }}
         />
         {/* Dark overlay for text contrast */}
         <div

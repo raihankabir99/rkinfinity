@@ -107,7 +107,7 @@ function Story() {
       <section
         className="relative mt-12 overflow-hidden"
         style={{
-          backgroundImage: `url(/assets/storyteller-bg.png)`,
+          backgroundImage: `url("/assets/storyteller-bg.png")`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",

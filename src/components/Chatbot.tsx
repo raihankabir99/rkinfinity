@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Send, Loader2, Mic } from "lucide-react";
 import { toast } from "sonner";
-import robotLogo from "@/assets/chatbot-robot.png";
-import chatbotBg from "@/assets/chatbot-bg.png";
 import { supabase } from "@/integrations/supabase/client";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -235,7 +233,7 @@ export function Chatbot() {
           onClick={() => setOpen(true)}
           className="fixed bottom-24 right-6 z-[60] h-16 w-16 rounded-full border-2 border-[color:var(--gold)] bg-black overflow-hidden shadow-lg hover:scale-105 transition"
         >
-          <img src={robotLogo} alt="AI" className="h-full w-full object-cover" />
+          <img src="/assets/chatbot-robot.png" alt="AI" className="h-full w-full object-cover" />
         </button>
       )}
 
@@ -243,14 +241,14 @@ export function Chatbot() {
         <div
           className="fixed inset-0 z-[70] flex flex-col overflow-hidden border border-[color:var(--gold)]/60 bg-black shadow-2xl md:bottom-6 md:right-6 md:top-auto md:left-auto md:h-[min(560px,calc(100vh-3rem))] md:w-[min(380px,calc(100vw-2rem))] md:rounded-2xl"
           style={{
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url(${chatbotBg})`,
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url(/assets/chatbot-bg.png)`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[color:var(--gold)]/30 bg-black/40 backdrop-blur-md">
             <img
-              src={robotLogo}
+              src="/assets/chatbot-robot.png"
               className="h-9 w-9 rounded-full border border-[color:var(--gold)]/50"
             />
             <div className="flex-1 text-sm font-bold text-white">
