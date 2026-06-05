@@ -10,6 +10,11 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
+        <img
+          src="/assets/rkinfinity-logo.png"
+          alt="rkInfinity logo"
+          className="mx-auto mb-6 h-24 w-24 rounded-full object-contain ring-1 ring-[color:var(--gold,_oklch(0.78_0.14_85))]/60 shadow-[0_0_28px_oklch(0.78_0.14_85/0.45)]"
+        />
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
