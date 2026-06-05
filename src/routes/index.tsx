@@ -384,6 +384,29 @@ function Home() {
           </AccordionItem>
         </Accordion>
       </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-6xl px-4 py-24">
+        <div className="glass-gradient-2 relative text-center rounded-3xl px-8 py-16 md:py-20 overflow-hidden">
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-primary/10 blur-3xl -z-10" />
+          <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-accent/10 blur-3xl -z-10" />
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+            Ready to <span className="text-gradient">outrank</span> your competition?
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg max-w-xl mx-auto">
+            Let's work together to boost your search rankings and drive organic growth.
+          </p>
+          <div className="mt-8">
+            <Link
+              to="/contact"
+              className="group btn-gold btn-pill pulse-glow text-lg"
+            >
+              Get Started
+              <ArrowRight size={20} className="group-hover:translate-x-1.5 transition" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </PageShell>
   );
 }
