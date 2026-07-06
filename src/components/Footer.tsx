@@ -50,9 +50,9 @@ export function Footer() {
           <div className="col-span-2 md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
               <img src="/rkinfinity-logo.png" alt="rkInfinity Logo" className="h-8 w-8" />
-              <span className="text-xl tracking-tight leading-none lowercase">
-                <span className="footer-brand-rk font-bold">rk</span>
-                <span className="footer-brand-infinity font-bold">infinity</span>
+              <span className="text-2xl font-bold tracking-tighter">
+                  <span className="text-white">rk</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">Infinity</span>
               </span>
             </Link>
             <div className="footer-role-text text-sm space-y-1 font-semibold leading-relaxed">

@@ -76,7 +76,7 @@
     <!-- Small script to hide the loader when the app is ready -->
     <script>
       const loader = document.getElementById('initial-loader');
-      const root = document.getElementById('root'
+      const root = document.getElementById('root');
       const observer = new MutationObserver(function(mutations, me) {
         if (root.children.length > 0) {
           loader.classList.add('hidden');
