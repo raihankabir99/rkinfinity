@@ -172,7 +172,7 @@ function Login() {
                 ) : (
                   <>
                     {mode === "signin" ? "Sign in" : "Create account"} <ArrowRight size={16} />
-                  </> 
+                  </>
                 )}
               </button>
             </form>

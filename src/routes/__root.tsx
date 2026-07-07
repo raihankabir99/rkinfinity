@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { Chatbot } from "@/components/Chatbot";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
+import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { GlobalErrorBoundary, installClientErrorReporting } from "@/components/GlobalErrorBoundary";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -49,6 +50,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   useVisitorTracking();
+  useDocumentMetadata();
   useEffect(() => {
     installClientErrorReporting();
   }, []);

@@ -42,7 +42,9 @@ function Contact() {
           name: form.name,
           email: form.email,
           _replyto: form.email,
-          _subject: form.subject ? `[rkInfinity Contact] ${form.subject}` : "[rkInfinity Contact] New message",
+          _subject: form.subject
+            ? `[rkInfinity Contact] ${form.subject}`
+            : "[rkInfinity Contact] New message",
           message: form.message,
           source: "rkInfinity Contact Form",
         }),
@@ -126,7 +128,9 @@ function Contact() {
               <CheckCircle2 size={56} className="text-[color:var(--gold)]" />
               <h3 className="text-2xl font-bold">Message sent!</h3>
               <p className="text-muted-foreground max-w-xs">
-                Thanks for reaching out. RK will reply to <span className="text-foreground font-medium">{form.email || "your email"}</span> soon.
+                Thanks for reaching out. RK will reply to{" "}
+                <span className="text-foreground font-medium">{form.email || "your email"}</span>{" "}
+                soon.
               </p>
               <button
                 type="button"
@@ -183,9 +187,7 @@ function Contact() {
               </div>
 
               {error && (
-                <p className="text-sm text-red-400 bg-red-400/10 rounded-xl px-4 py-3">
-                  {error}
-                </p>
+                <p className="text-sm text-red-400 bg-red-400/10 rounded-xl px-4 py-3">{error}</p>
               )}
 
               <button

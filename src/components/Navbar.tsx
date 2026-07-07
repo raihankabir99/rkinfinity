@@ -1,4 +1,3 @@
-
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
@@ -85,7 +84,11 @@ export function Navbar() {
           {open && (
             <div className="glass mt-2 rounded-2xl p-3 lg:hidden animate-fade-in">
               <div className="flex justify-center mb-4">
-                <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
+                <Link
+                  to="/"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 font-bold text-lg tracking-tight"
+                >
                   <img
                     src="/rkinfinity-logo.png"
                     alt="rkInfinity logo"

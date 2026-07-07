@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import { TypingText } from "@/components/TypingText";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import {
   ArrowRight,
   Sparkles,
@@ -67,69 +68,81 @@ function Home() {
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 md:py-32">
           <div className="text-center max-w-4xl mx-auto">
-            <span className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-mono uppercase tracking-wider text-primary mb-6">
-              <Sparkles size={12} /> Available for new projects · 2026
-            </span>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95]">
-              <span className="text-gradient neon-text">Hi, I'm RK</span>
-            </h1>
-            <div
-              className="mt-2 font-black tracking-tight leading-[1.05] flex flex-nowrap items-baseline justify-center gap-x-3 mx-auto"
-              style={{
-                fontSize: "clamp(1.75rem, 5.5vw, 4.5rem)",
-                whiteSpace: "nowrap",
-                maxWidth: "100%",
-              }}
-            >
-              <TypingText
-                words={[
-                  "SEO Specialist",
-                  "Digital Marketer",
-                  "AI-Powered Web Creator",
-                  "Content Strategist",
-                ]}
-                speed={110}
-                pause={1800}
-              />
-            </div>
-            <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Building infinite possibilities at the intersection of search, code, and growth. I help
-              brands rank, scale, and connect.
-            </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4 md:gap-5">
-              <Link to="/tools" className="group btn-gold btn-pill pulse-glow">
-                Explore Tools{" "}
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition" />
-              </Link>
-              <a
-                href="https://trello.com/b/8BdFkKJ4/my-trello-board"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-metal-pill"
+            <ScrollReveal delay={100}>
+              <span className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-mono uppercase tracking-wider text-primary mb-6">
+                <Sparkles size={12} /> Available for new projects · 2026
+              </span>
+            </ScrollReveal>
+            <ScrollReveal delay={200}>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95]">
+                <span className="text-gradient neon-text">Hi, I'm RK</span>
+              </h1>
+            </ScrollReveal>
+            <ScrollReveal delay={350}>
+              <div
+                className="mt-2 font-black tracking-tight leading-[1.05] flex flex-nowrap items-baseline justify-center gap-x-3 mx-auto"
+                style={{
+                  fontSize: "clamp(1.75rem, 5.5vw, 4.5rem)",
+                  whiteSpace: "nowrap",
+                  maxWidth: "100%",
+                }}
               >
-                Track My Project
-              </a>
-              <a
-                href="https://api.whatsapp.com/send?phone=966540742748&text=TrackMyProject"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-gold btn-pill"
-                style={{ color: "#000" }}
-              >
-                Track with RK
-              </a>
-            </div>
+                <TypingText
+                  words={[
+                    "SEO Specialist",
+                    "Digital Marketer",
+                    "AI-Powered Web Creator",
+                    "Content Strategist",
+                  ]}
+                  speed={110}
+                  pause={1800}
+                />
+              </div>
+            </ScrollReveal>
+            <ScrollReveal delay={500}>
+              <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+                Building infinite possibilities at the intersection of search, code, and growth. I
+                help brands rank, scale, and connect.
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={650}>
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-4 md:gap-5">
+                <Link to="/tools" className="group btn-gold btn-pill pulse-glow">
+                  Explore Tools{" "}
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition" />
+                </Link>
+                <a
+                  href="https://trello.com/b/8BdFkKJ4/my-trello-board"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-metal-pill"
+                >
+                  Track My Project
+                </a>
+                <a
+                  href="https://api.whatsapp.com/send?phone=966540742748&text=TrackMyProject"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-gold btn-pill"
+                  style={{ color: "#000" }}
+                >
+                  Track with RK
+                </a>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
       {/* FEATURES */}
-      <section className="mx-auto max-w-7xl px-4 py-24">
-        <SectionHeader
-          eyebrow="What I do"
-          title="Three crafts. One vision."
-          sub="Search, code, and story — woven into measurable growth."
-        />
+      <section id="services" className="mx-auto max-w-7xl px-4 py-24">
+        <ScrollReveal>
+          <SectionHeader
+            eyebrow="What I do"
+            title="Three crafts. One vision."
+            sub="Search, code, and story — woven into measurable growth."
+          />
+        </ScrollReveal>
         <div className="grid md:grid-cols-3 gap-6">
           {[
             {
@@ -147,36 +160,40 @@ function Home() {
               t: "AI-Powered Web Creation",
               d: "Modern, AI-driven websites built for speed and conversion using latest technologies.",
             },
-          ].map(({ icon: Icon, t, d }) => (
-            <div key={t} className="glass rounded-2xl p-8 hover:border-primary/40 transition group">
-              <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary mb-5 group-hover:scale-110 transition">
-                <Icon size={22} />
+          ].map(({ icon: Icon, t, d }, i) => (
+            <ScrollReveal key={t} delay={i * 150} className="h-full">
+              <div className="glass rounded-2xl p-8 hover:border-primary/40 transition group h-full">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary mb-5 group-hover:scale-110 transition">
+                  <Icon size={22} />
+                </div>
+                <h3 className="text-xl font-bold mb-2">{t}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{d}</p>
               </div>
-              <h3 className="text-xl font-bold mb-2">{t}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">{d}</p>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </section>
 
       {/* SEO SERVICES GRID */}
-      <section className="mx-auto max-w-7xl px-4 py-20">
-        <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
-          <div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">
-              Full-stack <span className="text-gradient">SEO</span> services.
-            </h2>
-            <p className="mt-2 text-muted-foreground text-sm md:text-base">
-              Six pillars. One compounding system.
-            </p>
+      <section id="pillars" className="mx-auto max-w-7xl px-4 py-20">
+        <ScrollReveal>
+          <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
+            <div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+                Full-stack <span className="text-gradient">SEO</span> services.
+              </h2>
+              <p className="mt-2 text-muted-foreground text-sm md:text-base">
+                Six pillars. One compounding system.
+              </p>
+            </div>
+            <Link
+              to="/services"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--gold)] hover:text-[color:var(--gold-bright)] transition"
+            >
+              View all services <ArrowRight size={16} />
+            </Link>
           </div>
-          <Link
-            to="/services"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--gold)] hover:text-[color:var(--gold-bright)] transition"
-          >
-            View all services <ArrowRight size={16} />
-          </Link>
-        </div>
+        </ScrollReveal>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[
             {
@@ -209,40 +226,43 @@ function Home() {
               t: "SEO Audits",
               d: "Deep, prioritized audits with a roadmap you can ship.",
             },
-          ].map(({ icon: Icon, t, d }) => (
-            <Link
-              key={t}
-              to="/services"
-              className="glass rounded-2xl p-6 hover:border-primary/40 transition group block"
-            >
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-[color:var(--gold)] mb-4 group-hover:scale-110 transition">
-                <Icon size={20} />
-              </div>
-              <h3 className="text-lg font-bold mb-1.5">{t}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{d}</p>
-            </Link>
+          ].map(({ icon: Icon, t, d }, i) => (
+            <ScrollReveal key={t} delay={(i % 3) * 100} className="h-full">
+              <Link
+                to="/services"
+                className="glass rounded-2xl p-6 hover:border-primary/40 transition group block h-full"
+              >
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-[color:var(--gold)] mb-4 group-hover:scale-110 transition">
+                  <Icon size={20} />
+                </div>
+                <h3 className="text-lg font-bold mb-1.5">{t}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{d}</p>
+              </Link>
+            </ScrollReveal>
           ))}
         </div>
       </section>
 
       {/* LATEST INSIGHTS */}
-      <section className="mx-auto max-w-7xl px-4 py-20">
-        <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
-          <div>
-            <span className="text-xs font-mono uppercase tracking-wider text-[color:var(--gold)]">
-              Latest Insights
-            </span>
-            <h2 className="mt-2 text-4xl md:text-5xl font-black tracking-tight">
-              From the <span className="text-gradient">blog</span>.
-            </h2>
+      <section id="blog" className="mx-auto max-w-7xl px-4 py-20">
+        <ScrollReveal>
+          <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
+            <div>
+              <span className="text-xs font-mono uppercase tracking-wider text-[color:var(--gold)]">
+                Latest Insights
+              </span>
+              <h2 className="mt-2 text-4xl md:text-5xl font-black tracking-tight">
+                From the <span className="text-gradient">blog</span>.
+              </h2>
+            </div>
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--gold)] hover:text-[color:var(--gold-bright)] transition"
+            >
+              All posts <ArrowRight size={16} />
+            </Link>
           </div>
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--gold)] hover:text-[color:var(--gold-bright)] transition"
-          >
-            All posts <ArrowRight size={16} />
-          </Link>
-        </div>
+        </ScrollReveal>
         <div className="grid md:grid-cols-3 gap-6">
           {[
             {
@@ -264,42 +284,45 @@ function Home() {
               r: "12 min",
             },
           ].map((p, i) => (
-            <Link
-              key={p.t}
-              to="/blog"
-              className="glass rounded-2xl p-7 hover:border-primary/40 transition group block bg-black/60"
-            >
-              <div className="flex items-center justify-between mb-4 text-xs font-mono uppercase tracking-wider">
-                <span className="text-[color:var(--gold)]">{p.c}</span>
-                <span className="text-muted-foreground inline-flex items-center gap-1">
-                  <Clock size={12} /> {p.r}
-                </span>
-              </div>
-              <h3 className="text-xl font-bold leading-snug mb-3 group-hover:text-gradient">
-                {p.t}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-5">{p.d}</p>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">
-                  Article #{(i + 1).toString().padStart(2, "0")}
-                </span>
-                <ArrowUpRight
-                  size={16}
-                  className="text-[color:var(--gold)] group-hover:translate-x-1 group-hover:-translate-y-1 transition"
-                />
-              </div>
-            </Link>
+            <ScrollReveal key={p.t} delay={i * 150} className="h-full">
+              <Link
+                to="/blog"
+                className="glass rounded-2xl p-7 hover:border-primary/40 transition group block bg-black/60 h-full"
+              >
+                <div className="flex items-center justify-between mb-4 text-xs font-mono uppercase tracking-wider">
+                  <span className="text-[color:var(--gold)]">{p.c}</span>
+                  <span className="text-muted-foreground inline-flex items-center gap-1">
+                    <Clock size={12} /> {p.r}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold leading-snug mb-3 group-hover:text-gradient">
+                  {p.t}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-5">{p.d}</p>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    Article #{(i + 1).toString().padStart(2, "0")}
+                  </span>
+                  <ArrowUpRight
+                    size={16}
+                    className="text-[color:var(--gold)] group-hover:translate-x-1 group-hover:-translate-y-1 transition"
+                  />
+                </div>
+              </Link>
+            </ScrollReveal>
           ))}
         </div>
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="mx-auto max-w-7xl px-4 py-24">
-        <SectionHeader
-          eyebrow="Testimonials"
-          title="Voices of trust."
-          sub="What clients say after working with RK."
-        />
+      <section id="testimonials" className="mx-auto max-w-7xl px-4 py-24">
+        <ScrollReveal>
+          <SectionHeader
+            eyebrow="Testimonials"
+            title="Voices of trust."
+            sub="What clients say after working with RK."
+          />
+        </ScrollReveal>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {[
             {
@@ -326,86 +349,90 @@ function Home() {
               img: "https://i.pravatar.cc/120?img=15",
               t: "He treats your brand like it's his own. Results that compound.",
             },
-          ].map((x) => (
-            <div
-              key={x.n}
-              className="glass rounded-2xl p-6 hover:border-primary/40 transition flex flex-col"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <img
-                  src={x.img}
-                  alt={x.n}
-                  className="h-12 w-12 rounded-full object-cover ring-2 ring-[color:var(--gold)]/60"
-                />
-                <div>
-                  <div className="font-bold text-sm">{x.n}</div>
-                  <div className="text-xs text-muted-foreground">{x.r}</div>
+          ].map((x, i) => (
+            <ScrollReveal key={x.n} delay={(i % 4) * 100} className="h-full">
+              <div className="glass rounded-2xl p-6 hover:border-primary/40 transition flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <img
+                    src={x.img}
+                    alt={x.n}
+                    className="h-12 w-12 rounded-full object-cover ring-2 ring-[color:var(--gold)]/60"
+                  />
+                  <div>
+                    <div className="font-bold text-sm">{x.n}</div>
+                    <div className="text-xs text-muted-foreground">{x.r}</div>
+                  </div>
                 </div>
+                <div className="flex gap-0.5 mb-3 text-[color:var(--gold)]">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={14} fill="currentColor" />
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">"{x.t}"</p>
               </div>
-              <div className="flex gap-0.5 mb-3 text-[color:var(--gold)]">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={14} fill="currentColor" />
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">"{x.t}"</p>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="mx-auto max-w-3xl px-4 py-20">
-        <SectionHeader
-          eyebrow="FAQ"
-          title="Frequently asked."
-          sub="Quick answers to what people ask most."
-        />
-        <Accordion type="single" collapsible className="glass rounded-2xl px-6">
-          <AccordionItem value="q1" className="border-[color:var(--gold)]/15">
-            <AccordionTrigger className="text-left">What services do you offer?</AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">
-              SEO, Digital Marketing, and AI-Powered Web Creation — end-to-end strategy, build, and
-              growth.
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="q2" className="border-[color:var(--gold)]/15">
-            <AccordionTrigger className="text-left">
-              How long does SEO take to show results?
-            </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">
-              Typically 3–6 months for meaningful, compounding results. Quick wins can land sooner.
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="q3" className="border-none">
-            <AccordionTrigger className="text-left">Can I track my project?</AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">
-              Yes — share your project ID via the chatbot or contact page for a live status update.
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+      <section id="faq" className="mx-auto max-w-3xl px-4 py-20">
+        <ScrollReveal>
+          <SectionHeader
+            eyebrow="FAQ"
+            title="Frequently asked."
+            sub="Quick answers to what people ask most."
+          />
+        </ScrollReveal>
+        <ScrollReveal delay={150}>
+          <Accordion type="single" collapsible className="glass rounded-2xl px-6">
+            <AccordionItem value="q1" className="border-[color:var(--gold)]/15">
+              <AccordionTrigger className="text-left">What services do you offer?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                SEO, Digital Marketing, and AI-Powered Web Creation — end-to-end strategy, build,
+                and growth.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="q2" className="border-[color:var(--gold)]/15">
+              <AccordionTrigger className="text-left">
+                How long does SEO take to show results?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Typically 3–6 months for meaningful, compounding results. Quick wins can land
+                sooner.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="q3" className="border-none">
+              <AccordionTrigger className="text-left">Can I track my project?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Yes — share your project ID via the chatbot or contact page for a live status
+                update.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </ScrollReveal>
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-6xl px-4 py-24">
-        <div className="glass-gradient-2 relative text-center rounded-3xl px-8 py-16 md:py-20 overflow-hidden">
-          <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-primary/10 blur-3xl -z-10" />
-          <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-accent/10 blur-3xl -z-10" />
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight">
-            Ready to <span className="text-gradient">outrank</span> your competition?
-          </h2>
-          <p className="mt-4 text-muted-foreground text-lg max-w-xl mx-auto">
-            Let's work together to boost your search rankings and drive organic growth.
-          </p>
-          <div className="mt-8">
-            <Link
-              to="/contact"
-              className="group btn-gold btn-pill pulse-glow text-lg"
-            >
-              Get Started
-              <ArrowRight size={20} className="group-hover:translate-x-1.5 transition" />
-            </Link>
+      <section id="cta" className="mx-auto max-w-6xl px-4 py-24">
+        <ScrollReveal>
+          <div className="glass-gradient-2 relative text-center rounded-3xl px-8 py-16 md:py-20 overflow-hidden">
+            <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-primary/10 blur-3xl -z-10" />
+            <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-accent/10 blur-3xl -z-10" />
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+              Ready to <span className="text-gradient">outrank</span> your competition?
+            </h2>
+            <p className="mt-4 text-muted-foreground text-lg max-w-xl mx-auto">
+              Let's work together to boost your search rankings and drive organic growth.
+            </p>
+            <div className="mt-8">
+              <Link to="/contact" className="group btn-gold btn-pill pulse-glow text-lg">
+                Get Started
+                <ArrowRight size={20} className="group-hover:translate-x-1.5 transition" />
+              </Link>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
     </PageShell>
   );

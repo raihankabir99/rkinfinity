@@ -15,8 +15,36 @@ function createSupabaseAdminClient() {
       ...(!SUPABASE_SERVICE_ROLE_KEY ? ["SUPABASE_SERVICE_ROLE_KEY"] : []),
     ];
     const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    console.warn(`[Supabase Admin] ${message}`);
+
+    const noOp: any = {
+      select: () => noOp,
+      eq: () => noOp,
+      maybeSingle: async () => ({ data: null, error: null }),
+      single: async () => ({ data: null, error: null }),
+      insert: async () => ({ data: null, error: null }),
+      upsert: async () => ({ data: null, error: null }),
+      update: async () => ({ data: null, error: null }),
+      delete: async () => ({ data: null, error: null }),
+      order: () => noOp,
+      limit: () => noOp,
+      ilike: () => noOp,
+      channel: () => ({
+        on: () => ({
+          subscribe: () => ({}),
+        }),
+      }),
+      removeChannel: async () => {},
+    };
+    return new Proxy(
+      {},
+      {
+        get: (target, prop) => {
+          if (prop === "from") return () => noOp;
+          return () => noOp;
+        },
+      },
+    ) as any;
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {

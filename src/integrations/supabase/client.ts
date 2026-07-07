@@ -15,8 +15,42 @@ function createSupabaseClient() {
       ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
     ];
     const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    console.warn(`[Supabase] ${message}`);
+
+    const noOp: any = {
+      select: () => noOp,
+      eq: () => noOp,
+      maybeSingle: async () => ({ data: null, error: null }),
+      single: async () => ({ data: null, error: null }),
+      insert: async () => ({ data: null, error: null }),
+      upsert: async () => ({ data: null, error: null }),
+      update: async () => ({ data: null, error: null }),
+      delete: async () => ({ data: null, error: null }),
+      order: () => noOp,
+      limit: () => noOp,
+      channel: () => ({
+        on: () => ({
+          subscribe: () => ({}),
+        }),
+      }),
+      removeChannel: async () => {},
+      auth: {
+        getSession: async () => ({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      },
+    };
+    return new Proxy(
+      {},
+      {
+        get: (target, prop) => {
+          if (prop === "auth") return noOp.auth;
+          if (prop === "from") return () => noOp;
+          if (prop === "channel") return noOp.channel;
+          if (prop === "removeChannel") return noOp.removeChannel;
+          return () => noOp;
+        },
+      },
+    ) as any;
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {

@@ -51,13 +51,21 @@ export function Footer() {
             <Link to="/" className="flex items-center gap-3 mb-6">
               <img src="/rkinfinity-logo.png" alt="rkInfinity Logo" className="h-8 w-8" />
               <span className="text-2xl font-bold tracking-tighter">
-                  <span className="text-white">rk</span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">Infinity</span>
+                <span className="text-white">rk</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">
+                  Infinity
+                </span>
               </span>
             </Link>
             <div className="footer-role-text text-sm space-y-1 font-semibold leading-relaxed">
-              <p>SEO Specialist <span className="text-primary/50 mx-1.5"> • </span> Digital Solutions Architect <span className="text-primary/50 mx-1.5"> • </span> Content</p>
-              <p>Strategist <span className="text-primary/50 mx-1.5"> • </span> AI-Powered Web Creator</p>
+              <p>
+                SEO Specialist <span className="text-primary/50 mx-1.5"> • </span> Digital Solutions
+                Architect <span className="text-primary/50 mx-1.5"> • </span> Content
+              </p>
+              <p>
+                Strategist <span className="text-primary/50 mx-1.5"> • </span> AI-Powered Web
+                Creator
+              </p>
             </div>
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mt-4">
               Crafting digital experiences that scale with precision and creativity.
@@ -99,9 +107,7 @@ export function Footer() {
 
           {/* TOOLS */}
           <div>
-            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-primary">
-              Tools
-            </h4>
+            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-primary">Tools</h4>
             <ul className="space-y-2.5">
               {tools.map((t) => (
                 <li key={t.label}>

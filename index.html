@@ -5,24 +5,40 @@
     <link rel="icon" type="image/png" href="/rkinfinity-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="TDY9vgSAD0gWzIrGFqeAbv_Nk9JYyEX31Ud9BzJMqPw" />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.rkinfinity.com/" />
     <meta property="og:title" content="rkInfinity - SEO & Digital Solutions" />
-    <meta property="og:description" content="Crafting digital experiences that scale with precision and creativity. SEO Specialist, Digital Solutions Architect, and AI-Powered Web Creator." />
+    <meta
+      property="og:description"
+      content="Crafting digital experiences that scale with precision and creativity. SEO Specialist, Digital Solutions Architect, and AI-Powered Web Creator."
+    />
     <meta property="og:image" content="/rkinfinity-logo.png" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://www.rkinfinity.com/" />
     <meta property="twitter:title" content="rkInfinity - SEO & Digital Solutions" />
-    <meta property="twitter:description" content="Crafting digital experiences that scale with precision and creativity. SEO Specialist, Digital Solutions Architect, and AI-Powered Web Creator." />
+    <meta
+      property="twitter:description"
+      content="Crafting digital experiences that scale with precision and creativity. SEO Specialist, Digital Solutions Architect, and AI-Powered Web Creator."
+    />
     <meta property="twitter:image" content="/rkinfinity-logo.png" />
 
     <title>rkinfinity</title>
-    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "36e7df933f1a489fb6f1870d6b819b2e"}'></script><!-- End Cloudflare Web Analytics -->
-    <script src="https://analytics.ahrefs.com/analytics.js" data-key="KcP/Nu929vCXqlirojC9Ww" async></script>
+    <!-- Cloudflare Web Analytics -->
+    <script
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "36e7df933f1a489fb6f1870d6b819b2e"}'
+    ></script>
+    <!-- End Cloudflare Web Analytics -->
+    <script
+      src="https://analytics.ahrefs.com/analytics.js"
+      data-key="KcP/Nu929vCXqlirojC9Ww"
+      async
+    ></script>
     <style>
       /* --- Loader styles --- */
       .loader-container {
@@ -33,7 +49,9 @@
         justify-content: center;
         align-items: center;
         background-color: #020817;
-        transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+        transition:
+          opacity 0.5s ease-in-out,
+          visibility 0.5s ease-in-out;
         opacity: 1;
         visibility: visible;
       }
@@ -66,26 +84,26 @@
       <!-- Using the logo for the pre-loader -->
       <img src="/rkinfinity-logo.png" alt="Loading..." class="spinner-logo" />
     </div>
-    
+
     <!-- React app will mount here -->
     <div id="root"></div>
-    
+
     <!-- The main script for the app -->
     <script type="module" src="/src/main.tsx"></script>
 
     <!-- Small script to hide the loader when the app is ready -->
     <script>
-      const loader = document.getElementById('initial-loader');
-      const root = document.getElementById('root');
-      const observer = new MutationObserver(function(mutations, me) {
+      const loader = document.getElementById("initial-loader");
+      const root = document.getElementById("root");
+      const observer = new MutationObserver(function (mutations, me) {
         if (root.children.length > 0) {
-          loader.classList.add('hidden');
+          loader.classList.add("hidden");
           me.disconnect();
         }
       });
 
       observer.observe(root, {
-        childList: true
+        childList: true,
       });
     </script>
   </body>
