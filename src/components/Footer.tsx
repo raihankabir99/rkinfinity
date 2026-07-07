@@ -49,13 +49,11 @@ export function Footer() {
           {/* LOGO & SOCIALS */}
           <div className="col-span-2 md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-[color:var(--gold)]/50 shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)] bg-black/40">
-                <img
-                  src="/rkinfinity-logo.png"
-                  alt="rkInfinity Logo"
-                  className="h-full w-full rounded-full object-cover"
-                />
-              </div>
+              <img
+                src="/rkinfinity-logo.png"
+                alt="rkInfinity Logo"
+                className="h-10 w-10 rounded-full object-cover shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
+              />
               <span className="text-2xl font-bold tracking-tighter">
                 <span className="text-white">rk</span>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">
