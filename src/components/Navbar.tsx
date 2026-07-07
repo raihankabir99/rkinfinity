@@ -38,7 +38,7 @@ export function Navbar() {
               <img
                 src="/rkinfinity-logo.png"
                 alt="rkInfinity logo"
-                className="h-10 w-10 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50 shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
+                className="h-10 w-10 rounded-full object-cover shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
               />
               <span className="hidden sm:inline">
                 <span className="text-white">rk</span>
@@ -92,7 +92,7 @@ export function Navbar() {
                   <img
                     src="/rkinfinity-logo.png"
                     alt="rkInfinity logo"
-                    className="h-10 w-10 rounded-full object-cover ring-1 ring-[color:var(--gold)]/50 shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
+                    className="h-10 w-10 rounded-full object-cover shadow-[0_0_18px_oklch(0.78_0.14_85/0.35)]"
                   />
                   <span className="inline">
                     <span className="text-white">rk</span>
