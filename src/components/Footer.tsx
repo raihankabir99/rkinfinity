@@ -1,16 +1,20 @@
 import { Link } from "@tanstack/react-router";
-import { Linkedin, Facebook, Instagram, Music } from "lucide-react";
+import { Linkedin, Facebook, Instagram, Music, Youtube, Pin } from "lucide-react";
 
 const facebookUrl = "https://www.facebook.com/profile.php?id=61590233936241";
 const linkedinUrl = "https://www.linkedin.com/in/raihan-kabir-ovi99";
 const instagramUrl = "https://www.instagram.com/rkinfinity_/";
 const tiktokUrl = "https://www.tiktok.com/@rkinfinity_";
+const pinterestUrl = "https://www.pinterest.com/rkinfinity_/";
+const youtubeUrl = "https://www.youtube.com/@rkinfinity.studio";
 
 const socials = [
   { Icon: Facebook, href: facebookUrl, label: "Facebook" },
   { Icon: Linkedin, href: linkedinUrl, label: "LinkedIn" },
   { Icon: Instagram, href: instagramUrl, label: "Instagram" },
   { Icon: Music, href: tiktokUrl, label: "TikTok" }, // Using Music icon for TikTok
+  { Icon: Pin, href: pinterestUrl, label: "Pinterest" }, // Using Pin icon for Pinterest
+  { Icon: Youtube, href: youtubeUrl, label: "YouTube" },
 ];
 
 const services = [
