@@ -1,9 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { Linkedin, Mail, Facebook, PenSquare, Instagram, Music } from "lucide-react";
+import { Linkedin, Facebook, Instagram, Music } from "lucide-react";
 
 const facebookUrl = "https://www.facebook.com/profile.php?id=61590233936241";
 const linkedinUrl = "https://www.linkedin.com/in/raihan-kabir-ovi99";
-const emailUrl = "mailto:rkinfinity.official@gmail.com";
 const instagramUrl = "https://www.instagram.com/rkinfinity_/";
 const tiktokUrl = "https://www.tiktok.com/@rkinfinity_";
 
@@ -12,8 +11,6 @@ const socials = [
   { Icon: Linkedin, href: linkedinUrl, label: "LinkedIn" },
   { Icon: Instagram, href: instagramUrl, label: "Instagram" },
   { Icon: Music, href: tiktokUrl, label: "TikTok" }, // Using Music icon for TikTok
-  { Icon: PenSquare, href: "/blog", label: "Blog" },
-  { Icon: Mail, href: emailUrl, label: "Email" },
 ];
 
 const services = [
