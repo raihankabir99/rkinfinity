@@ -59,7 +59,7 @@ export function Footer() {
               </span>
             </Link>
             <div className="footer-role-text text-sm space-y-1 font-semibold leading-relaxed">
-              <p>
+              <p className="text-[#e9e0e0]">
                 SEO Specialist <span className="text-primary/50 mx-1.5"> • </span> Digital Solutions
                 Architect <span className="text-primary/50 mx-1.5"> • </span> Content
               </p>
