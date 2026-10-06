@@ -1,6 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  Activity,
   BarChart3,
   Bot,
   BriefcaseBusiness,
@@ -9,8 +8,6 @@ import {
   Library,
   MessageSquare,
   Settings,
-  Shield,
-  Users,
   Zap,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -42,10 +39,6 @@ const groups = [
     label: "Insights & System",
     items: [
       { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },
-      { label: "Security", to: "/admin/security", icon: Shield },
-      { label: "Activity", to: "/admin/activity", icon: Activity },
-      { label: "Users", to: "/admin/users", icon: Users },
-      { label: "Settings", to: "/admin/settings", icon: Settings },
     ],
   },
 ] as const;
