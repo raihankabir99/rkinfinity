@@ -254,7 +254,28 @@ function BlogAdminPage() {
             )}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-3">
+          <div className="flex flex-wrap gap-2 border-b border-white/5 pb-3">
+            <button type="button" onClick={() => setPreview((v) => !v)} className="rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary"><Eye size={13} className="mr-1 inline" />{preview ? "Back to editor" : "Preview"}</button>
+            {editingId && <><button type="button" onClick={() => setSeoOpen((v) => !v)} className="rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary">SEO</button><button type="button" onClick={() => { setRevisionsOpen((v) => !v); if (!revisionsOpen) void loadRevisions(editingId); }} className="rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary">Revisions</button></>}
+          </div>
+          {preview && <article className="rounded-2xl border border-white/5 bg-background/60 p-6">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-primary">{category} · {readMinutes} min read</div>
+            <h2 className="mt-3 text-3xl font-black">{title || "Untitled post"}</h2>
+            {excerpt && <p className="mt-3 text-sm text-muted-foreground">{excerpt}</p>}
+            {coverUrl && <img src={coverUrl} alt="" className="mt-5 max-h-72 w-full rounded-xl object-cover" />}
+            <div className="mt-6 whitespace-pre-wrap text-sm leading-7 text-foreground/85">{content || "Start writing to preview."}</div>
+          </article>}
+          {seoOpen && editingId && <div className="rounded-xl border border-primary/10 bg-primary/5 p-4 space-y-3">
+            <h3 className="text-sm font-semibold">SEO metadata</h3>
+            {(["meta_title","meta_description","canonical_url","og_title","og_description","og_image_url"] as const).map((key) => <input key={key} value={seo[key]} onChange={(e) => setSeo((s) => ({ ...s, [key]: e.target.value }))} placeholder={key.replaceAll("_", " ")} className="w-full rounded-xl border border-white/10 bg-background/50 px-4 py-2.5 text-sm outline-none focus:border-primary" />)}
+            <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={seo.noindex} onChange={(e) => setSeo((s) => ({ ...s, noindex: e.target.checked }))} /> Noindex</label>
+            <button type="button" onClick={saveSeo} className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">Save SEO</button>
+          </div>}
+          {revisionsOpen && editingId && <div className="rounded-xl border border-white/5 bg-black/20 p-4">
+            <h3 className="mb-3 text-sm font-semibold">Revision history</h3>
+            <div className="max-h-64 space-y-2 overflow-y-auto">{revisions.map((rev) => <div key={rev.id} className="flex items-center justify-between gap-3 rounded-lg border border-white/5 p-3"><div><div className="text-xs font-semibold">Version {rev.version} · {rev.title}</div><div className="text-[10px] text-muted-foreground">{new Date(rev.created_at).toLocaleString()}</div></div><button type="button" onClick={() => restoreRevision(rev)} className="rounded-lg px-3 py-1.5 text-[11px] text-primary hover:bg-primary/10">Load</button></div>)}</div>
+          </div>}
+          {!preview && <div className="grid md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">
                 Title
@@ -281,7 +302,7 @@ function BlogAdminPage() {
                 className="w-full bg-background/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:border-primary outline-none font-mono"
               />
             </div>
-          </div>
+          </div>}
 
           <div>
             <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">
