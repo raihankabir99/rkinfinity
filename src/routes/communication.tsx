@@ -33,7 +33,7 @@ export const Route = createFileRoute("/communication")({
   component: Communication,
 });
 
-const ROOM_NAME = "rkInfinity-Chat";
+const ROOM_NAME = "Infinit Chat";
 
 function Communication() {
   const navigate = useNavigate();
@@ -65,9 +65,6 @@ function Communication() {
         parentNode: meetContainerRef.current,
         width: "100%",
         height: "100%",
-        userInfo: {
-          displayName: "Infinit Chat",
-        },
         configOverwrite: {
           prejoinConfig: { enabled: true },
           disableInviteFunctions: false,
