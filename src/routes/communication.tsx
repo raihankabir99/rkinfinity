@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef } from "react";
-import { ArrowLeft } from "lucide-react";
+
 
 declare global {
   interface Window {
@@ -105,21 +105,6 @@ function Communication() {
       <div className="mx-auto max-w-7xl space-y-4">
         <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-black/40 p-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                if (window.history.length > 1) {
-                  window.history.back();
-                } else {
-                  navigate({ to: "/" });
-                }
-              }}
-              aria-label="Go back"
-              className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 transition hover:border-primary/40 hover:text-primary"
-            >
-              <ArrowLeft size={16} />
-            </button>
-
 
           </div>
 
