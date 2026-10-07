@@ -53,7 +53,6 @@ function Communication() {
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Room</p>
               <p className="mt-1 break-all font-mono text-xs text-foreground">{ROOM_NAME}</p>
             </div>
-            <span className="text-[10px] text-muted-foreground">meet.jit.si</span>
           </div>
 
           <iframe
