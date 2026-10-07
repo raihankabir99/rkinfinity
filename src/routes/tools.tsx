@@ -342,10 +342,10 @@ function ToolsHub() {
             type="button"
             onClick={() => (window.location.href = "/communication")}
             className="px-4 py-2 rounded-xl text-sm font-medium transition inline-flex items-center gap-2 glass hover:border-primary/40"
-            aria-label="Open rkInfinity Chat"
+            aria-label="Open Infinit Chat"
           >
             <MessageCircle size={14} />
-            rkInfinity Chat
+            Infinit Chat
           </button>
           <button
             onClick={() => setActiveCat("all")}
@@ -376,7 +376,7 @@ function ToolsHub() {
         {/* CATEGORY SECTIONS */}
         {filtered.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center text-muted-foreground">
-            No tools match <span className="text-foreground font-mono">"{q}"</span>. Try another
+            No tools match <span className="text-foreground font-mono">`"${q}"`</span>. Try another
             keyword.
           </div>
         ) : (
