@@ -40,7 +40,10 @@ function Communication() {
   const meetContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let api: { addListener: (event: string, listener: () => void) => void; dispose: () => void } | null = null;
+    let api: {
+      addListener: (event: string, listener: () => void) => void;
+      dispose: () => void;
+    } | null = null;
     let cancelled = false;
 
     const leavePage = () => {
@@ -52,11 +55,7 @@ function Communication() {
     };
 
     const createMeeting = () => {
-      if (
-        cancelled ||
-        !meetContainerRef.current ||
-        !window.JitsiMeetExternalAPI
-      ) {
+      if (cancelled || !meetContainerRef.current || !window.JitsiMeetExternalAPI) {
         return;
       }
 
@@ -96,19 +95,12 @@ function Communication() {
   }, [navigate]);
 
   return (
-    <main className="min-h-[100dvh] w-full bg-black">
-      <div className="mx-auto flex min-h-[100dvh] w-full max-w-[1600px] flex-col">
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden sm:rounded-2xl sm:border sm:border-white/10">
-          <div className="flex h-10 shrink-0 items-center border-b border-white/10 bg-black/80 px-4">
-            <span className="text-xs font-medium text-white/80">Infinit Chat</span>
-          </div>
-          <div
-            ref={meetContainerRef}
-            aria-label="Infinit Chat video meeting"
-            className="min-h-0 flex-1 w-full"
-          />
-        </div>
-      </div>
+    <main className="h-[100dvh] w-full overflow-hidden bg-black">
+      <div
+        ref={meetContainerRef}
+        aria-label="Infinit Chat video meeting"
+        className="h-full w-full"
+      />
     </main>
   );
 }
