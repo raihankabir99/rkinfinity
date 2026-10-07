@@ -117,7 +117,7 @@ function Communication() {
                 Room
               </p>
               <p className="mt-1 break-all font-mono text-xs text-foreground">
-                {ROOM_NAME}
+                Infinit Chat
               </p>
             </div>
           </div>
