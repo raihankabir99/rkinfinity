@@ -65,6 +65,37 @@ function Communication() {
         parentNode: meetContainerRef.current,
         width: "100%",
         height: "100%",
+        userInfo: {
+          displayName: "Infinit Chat",
+        },
+        configOverwrite: {
+          prejoinConfig: { enabled: true },
+          disableInviteFunctions: false,
+          disableThirdPartyRequests: true,
+          startWithAudioMuted: false,
+          startWithVideoMuted: false,
+          disableAP: true,
+          hideConferenceSubject: true,
+          tileView: {
+            numberOfVisibleTiles: 6,
+          },
+        },
+        interfaceConfigOverwrite: {
+          TOOLBAR_BUTTONS: [
+            "microphone",
+            "camera",
+            "chat",
+            "desktop",
+            "participants-pane",
+            "raisehand",
+            "settings",
+            "hangup",
+          ],
+          TILE_VIEW_MAX_COLUMNS: 4,
+          DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+          MOBILE_APP_PROMO: false,
+          VIDEO_LAYOUT_FIT: "contain",
+        },
       });
 
       api.addListener("videoConferenceLeft", leavePage);
