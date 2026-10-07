@@ -22,7 +22,7 @@ function Communication() {
 
   const jitsiUrl = useMemo(
     () => `https://meet.jit.si/${encodeURIComponent(ROOM_NAME)}`,
-    [roomName],
+    [],
   );
 
   return (
