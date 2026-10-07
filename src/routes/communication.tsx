@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef } from "react";
-import { ArrowLeft, Video } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 declare global {
   interface Window {
@@ -120,23 +120,9 @@ function Communication() {
               <ArrowLeft size={16} />
             </button>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <Video size={18} className="text-primary" />
-                <h1 className="text-lg font-semibold">Infinit Chat</h1>
-                <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-primary">
-                  rkInfinity
-                </span>
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                rkInfinity Chat
-              </p>
-            </div>
+
           </div>
 
-          <div className="rounded-lg border border-white/10 px-3 py-2 text-xs text-muted-foreground">
-            rkInfinity Chat
-          </div>
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/60">
