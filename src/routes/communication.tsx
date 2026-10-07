@@ -147,10 +147,15 @@ function Communication() {
 
   return (
     <main className="h-[100dvh] w-full overflow-hidden bg-black">
+      <div className="flex h-14 shrink-0 items-center border-b border-white/10 bg-black/95 px-5">
+        <span className="text-sm font-semibold tracking-wide text-white">
+          Infinit Chat
+        </span>
+      </div>
       <div
         ref={meetContainerRef}
         aria-label="Infinit Chat video meeting"
-        className="h-full w-full"
+        className="h-[calc(100dvh-3.5rem)] w-full"
       />
     </main>
   );
