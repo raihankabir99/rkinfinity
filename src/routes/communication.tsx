@@ -49,7 +49,11 @@ function Communication() {
     let cancelled = false;
 
     const leavePage = () => {
-      navigate({ to: "/" });
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        navigate({ to: "/" });
+      }
     };
 
     const createMeeting = () => {
@@ -103,7 +107,13 @@ function Communication() {
           <div className="flex items-start gap-3">
             <button
               type="button"
-              onClick={() => navigate({ to: "/" })}
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  navigate({ to: "/" });
+                }
+              }}
               aria-label="Go back"
               className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 transition hover:border-primary/40 hover:text-primary"
             >
