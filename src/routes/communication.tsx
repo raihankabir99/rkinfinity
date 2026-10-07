@@ -21,7 +21,7 @@ const ROOM_NAME = "rkInfinity-Chat";
 function Communication() {
 
   const jitsiUrl = useMemo(
-    () => `https://meet.jit.si/${encodeURIComponent(roomName)}`,
+    () => `https://meet.jit.si/${encodeURIComponent(ROOM_NAME)}`,
     [roomName],
   );
 
@@ -51,7 +51,7 @@ function Communication() {
           <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Room</p>
-              <p className="mt-1 break-all font-mono text-xs text-foreground">ROOM_NAME</p>
+              <p className="mt-1 break-all font-mono text-xs text-foreground">{ROOM_NAME}</p>
             </div>
             <span className="text-[10px] text-muted-foreground">meet.jit.si</span>
           </div>
