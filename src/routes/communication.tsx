@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { ExternalLink, RefreshCw, Video } from "lucide-react";
+import { useMemo } from "react";
+import { Video } from "lucide-react";
 
 export const Route = createFileRoute("/communication")({
   head: () => ({
@@ -16,24 +16,14 @@ export const Route = createFileRoute("/communication")({
   component: Communication,
 });
 
-function makeRoomName() {
-  const suffix = Math.random().toString(36).slice(2, 10);
-  return `rkInfinity-chat-${suffix}`;
-}
+const ROOM_NAME = "rkInfinity-Chat";
 
 function Communication() {
-  const [roomName, setRoomName] = useState(makeRoomName);
-  const [reloadKey, setReloadKey] = useState(0);
 
   const jitsiUrl = useMemo(
     () => `https://meet.jit.si/${encodeURIComponent(roomName)}`,
     [roomName],
   );
-
-  const newRoom = () => {
-    setRoomName(makeRoomName());
-    setReloadKey((value) => value + 1);
-  };
 
   return (
     <div className="min-h-[calc(100vh-4rem)] p-4 md:p-6">
@@ -52,24 +42,8 @@ function Communication() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={newRoom}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs transition hover:border-primary/40 hover:text-primary"
-            >
-              <RefreshCw size={14} />
-              New room
-            </button>
-            <a
-              href={jitsiUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-primary/20 px-3 py-2 text-xs text-primary transition hover:border-primary/50"
-            >
-              <ExternalLink size={14} />
-              Open Jitsi
-            </a>
+          <div className="rounded-lg border border-white/10 px-3 py-2 text-xs text-muted-foreground">
+            rkInfinity Chat
           </div>
         </div>
 
@@ -77,13 +51,12 @@ function Communication() {
           <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Room</p>
-              <p className="mt-1 break-all font-mono text-xs text-foreground">{roomName}</p>
+              <p className="mt-1 break-all font-mono text-xs text-foreground">ROOM_NAME</p>
             </div>
             <span className="text-[10px] text-muted-foreground">meet.jit.si</span>
           </div>
 
           <iframe
-            key={reloadKey}
             title="Infinit Chat Jitsi room"
             src={jitsiUrl}
             allow="camera; microphone; fullscreen; display-capture; autoplay"
