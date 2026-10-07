@@ -26,6 +26,7 @@ import { Route as AdminKnowledgeRouteImport } from './routes/admin.knowledge'
 import { Route as AdminChatsRouteImport } from './routes/admin.chats'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
+import { Route as AdminCommunicationRouteImport } from './routes/admin.communication'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
@@ -110,6 +111,11 @@ const AdminBlogRoute = AdminBlogRouteImport.update({
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCommunicationRoute = AdminCommunicationRouteImport.update({
+  id: '/communication',
+  path: '/communication',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -362,11 +368,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAnalyticsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/communication': {
+      id: '/admin/communication'
+      path: '/communication'
+      fullPath: '/admin/communication'
+      preLoaderRoute: typeof AdminCommunicationRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminCommunicationRoute: typeof AdminCommunicationRoute
   AdminBlogRoute: typeof AdminBlogRoute
   AdminChatsRoute: typeof AdminChatsRoute
   AdminKnowledgeRoute: typeof AdminKnowledgeRoute
@@ -377,6 +391,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminCommunicationRoute: AdminCommunicationRoute,
   AdminBlogRoute: AdminBlogRoute,
   AdminChatsRoute: AdminChatsRoute,
   AdminKnowledgeRoute: AdminKnowledgeRoute,
