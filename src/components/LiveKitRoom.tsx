@@ -29,7 +29,7 @@ import {
   X,
 } from "lucide-react";
 
-type ChatMessage = { id: string; sender: string; text: string; own: boolean };
+type ChatMessage = { id: string; sender: string; senderId: string; text: string; own: boolean; recipientId?: string; recipientName?: string };
 type DeviceOption = { deviceId: string; label: string };
 
 function VideoTile({ participant }: { participant: Participant }) {
@@ -98,6 +98,8 @@ export function LiveKitRoom({
   const [moreOpen, setMoreOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [chatMode, setChatMode] = useState<"group" | "private">("group");
+  const [privateRecipient, setPrivateRecipient] = useState("");
   const [layout, setLayout] = useState<"grid" | "focus">("grid");
   const [copied, setCopied] = useState(false);
   const [devices, setDevices] = useState<{
@@ -206,16 +208,27 @@ export function LiveKitRoom({
         .on(RoomEvent.LocalTrackUnpublished, refresh)
         .on(RoomEvent.TrackSubscribed, refresh)
         .on(RoomEvent.TrackUnsubscribed, refresh)
-        .on(RoomEvent.ChatMessage, (message, participant) => {
-          setMessages((current) => [
-            ...current,
-            {
-              id: message.id,
-              sender: participant?.name || participant?.identity || "Participant",
-              text: message.message,
-              own: participant?.identity === room.localParticipant.identity,
-            },
-          ]);
+        .on(RoomEvent.DataReceived, (payload, participant, _kind, topic) => {
+          if (topic !== "infinit-chat" || !participant) return;
+          try {
+            const decoded = JSON.parse(new TextDecoder().decode(payload)) as {
+              type?: string; id?: string; text?: string; recipientId?: string; recipientName?: string;
+            };
+            if (decoded.type !== "chat-message" || typeof decoded.text !== "string" || typeof decoded.id !== "string") return;
+            const localId = room.localParticipant.identity;
+            if (decoded.recipientId && decoded.recipientId !== localId) return;
+            setMessages((current) => [...current, {
+              id: decoded.id!,
+              sender: participant.name || participant.identity,
+              senderId: participant.identity,
+              text: decoded.text!,
+              own: false,
+              recipientId: decoded.recipientId,
+              recipientName: decoded.recipientName,
+            }]);
+          } catch {
+            // Ignore malformed or unrelated data packets.
+          }
         })
         .on(RoomEvent.Disconnected, () => {
           setJoined(false);
@@ -271,8 +284,41 @@ export function LiveKitRoom({
     const room = roomRef.current;
     const text = input.trim();
     if (!room || !text) return;
-    await room.localParticipant.sendText(text, { topic: "infinit-chat" });
-    setInput("");
+    if (chatMode === "private" && !privateRecipient) {
+      setError("Choose a participant for your private message.");
+      return;
+    }
+    const target = chatMode === "private"
+      ? participants.find((participant) => participant.identity === privateRecipient)
+      : undefined;
+    if (chatMode === "private" && (!target || target.isLocal)) {
+      setError("That participant is no longer in this room. Choose another participant.");
+      return;
+    }
+    const message: ChatMessage = {
+      id: crypto.randomUUID(),
+      sender: room.localParticipant.name || room.localParticipant.identity,
+      senderId: room.localParticipant.identity,
+      text,
+      own: true,
+      recipientId: target?.identity,
+      recipientName: target ? (target.name || target.identity) : undefined,
+    };
+    try {
+      const payload = new TextEncoder().encode(JSON.stringify({
+        type: "chat-message", id: message.id, text,
+        recipientId: message.recipientId, recipientName: message.recipientName,
+      }));
+      await room.localParticipant.publishData(payload, {
+        reliable: true,
+        topic: "infinit-chat",
+        ...(target ? { destinationIdentities: [target.identity] } : {}),
+      });
+      setMessages((current) => [...current, message]);
+      setInput("");
+    } catch (sendError) {
+      setError(sendError instanceof Error ? sendError.message : "Unable to send the message.");
+    }
   };
 
   const copyInvite = async () => {
@@ -442,18 +488,23 @@ export function LiveKitRoom({
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3.5">
               <div>
                 <div className="text-sm font-semibold">Chat</div>
-                <div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">Room messages</div>
+                <div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">Group & private messages</div>
               </div>
               <button type="button" onClick={() => setChatOpen(false)} className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white" aria-label="Close chat"><X size={16} /></button>
             </div>
+            <div className="grid grid-cols-2 gap-2 border-b border-white/10 p-3">
+              <button type="button" onClick={() => setChatMode("group")} className={`rounded-xl px-3 py-2 text-xs font-medium ${chatMode === "group" ? "bg-primary text-black" : "border border-white/10 text-white/65 hover:bg-white/[0.06]"}`}>Group chat</button>
+              <button type="button" onClick={() => setChatMode("private")} className={`rounded-xl px-3 py-2 text-xs font-medium ${chatMode === "private" ? "bg-primary text-black" : "border border-white/10 text-white/65 hover:bg-white/[0.06]"}`}>Private chat</button>
+              {chatMode === "private" ? <label className="col-span-2 text-xs text-white/55">Send privately to<select value={privateRecipient} onChange={(event) => setPrivateRecipient(event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none"><option value="">Choose participant…</option>{participants.filter((participant) => !participant.isLocal).map((participant) => <option key={participant.identity} value={participant.identity}>{participant.name || participant.identity}</option>)}</select></label> : null}
+            </div>
             <div className="min-h-0 flex-1 space-y-3 overflow-auto p-4">
-              {messages.map((message) => (
+              {messages.filter((message) => chatMode === "group" ? !message.recipientId : (message.recipientId === roomRef.current?.localParticipant.identity || message.senderId === roomRef.current?.localParticipant.identity && message.recipientId === privateRecipient)).map((message) => (
                 <div key={message.id} className={message.own ? "text-right" : "text-left"}>
-                  <div className="mb-1 text-[10px] text-white/35">{message.sender}</div>
+                  <div className="mb-1 text-[10px] text-white/35">{message.own ? "You" : message.sender}{message.recipientId ? ` · private${message.own ? ` to ${message.recipientName || "participant"}` : ""}` : ""}</div>
                   <div className={`inline-block max-w-[90%] rounded-2xl px-3.5 py-2.5 text-sm ${message.own ? "bg-primary text-black" : "border border-white/10 bg-white/[0.06]"}`}>{message.text}</div>
                 </div>
               ))}
-              {messages.length === 0 ? <div className="flex h-full items-center justify-center text-center text-xs leading-5 text-white/35">No messages yet.<br />Start the conversation.</div> : null}
+              {messages.filter((message) => chatMode === "group" ? !message.recipientId : (message.recipientId === roomRef.current?.localParticipant.identity || message.senderId === roomRef.current?.localParticipant.identity && message.recipientId === privateRecipient)).length === 0 ? <div className="flex h-full items-center justify-center text-center text-xs leading-5 text-white/35">{chatMode === "private" ? "Choose a participant and send a private message." : "No group messages yet. Start the conversation."}</div> : null}
             </div>
             <div className="flex gap-2 border-t border-white/10 p-3">
               <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void sendChat(); }} placeholder="Write a message…" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/40" />
