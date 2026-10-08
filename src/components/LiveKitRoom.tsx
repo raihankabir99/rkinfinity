@@ -112,7 +112,16 @@ export function LiveKitRoom({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ room: roomName, name: trimmed }),
       });
-      const data = (await response.json()) as { token?: string; url?: string; error?: string };
+      const contentType = response.headers.get("content-type") || "";
+      const raw = await response.text();
+      let data: { token?: string; url?: string; error?: string } = {};
+      if (raw) {
+        if (contentType.includes("application/json")) {
+          data = JSON.parse(raw) as { token?: string; url?: string; error?: string };
+        } else {
+          throw new Error(`LiveKit token endpoint returned an unexpected response (HTTP ${response.status}).`);
+        }
+      }
       if (!response.ok || !data.token || !data.url) {
         throw new Error(data.error || "Unable to create LiveKit access token.");
       }
