@@ -357,7 +357,7 @@ export function LiveKitRoom({
 
   const copyInvite = async () => {
     try {
-      await navigator.clipboard?.writeText(window.location.origin + "/communication");
+      await navigator.clipboard?.writeText(window.location.origin + "/communication?room=" + encodeURIComponent(roomCode || roomName));
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
