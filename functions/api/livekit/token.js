@@ -1,4 +1,4 @@
-import { AccessToken } from "livekit-server-sdk";
+import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
 
 export async function onRequestOptions() {
   return new Response(null, {
@@ -27,6 +27,14 @@ export async function onRequestPost(context) {
     if (!apiKey || !apiSecret || !livekitUrl) {
       console.error("LiveKit server credentials are not configured.");
       return json({ error: "LiveKit is not configured on the server." }, 500);
+    }
+
+    const service = new RoomServiceClient(livekitUrl.replace(/^wss:/, "https:").replace(/^ws:/, "http:"), apiKey, apiSecret);
+    const existingRooms = await service.listRooms([room]);
+    if (existingRooms[0]) {
+      let metadata = {};
+      try { metadata = existingRooms[0].metadata ? JSON.parse(existingRooms[0].metadata) : {}; } catch { metadata = {}; }
+      if (metadata.locked) return json({ error: "This room is locked by its moderator." }, 403);
     }
 
     const identity = `rkInfinity-${crypto.randomUUID()}`;
