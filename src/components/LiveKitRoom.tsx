@@ -94,6 +94,7 @@ export function LiveKitRoom({
   const [camera, setCamera] = useState(true);
   const [screen, setScreen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [participantsOpen, setParticipantsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -442,6 +443,7 @@ export function LiveKitRoom({
             {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
             {copied ? "Copied" : "Invite"}
           </button>
+          <button type="button" onClick={() => setParticipantsOpen((value) => !value)} className={`relative rounded-xl border p-2.5 transition hover:bg-white/[0.08] ${participantsOpen ? "border-primary/40 bg-primary/10 text-primary" : "border-white/10 text-white/65 hover:text-white"}`} aria-label="Participants" title="Participants"><Users size={17} /><span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-black">{participants.length}</span></button>
           <button type="button" onClick={() => setLayout((value) => value === "grid" ? "focus" : "grid")} className="rounded-xl border border-white/10 p-2.5 text-white/65 transition hover:bg-white/[0.08] hover:text-white" aria-label="Change layout" title="Change layout">
             {layout === "grid" ? <Grid2X2 size={17} /> : <PanelRight size={17} />}
           </button>
@@ -482,6 +484,26 @@ export function LiveKitRoom({
             )}
           </div>
         </section>
+
+        {participantsOpen ? (
+          <aside className="absolute inset-y-0 left-0 z-20 flex w-[min(320px,92vw)] flex-col border-r border-white/10 bg-[#090a0f]/98 shadow-2xl backdrop-blur-xl sm:relative sm:w-[300px]">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3.5">
+              <div><div className="text-sm font-semibold">Participants</div><div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">{participants.length} in this room</div></div>
+              <button type="button" onClick={() => setParticipantsOpen(false)} className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white" aria-label="Close participants"><X size={16} /></button>
+            </div>
+            <div className="flex-1 space-y-2 overflow-auto p-3">
+              {participants.map((participant) => (
+                <div key={participant.identity} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.025] px-3 py-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-sm font-semibold text-primary">{(participant.name || participant.identity).slice(0, 1).toUpperCase()}</div>
+                  <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? "You · local participant" : "Participant"}</div></div>
+                  <div className="flex items-center gap-1.5 text-white/45" title={participant.isMicrophoneEnabled ? "Microphone enabled" : "Microphone disabled"}>{participant.isMicrophoneEnabled ? <Mic size={14} /> : <MicOff size={14} />}{participant.isCameraEnabled ? <Camera size={14} /> : <CameraOff size={14} />}</div>
+                </div>
+              ))}
+              {participants.length === 0 ? <div className="p-4 text-center text-xs text-white/40">No participants found.</div> : null}
+            </div>
+            <div className="border-t border-white/10 p-3 text-[11px] leading-5 text-white/40">Participant controls are not enabled yet. Moderator actions will appear after server-side permissions are verified.</div>
+          </aside>
+        ) : null}
 
         {chatOpen ? (
           <aside className="absolute inset-y-0 right-0 z-20 flex w-[min(380px,94vw)] flex-col border-l border-white/10 bg-[#090a0f]/98 shadow-2xl backdrop-blur-xl sm:relative sm:w-[360px]">
