@@ -86,6 +86,10 @@ export function LiveKitRoom({
   const roomRef = useRef<Room | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
+  const [roomCode, setRoomCode] = useState(() => new URLSearchParams(window.location.search).get("room") || "");
+  const [isModerator, setIsModerator] = useState(false);
+  const [moderatorToken, setModeratorToken] = useState("");
+  const [roomLocked, setRoomLocked] = useState(false);
   const [joined, setJoined] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState("");
@@ -170,7 +174,7 @@ export function LiveKitRoom({
     void loadDevices();
   }, [joined, loadDevices]);
 
-  const join = async () => {
+  const join = async (preset?: { token: string; url: string; room: string; role?: string; moderatorToken?: string }) => {
     const trimmed = name.trim();
     if (!trimmed) {
       setError("Please enter your name.");
@@ -181,24 +185,26 @@ export function LiveKitRoom({
     setError("");
 
     try {
-      const response = await fetch("/api/livekit/token", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ room: roomName, name: trimmed }),
-      });
-      const contentType = response.headers.get("content-type") || "";
-      const raw = await response.text();
-      let data: { token?: string; url?: string; error?: string } = {};
-      if (raw) {
-        if (contentType.includes("application/json")) {
-          data = JSON.parse(raw) as { token?: string; url?: string; error?: string };
-        } else {
-          throw new Error(`LiveKit token endpoint returned an unexpected response (HTTP ${response.status}).`);
+      let data: { token?: string; url?: string; room?: string; role?: string; moderatorToken?: string; error?: string } = preset || {};
+      if (!preset) {
+        const requestedRoom = roomCode.trim() || roomName;
+        const response = await fetch("/api/livekit/token", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ room: requestedRoom, name: trimmed }),
+        });
+        const contentType = response.headers.get("content-type") || "";
+        const raw = await response.text();
+        if (raw) {
+          if (contentType.includes("application/json")) data = JSON.parse(raw) as typeof data;
+          else throw new Error(`LiveKit token endpoint returned an unexpected response (HTTP ${response.status}).`);
         }
+        if (!response.ok) throw new Error(data.error || "Unable to create LiveKit access token.");
       }
-      if (!response.ok || !data.token || !data.url) {
-        throw new Error(data.error || "Unable to create LiveKit access token.");
-      }
+      if (!data.token || !data.url || !data.room) throw new Error(data.error || "Unable to create LiveKit access token.");
+      setRoomCode(data.room);
+      setIsModerator(data.role === "moderator");
+      if (data.moderatorToken) setModeratorToken(data.moderatorToken);
 
       const room = new Room({ adaptiveStream: true, dynacast: true });
       roomRef.current = room;
@@ -249,6 +255,33 @@ export function LiveKitRoom({
     } finally {
       setConnecting(false);
     }
+  };
+
+  const createRoom = async () => {
+    const trimmed = name.trim();
+    if (!trimmed) { setError("Please enter your name first."); return; }
+    setConnecting(true); setError("");
+    try {
+      const response = await fetch("/api/livekit/room/create", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: trimmed }) });
+      const data = await response.json() as { token?: string; url?: string; room?: string; role?: string; moderatorToken?: string; error?: string };
+      if (!response.ok || !data.token || !data.url || !data.room || !data.moderatorToken) throw new Error(data.error || "Unable to create room.");
+      setRoomCode(data.room); setModeratorToken(data.moderatorToken); setIsModerator(true);
+      setConnecting(false);
+      await join({ token: data.token, url: data.url, room: data.room, role: data.role, moderatorToken: data.moderatorToken });
+    } catch (createError) { setError(createError instanceof Error ? createError.message : "Unable to create room."); setConnecting(false); }
+  };
+
+  const moderate = async (action: "mute" | "remove" | "lock" | "unlock" | "end", participantIdentity?: string) => {
+    if (!moderatorToken) return;
+    try {
+      const response = await fetch("/api/livekit/room/moderate", { method: "POST", headers: { "content-type": "application/json", Authorization: `Bearer ${moderatorToken}` }, body: JSON.stringify({ action, participantIdentity }) });
+      const data = await response.json() as { ok?: boolean; error?: string };
+      if (!response.ok || !data.ok) throw new Error(data.error || "Moderator action failed.");
+      if (action === "lock") setRoomLocked(true);
+      if (action === "unlock") setRoomLocked(false);
+      if (action === "remove") refresh();
+      if (action === "end") await leave();
+    } catch (moderationError) { setError(moderationError instanceof Error ? moderationError.message : "Moderator action failed."); }
   };
 
   const toggleMic = async () => {
@@ -380,9 +413,7 @@ export function LiveKitRoom({
               </div>
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Infinit Chat</h1>
               <p className="mt-2 max-w-md text-sm leading-6 text-white/50">
-                {adminOnly
-                  ? "Private administrator communication room."
-                  : "Premium realtime chat, voice and video communication."}
+                {adminOnly ? "Private administrator communication room." : "Create a room or join using an invite code."}
               </p>
             </div>
             <div className="hidden rounded-2xl border border-white/10 bg-black/20 p-3 sm:block">
@@ -401,16 +432,10 @@ export function LiveKitRoom({
               className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3.5 text-white outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
             />
           </label>
+          <label className="mt-4 block text-sm font-medium text-white/75">Room code / invite ID<input value={roomCode} onChange={(event) => setRoomCode(event.target.value)} maxLength={120} placeholder="Paste room code to join" className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3.5 text-white outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/10" /></label>
           {error ? <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</div> : null}
-          <button
-            type="button"
-            disabled={connecting}
-            onClick={() => void join()}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 font-semibold text-black shadow-[0_12px_35px_rgba(212,175,55,0.18)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {connecting ? <RefreshCw size={17} className="animate-spin" /> : <MessageCircle size={17} />}
-            {connecting ? "Connecting…" : "Join Infinit Chat"}
-          </button>
+          {!adminOnly ? <button type="button" disabled={connecting} onClick={() => void createRoom()} className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 font-semibold text-black shadow-[0_12px_35px_rgba(212,175,55,0.18)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">{connecting ? <RefreshCw size={17} className="animate-spin" /> : <Users size={17} />}Create Room (you become Moderator)</button> : null}
+          <button type="button" disabled={connecting} onClick={() => void join()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 font-semibold text-white transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50">{connecting ? <RefreshCw size={17} className="animate-spin" /> : <MessageCircle size={17} />}Join Room</button>
           <div className="mt-5 flex items-center justify-center gap-5 text-[11px] text-white/35">
             <span className="inline-flex items-center gap-1.5"><Mic size={13} /> Voice</span>
             <span className="inline-flex items-center gap-1.5"><Camera size={13} /> Video</span>
@@ -429,7 +454,7 @@ export function LiveKitRoom({
             <MessageCircle size={18} className="text-primary" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold tracking-tight sm:text-base">{roomName}</div>
+            <div className="truncate text-sm font-semibold tracking-tight sm:text-base">{roomCode || roomName}{isModerator ? <span className="ml-2 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[9px] uppercase tracking-wider text-primary">Moderator</span> : null}</div>
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-white/40">
               <span className="inline-flex items-center gap-1"><Wifi size={11} className="text-emerald-400" /> Live</span>
               <span>•</span>
@@ -495,13 +520,13 @@ export function LiveKitRoom({
               {participants.map((participant) => (
                 <div key={participant.identity} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.025] px-3 py-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-sm font-semibold text-primary">{(participant.name || participant.identity).slice(0, 1).toUpperCase()}</div>
-                  <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? "You · local participant" : "Participant"}</div></div>
+                  <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? (isModerator ? "Room owner · Moderator" : "You · local participant") : "Participant"}</div>{isModerator && !participant.isLocal ? <div className="mt-2 flex flex-wrap gap-1"><button type="button" onClick={() => void moderate("mute", participant.identity)} className="rounded-md border border-white/10 px-2 py-1 text-[10px] hover:bg-white/[0.08]">Mute</button><button type="button" onClick={() => { if (window.confirm(`Remove ${participant.name || participant.identity} from this room?`)) void moderate("remove", participant.identity); }} className="rounded-md border border-red-400/20 px-2 py-1 text-[10px] text-red-200 hover:bg-red-500/10">Remove</button></div> : null}</div>
                   <div className="flex items-center gap-1.5 text-white/45" title={participant.isMicrophoneEnabled ? "Microphone enabled" : "Microphone disabled"}>{participant.isMicrophoneEnabled ? <Mic size={14} /> : <MicOff size={14} />}{participant.isCameraEnabled ? <Camera size={14} /> : <CameraOff size={14} />}</div>
                 </div>
               ))}
               {participants.length === 0 ? <div className="p-4 text-center text-xs text-white/40">No participants found.</div> : null}
             </div>
-            <div className="border-t border-white/10 p-3 text-[11px] leading-5 text-white/40">Participant controls are not enabled yet. Moderator actions will appear after server-side permissions are verified.</div>
+            <div className="border-t border-white/10 p-3 space-y-2">{isModerator ? <><div className="text-[10px] uppercase tracking-wider text-primary">Room moderation</div><div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => void moderate(roomLocked ? "unlock" : "lock")} className="rounded-lg border border-white/10 px-2 py-2 text-[11px] hover:bg-white/[0.06]">{roomLocked ? "Unlock room" : "Lock room"}</button><button type="button" onClick={() => { if (window.confirm("End this meeting for everyone?")) void moderate("end"); }} className="rounded-lg border border-red-400/25 px-2 py-2 text-[11px] text-red-200 hover:bg-red-500/10">End meeting</button></div></> : <div className="text-[11px] leading-5 text-white/40">Only the room creator can moderate this room.</div>}</div>
           </aside>
         ) : null}
 
