@@ -31,11 +31,14 @@ export async function onRequestPost(context) {
 
     const service = new RoomServiceClient(livekitUrl.replace(/^wss:/, "https:").replace(/^ws:/, "http:"), apiKey, apiSecret);
     const existingRooms = await service.listRooms([room]);
-    if (existingRooms[0]) {
-      let metadata = {};
-      try { metadata = existingRooms[0].metadata ? JSON.parse(existingRooms[0].metadata) : {}; } catch { metadata = {}; }
-      if (metadata.locked) return json({ error: "This room is locked by its moderator." }, 403);
-    }
+    const existingRoom = existingRooms[0];
+    // Never let the join endpoint implicitly create a room: only the create endpoint
+    // may create rooms and establish their owner.
+    if (!existingRoom) return json({ error: "Room not found. Ask the room creator for a valid invite link." }, 404);
+    let metadata = {};
+    try { metadata = existingRoom.metadata ? JSON.parse(existingRoom.metadata) : {}; }
+    catch { return json({ error: "Room metadata is invalid." }, 500); }
+    if (metadata.locked) return json({ error: "This room is locked by its moderator." }, 403);
 
     const identity = `rkInfinity-${crypto.randomUUID()}`;
     const token = new AccessToken(apiKey, apiSecret, {
