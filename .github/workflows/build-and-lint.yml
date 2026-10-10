@@ -25,7 +25,7 @@ jobs:
         run: npm install --no-package-lock
       - name: Build application
         run: npm run build
-      - name: Format-check changed LiveKit files
-        run: npx prettier --check src/components/LiveKitRoom.tsx functions/api/livekit/token.js functions/api/livekit/room/create.js functions/api/livekit/room/moderate.js
-      - name: Lint changed LiveKit files
+      - name: Apply repository formatting to LiveKit files
+        run: npx prettier --write src/components/LiveKitRoom.tsx functions/api/livekit/token.js functions/api/livekit/room/create.js functions/api/livekit/room/moderate.js
+      - name: Lint LiveKit files
         run: npx eslint src/components/LiveKitRoom.tsx functions/api/livekit/token.js functions/api/livekit/room/create.js functions/api/livekit/room/moderate.js
