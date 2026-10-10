@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageShell } from "@/components/PageShell";
+import { AdminShell } from "@/admin/AdminShell";
 import {
   Newspaper,
   Loader2,
@@ -68,6 +68,11 @@ function BlogAdminPage() {
   const [published, setPublished] = useState(true);
   const [saving, setSaving] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
+  const [preview, setPreview] = useState(false);
+  const [seoOpen, setSeoOpen] = useState(false);
+  const [revisionsOpen, setRevisionsOpen] = useState(false);
+  const [seo, setSeo] = useState({ meta_title: "", meta_description: "", canonical_url: "", og_title: "", og_description: "", og_image_url: "", noindex: false });
+  const [revisions, setRevisions] = useState<Array<{ id: string; version: number; title: string; excerpt: string | null; content: string; created_at: string; published: boolean }>>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -137,6 +142,12 @@ function BlogAdminPage() {
     if (!slugTouched) setSlug(slugify(v));
   };
 
+
+  const loadSeo = async (postId: string) => { const { data, error } = await supabase.from("blog_seo_metadata").select("*").eq("post_id", postId).maybeSingle(); if (error) { toast.error(error.message); return; } setSeo({ meta_title:data?.meta_title??"", meta_description:data?.meta_description??"", canonical_url:data?.canonical_url??"", og_title:data?.og_title??"", og_description:data?.og_description??"", og_image_url:data?.og_image_url??"", noindex:data?.noindex??false }); };
+  const loadRevisions = async (postId: string) => { const { data, error } = await supabase.from("blog_post_revisions").select("id,version,title,excerpt,content,created_at,published").eq("post_id",postId).order("version",{ascending:false}).limit(50); if(error){toast.error(error.message);return;} setRevisions((data??[]) as typeof revisions); };
+  const saveSeo = async () => { if(!editingId)return; const {error}=await supabase.from("blog_seo_metadata").upsert({post_id:editingId,...seo},{onConflict:"post_id"}); if(error){toast.error(error.message);return;} toast.success("SEO settings saved"); };
+  const restoreRevision = (rev: typeof revisions[number]) => { setTitle(rev.title); setExcerpt(rev.excerpt??""); setContent(rev.content); setPublished(rev.published); setPreview(false); toast.success("Revision loaded into editor. Save to apply it."); };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim() || !slug.trim()) return;
@@ -190,17 +201,17 @@ function BlogAdminPage() {
 
   if (authChecking) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="flex min-h-[60vh] items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
 
   if (!isAdmin) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-bold">Admin access required</h1>
@@ -208,12 +219,12 @@ function BlogAdminPage() {
             ← Back home
           </Link>
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
 
   return (
-    <PageShell>
+    <AdminShell>
       <section className="mx-auto max-w-5xl px-4 py-10">
         <Link
           to="/admin"
@@ -254,7 +265,28 @@ function BlogAdminPage() {
             )}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-3">
+          <div className="flex flex-wrap gap-2 border-b border-white/5 pb-3">
+            <button type="button" onClick={() => setPreview((v) => !v)} className="rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary"><Eye size={13} className="mr-1 inline" />{preview ? "Back to editor" : "Preview"}</button>
+            {editingId && <><button type="button" onClick={() => setSeoOpen((v) => !v)} className="rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary">SEO</button><button type="button" onClick={() => { setRevisionsOpen((v) => !v); if (!revisionsOpen) void loadRevisions(editingId); }} className="rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary">Revisions</button></>}
+          </div>
+          {preview && <article className="rounded-2xl border border-white/5 bg-background/60 p-6">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-primary">{category} · {readMinutes} min read</div>
+            <h2 className="mt-3 text-3xl font-black">{title || "Untitled post"}</h2>
+            {excerpt && <p className="mt-3 text-sm text-muted-foreground">{excerpt}</p>}
+            {coverUrl && <img src={coverUrl} alt="" className="mt-5 max-h-72 w-full rounded-xl object-cover" />}
+            <div className="mt-6 whitespace-pre-wrap text-sm leading-7 text-foreground/85">{content || "Start writing to preview."}</div>
+          </article>}
+          {seoOpen && editingId && <div className="rounded-xl border border-primary/10 bg-primary/5 p-4 space-y-3">
+            <h3 className="text-sm font-semibold">SEO metadata</h3>
+            {(["meta_title","meta_description","canonical_url","og_title","og_description","og_image_url"] as const).map((key) => <input key={key} value={seo[key]} onChange={(e) => setSeo((s) => ({ ...s, [key]: e.target.value }))} placeholder={key.replaceAll("_", " ")} className="w-full rounded-xl border border-white/10 bg-background/50 px-4 py-2.5 text-sm outline-none focus:border-primary" />)}
+            <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={seo.noindex} onChange={(e) => setSeo((s) => ({ ...s, noindex: e.target.checked }))} /> Noindex</label>
+            <button type="button" onClick={saveSeo} className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">Save SEO</button>
+          </div>}
+          {revisionsOpen && editingId && <div className="rounded-xl border border-white/5 bg-black/20 p-4">
+            <h3 className="mb-3 text-sm font-semibold">Revision history</h3>
+            <div className="max-h-64 space-y-2 overflow-y-auto">{revisions.map((rev) => <div key={rev.id} className="flex items-center justify-between gap-3 rounded-lg border border-white/5 p-3"><div><div className="text-xs font-semibold">Version {rev.version} · {rev.title}</div><div className="text-[10px] text-muted-foreground">{new Date(rev.created_at).toLocaleString()}</div></div><button type="button" onClick={() => restoreRevision(rev)} className="rounded-lg px-3 py-1.5 text-[11px] text-primary hover:bg-primary/10">Load</button></div>)}</div>
+          </div>}
+          {!preview && <div className="grid md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">
                 Title
@@ -281,7 +313,7 @@ function BlogAdminPage() {
                 className="w-full bg-background/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:border-primary outline-none font-mono"
               />
             </div>
-          </div>
+          </div>}
 
           <div>
             <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">
@@ -307,6 +339,7 @@ function BlogAdminPage() {
               className="w-full bg-background/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:border-primary outline-none resize-none font-mono"
             />
           </div>
+
 
           <div className="grid md:grid-cols-3 gap-3">
             <div>
@@ -442,6 +475,6 @@ function BlogAdminPage() {
           ))}
         </div>
       </section>
-    </PageShell>
+    </AdminShell>
   );
 }

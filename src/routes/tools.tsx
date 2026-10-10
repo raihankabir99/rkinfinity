@@ -33,6 +33,7 @@ import {
   DollarSign as Coin,
   Wand,
   Swords,
+  MessageCircle,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -338,6 +339,15 @@ function ToolsHub() {
         {/* CATEGORY FILTERS */}
         <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
           <button
+            type="button"
+            onClick={() => (window.location.href = "/communication")}
+            className="px-4 py-2 rounded-xl text-sm font-medium transition inline-flex items-center gap-2 glass hover:border-primary/40"
+            aria-label="Open Infinit Chat"
+          >
+            <MessageCircle size={14} />
+            Infinit Chat
+          </button>
+          <button
             onClick={() => setActiveCat("all")}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
               activeCat === "all"
@@ -366,7 +376,7 @@ function ToolsHub() {
         {/* CATEGORY SECTIONS */}
         {filtered.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center text-muted-foreground">
-            No tools match <span className="text-foreground font-mono">"{q}"</span>. Try another
+            No tools match <span className="text-foreground font-mono">`"${q}"`</span>. Try another
             keyword.
           </div>
         ) : (

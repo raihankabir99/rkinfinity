@@ -26,6 +26,8 @@ import { Route as AdminKnowledgeRouteImport } from './routes/admin.knowledge'
 import { Route as AdminChatsRouteImport } from './routes/admin.chats'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
+import { Route as AdminCommunicationRouteImport } from './routes/admin.communication'
+import { Route as CommunicationRouteImport } from './routes/communication'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
@@ -112,6 +114,16 @@ const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCommunicationRoute = AdminCommunicationRouteImport.update({
+  id: '/communication',
+  path: '/communication',
+  getParentRoute: () => AdminRoute,
+} as any)
+const CommunicationRoute = CommunicationRouteImport.update({
+  id: '/communication',
+  path: '/communication',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -123,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/communication': typeof CommunicationRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/chats': typeof AdminChatsRoute
@@ -141,6 +154,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/communication': typeof CommunicationRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/chats': typeof AdminChatsRoute
@@ -161,6 +175,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
+  '/communication': typeof CommunicationRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/chats': typeof AdminChatsRoute
@@ -239,6 +254,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   StoryRoute: typeof StoryRoute
   ToolsRoute: typeof ToolsRoute
+  CommunicationRoute: typeof CommunicationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -362,11 +378,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAnalyticsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/communication': {
+      id: '/admin/communication'
+      path: '/communication'
+      fullPath: '/admin/communication'
+      preLoaderRoute: typeof AdminCommunicationRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/communication': {
+      id: '/communication'
+      path: '/communication'
+      fullPath: '/communication'
+      preLoaderRoute: typeof CommunicationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminCommunicationRoute: typeof AdminCommunicationRoute
   AdminBlogRoute: typeof AdminBlogRoute
   AdminChatsRoute: typeof AdminChatsRoute
   AdminKnowledgeRoute: typeof AdminKnowledgeRoute
@@ -377,6 +408,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminCommunicationRoute: AdminCommunicationRoute,
   AdminBlogRoute: AdminBlogRoute,
   AdminChatsRoute: AdminChatsRoute,
   AdminKnowledgeRoute: AdminKnowledgeRoute,
@@ -407,6 +439,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   StoryRoute: StoryRoute,
   ToolsRoute: ToolsRoute,
+  CommunicationRoute: CommunicationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
