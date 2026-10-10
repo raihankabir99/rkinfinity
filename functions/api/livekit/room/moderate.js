@@ -30,15 +30,22 @@ export async function onRequestPost(context) {
     try { metadata = room.metadata ? JSON.parse(room.metadata) : {}; } catch { return json({ error: "Room metadata is invalid." }, 500); }
     if (metadata.ownerIdentity !== moderator.identity) return json({ error: "You are not the owner of this room." }, 403);
 
-    if (action === "remove") {
-      await service.removeParticipant(moderator.room, targetIdentity);
-    } else if (action === "mute") {
+    if (action === "remove" || action === "mute") {
       const participants = await service.listParticipants(moderator.room);
-      const target = participants.find((p) => p.identity === targetIdentity);
-      if (!target) return json({ error: "Participant not found." }, 404);
-      const audioTracks = (target.tracks || []).filter((track) => track.type === 0 || String(track.type).toLowerCase().includes("audio"));
-      for (const track of audioTracks) {
-        if (track.sid) await service.mutePublishedTrack(moderator.room, targetIdentity, track.sid, true);
+      const target = participants.find((participant) => participant.identity === targetIdentity);
+      if (!target) return json({ error: "Participant not found or already left." }, 404);
+
+      if (action === "remove") {
+        await service.removeParticipant(moderator.room, targetIdentity);
+      } else {
+        const audioTracks = (target.tracks || []).filter((track) => track.type === 0 || String(track.type).toLowerCase().includes("audio"));
+        const publishedAudioTracks = audioTracks.filter((track) => Boolean(track.sid));
+        if (publishedAudioTracks.length === 0) {
+          return json({ error: "This participant has no published microphone track to mute." }, 409);
+        }
+        for (const track of publishedAudioTracks) {
+          await service.mutePublishedTrack(moderator.room, targetIdentity, track.sid, true);
+        }
       }
     } else if (action === "lock" || action === "unlock") {
       await service.updateRoomMetadata(moderator.room, JSON.stringify({ ...metadata, locked: action === "lock" }));
@@ -62,7 +69,9 @@ async function verifyModeratorToken(token, secret) {
   const valid = await crypto.subtle.verify("HMAC", key, signature, new TextEncoder().encode(payloadPart));
   if (!valid) return null;
   const payload = JSON.parse(decodeURIComponent(escape(atob(payloadPart.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - payloadPart.length % 4) % 4)))));
-  if (!payload.room || !payload.identity || !Number.isFinite(payload.exp) || payload.exp <= Date.now() / 1000) return null;
+  if (typeof payload.room !== "string" || !payload.room || payload.room.length > 120 ||
+      typeof payload.identity !== "string" || !payload.identity || payload.identity.length > 200 ||
+      !Number.isFinite(payload.exp) || payload.exp <= Date.now() / 1000) return null;
   return payload;
 }
 function corsHeaders() { return { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization", "Cache-Control": "no-store" }; }
