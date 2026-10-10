@@ -1,0 +1,29 @@
+name: Build and lint
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, feature/admin-v2-foundation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-package-lock
+      - name: Build application
+        run: npm run build
+      - name: Lint application
+        run: npm run lint
