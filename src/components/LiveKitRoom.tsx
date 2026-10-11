@@ -560,12 +560,12 @@ export function LiveKitRoom({
         {participantsOpen ? (
           <aside className="absolute inset-y-0 left-0 z-20 flex w-[min(320px,92vw)] flex-col border-r border-white/10 bg-[#090a0f]/98 shadow-2xl backdrop-blur-xl sm:relative sm:w-[300px]">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3.5">
-              <div><div className="text-sm font-semibold">Participants</div><div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">{participants.length} in this room</div></div>
+              <div><div className="text-sm font-semibold">Participants</div><div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">{participants.length} in this room · {raisedHands.size} hand{raisedHands.size === 1 ? "" : "s"} raised</div></div>
               <button type="button" onClick={() => setParticipantsOpen(false)} className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white" aria-label="Close participants"><X size={16} /></button>
             </div>
             <div className="flex-1 space-y-2 overflow-auto p-3">
-              {participants.map((participant) => (
-                <div key={participant.identity} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.025] px-3 py-3">
+              {[...participants].sort((a, b) => Number(raisedHands.has(b.identity)) - Number(raisedHands.has(a.identity))).map((participant) => (
+                <div key={participant.identity} className={`flex items-center gap-3 rounded-xl border px-3 py-3 ${raisedHands.has(participant.identity) ? "border-primary/35 bg-primary/[0.07]" : "border-white/10 bg-white/[0.025]"}`}>
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-sm font-semibold text-primary">{(participant.name || participant.identity).slice(0, 1).toUpperCase()}</div>
                   <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}{raisedHands.has(participant.identity) ? " ✋" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? (isModerator ? "Room owner · Moderator" : "You · local participant") : "Participant"}</div>{isModerator && !participant.isLocal ? <div className="mt-2 flex flex-wrap gap-1"><button type="button" onClick={() => void moderate("mute", participant.identity)} className="rounded-md border border-white/10 px-2 py-1 text-[10px] hover:bg-white/[0.08]">Mute</button><button type="button" onClick={() => void moderate("remove", participant.identity)} className="rounded-md border border-red-400/20 px-2 py-1 text-[10px] text-red-200 hover:bg-red-500/10">Remove</button></div> : null}</div>
                   <div className="flex items-center gap-1.5 text-white/45" title={participant.isMicrophoneEnabled ? "Microphone enabled" : "Microphone disabled"}>{participant.isMicrophoneEnabled ? <Mic size={14} /> : <MicOff size={14} />}{participant.isCameraEnabled ? <Camera size={14} /> : <CameraOff size={14} />}</div>
@@ -605,7 +605,13 @@ export function LiveKitRoom({
                   <div className={`inline-block max-w-[90%] rounded-2xl px-3.5 py-2.5 text-sm ${message.own ? "bg-primary text-black" : "border border-white/10 bg-white/[0.06]"}`}>{message.text}</div>
                 </div>
               ))}
-              {messages.filter((message) => chatMode === "group" ? !message.recipientId : (message.recipientId === roomRef.current?.localParticipant.identity || message.senderId === roomRef.current?.localParticipant.identity && message.recipientId === privateRecipient)).length === 0 ? <div className="flex h-full items-center justify-center text-center text-xs leading-5 text-white/35">{chatMode === "private" ? "Choose a participant and send a private message." : "No group messages yet. Start the conversation."}</div> : null}
+              {messages.filter((message) => {
+                if (chatMode === "group") return !message.recipientId;
+                const localIdentity = roomRef.current?.localParticipant.identity;
+                if (!privateRecipient || !localIdentity) return false;
+                return (message.senderId === privateRecipient && message.recipientId === localIdentity) ||
+                  (message.senderId === localIdentity && message.recipientId === privateRecipient);
+              }).length === 0 ? <div className="flex h-full items-center justify-center text-center text-xs leading-5 text-white/35">{chatMode === "private" ? "Choose a participant and send a private message." : "No group messages yet. Start the conversation."}</div> : null}
             </div>
             <div className="flex gap-2 border-t border-white/10 p-3">
               <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void sendChat(); }} placeholder="Write a message…" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/40" />
