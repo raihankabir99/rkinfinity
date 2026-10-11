@@ -94,6 +94,7 @@ export function LiveKitRoom({
   const [joined, setJoined] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [raisedHands, setRaisedHands] = useState<Set<string>>(() => new Set());
   const [handRaised, setHandRaised] = useState(false);
@@ -249,7 +250,8 @@ export function LiveKitRoom({
                 next.delete(room.localParticipant.identity);
                 return next;
               });
-              setError("The teacher has acknowledged your raised hand.");
+              setError("");
+              setStatusMessage("The teacher has acknowledged your raised hand.");
               return;
             }
             if (decoded.type !== "chat-message" || typeof decoded.text !== "string" || typeof decoded.id !== "string") return;
@@ -681,7 +683,7 @@ export function LiveKitRoom({
           <button type="button" onClick={() => void leave()} className="group relative flex h-11 min-w-11 items-center justify-center rounded-2xl border border-red-400/25 bg-red-500/90 px-3 text-white shadow-[0_8px_28px_rgba(239,68,68,0.2)] transition-all hover:-translate-y-0.5 hover:bg-red-500 sm:min-w-[88px] sm:gap-2" aria-label="Leave meeting" title="Leave meeting"><LogOut size={18} /><span className="hidden text-xs font-semibold sm:inline">Leave</span><span className="pointer-events-none absolute -top-9 rounded-lg border border-white/10 bg-[#0b0c12] px-2 py-1 text-[10px] opacity-0 shadow-xl transition group-hover:opacity-100 sm:hidden">Leave</span></button>
         </div>
       </footer>
-      {error ? <div className="fixed bottom-20 left-1/2 z-[60] max-w-[calc(100vw-24px)] -translate-x-1/2 rounded-xl border border-red-400/20 bg-red-950/95 px-4 py-3 text-sm text-red-100 shadow-xl">{error}</div> : null}
+      {error ? <div className="fixed bottom-20 left-1/2 z-[60] max-w-[calc(100vw-24px)] -translate-x-1/2 rounded-xl border border-red-400/20 bg-red-950/95 px-4 py-3 text-sm text-red-100 shadow-xl">{error}</div> : statusMessage ? <div role="status" aria-live="polite" className="fixed bottom-20 left-1/2 z-[60] max-w-[calc(100vw-24px)] -translate-x-1/2 rounded-xl border border-emerald-400/25 bg-emerald-950/95 px-4 py-3 text-sm text-emerald-100 shadow-xl">{statusMessage}</div> : null}
     </main>
   );
 }
