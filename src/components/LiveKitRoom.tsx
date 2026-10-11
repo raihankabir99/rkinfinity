@@ -242,6 +242,16 @@ export function LiveKitRoom({
               });
               return;
             }
+            if (decoded.type === "hand-cleared" && participant.isLocal) {
+              setHandRaised(false);
+              setRaisedHands((current) => {
+                const next = new Set(current);
+                next.delete(room.localParticipant.identity);
+                return next;
+              });
+              setError("The teacher has acknowledged your raised hand.");
+              return;
+            }
             if (decoded.type !== "chat-message" || typeof decoded.text !== "string" || typeof decoded.id !== "string") return;
             const localId = room.localParticipant.identity;
             if (decoded.recipientId && decoded.recipientId !== localId) return;
@@ -339,6 +349,26 @@ export function LiveKitRoom({
       refresh();
     } catch (screenError) {
       setError(screenError instanceof Error ? screenError.message : "Screen sharing failed.");
+    }
+  };
+
+  const clearRaisedHand = async (participant: Participant) => {
+    const room = roomRef.current;
+    if (!room || !isModerator || participant.isLocal || !raisedHands.has(participant.identity)) return;
+    try {
+      const payload = new TextEncoder().encode(JSON.stringify({ type: "hand-cleared" }));
+      await room.localParticipant.publishData(payload, {
+        reliable: true,
+        topic: "infinit-chat",
+        destinationIdentities: [participant.identity],
+      });
+      setRaisedHands((current) => {
+        const next = new Set(current);
+        next.delete(participant.identity);
+        return next;
+      });
+    } catch (clearError) {
+      setError(clearError instanceof Error ? clearError.message : "Unable to acknowledge this raised hand.");
     }
   };
 
@@ -567,7 +597,7 @@ export function LiveKitRoom({
               {[...participants].sort((a, b) => Number(raisedHands.has(b.identity)) - Number(raisedHands.has(a.identity))).map((participant) => (
                 <div key={participant.identity} className={`flex items-center gap-3 rounded-xl border px-3 py-3 ${raisedHands.has(participant.identity) ? "border-primary/35 bg-primary/[0.07]" : "border-white/10 bg-white/[0.025]"}`}>
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-sm font-semibold text-primary">{(participant.name || participant.identity).slice(0, 1).toUpperCase()}</div>
-                  <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}{raisedHands.has(participant.identity) ? " ✋" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? (isModerator ? "Room owner · Moderator" : "You · local participant") : "Participant"}</div>{isModerator && !participant.isLocal ? <div className="mt-2 flex flex-wrap gap-1"><button type="button" onClick={() => void moderate("mute", participant.identity)} className="rounded-md border border-white/10 px-2 py-1 text-[10px] hover:bg-white/[0.08]">Mute</button><button type="button" onClick={() => void moderate("remove", participant.identity)} className="rounded-md border border-red-400/20 px-2 py-1 text-[10px] text-red-200 hover:bg-red-500/10">Remove</button></div> : null}</div>
+                  <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}{raisedHands.has(participant.identity) ? " ✋" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? (isModerator ? "Room owner · Moderator" : "You · local participant") : "Participant"}</div>{isModerator && !participant.isLocal ? <div className="mt-2 flex flex-wrap gap-1">{raisedHands.has(participant.identity) ? <button type="button" onClick={() => void clearRaisedHand(participant)} className="rounded-md border border-primary/30 px-2 py-1 text-[10px] text-primary hover:bg-primary/10">Acknowledge hand</button> : null}<button type="button" onClick={() => void moderate("mute", participant.identity)} className="rounded-md border border-white/10 px-2 py-1 text-[10px] hover:bg-white/[0.08]">Mute</button><button type="button" onClick={() => void moderate("remove", participant.identity)} className="rounded-md border border-red-400/20 px-2 py-1 text-[10px] text-red-200 hover:bg-red-500/10">Remove</button></div> : null}</div>
                   <div className="flex items-center gap-1.5 text-white/45" title={participant.isMicrophoneEnabled ? "Microphone enabled" : "Microphone disabled"}>{participant.isMicrophoneEnabled ? <Mic size={14} /> : <MicOff size={14} />}{participant.isCameraEnabled ? <Camera size={14} /> : <CameraOff size={14} />}</div>
                 </div>
               ))}
