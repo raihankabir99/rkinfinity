@@ -96,6 +96,7 @@ export function LiveKitRoom({
   const [error, setError] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [participantJoinedAt, setParticipantJoinedAt] = useState<Map<string, number>>(() => new Map());
   const [raisedHands, setRaisedHands] = useState<Set<string>>(() => new Set());
   const [handRaised, setHandRaised] = useState(false);
   const [mic, setMic] = useState(true);
@@ -135,6 +136,7 @@ export function LiveKitRoom({
     if (room) await room.disconnect();
     setJoined(false);
     setParticipants([]);
+    setParticipantJoinedAt(new Map());
     setHandRaised(false);
     setRaisedHands(new Set());
     setChatOpen(false);
@@ -215,8 +217,20 @@ export function LiveKitRoom({
       const room = new Room({ adaptiveStream: true, dynacast: true });
       roomRef.current = room;
       room
-        .on(RoomEvent.ParticipantConnected, refresh)
+        .on(RoomEvent.ParticipantConnected, (participant) => {
+          setParticipantJoinedAt((current) => {
+            const next = new Map(current);
+            next.set(participant.identity, Date.now());
+            return next;
+          });
+          refresh();
+        })
         .on(RoomEvent.ParticipantDisconnected, (participant) => {
+          setParticipantJoinedAt((current) => {
+            const next = new Map(current);
+            next.delete(participant.identity);
+            return next;
+          });
           setRaisedHands((current) => {
             const next = new Set(current);
             next.delete(participant.identity);
@@ -273,11 +287,20 @@ export function LiveKitRoom({
         .on(RoomEvent.Disconnected, () => {
           setJoined(false);
           setParticipants([]);
+          setParticipantJoinedAt(new Map());
           setHandRaised(false);
           setRaisedHands(new Set());
         });
 
       await room.connect(data.url, data.token);
+      setParticipantJoinedAt((current) => {
+        const next = new Map(current);
+        next.set(room.localParticipant.identity, Date.now());
+        for (const participant of room.remoteParticipants.values()) {
+          if (!next.has(participant.identity)) next.set(participant.identity, Date.now());
+        }
+        return next;
+      });
       await room.localParticipant.setCameraEnabled(true);
       await room.localParticipant.setMicrophoneEnabled(true);
       setJoined(true);
@@ -592,14 +615,14 @@ export function LiveKitRoom({
         {participantsOpen ? (
           <aside className="absolute inset-y-0 left-0 z-20 flex w-[min(320px,92vw)] flex-col border-r border-white/10 bg-[#090a0f]/98 shadow-2xl backdrop-blur-xl sm:relative sm:w-[300px]">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3.5">
-              <div><div className="text-sm font-semibold">Participants</div><div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">{participants.length} in this room · {raisedHands.size} hand{raisedHands.size === 1 ? "" : "s"} raised</div></div>
+              <div><div className="text-sm font-semibold">Attendance · Live</div><div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">{participants.length} present · {raisedHands.size} hand{raisedHands.size === 1 ? "" : "s"} raised</div></div>
               <button type="button" onClick={() => setParticipantsOpen(false)} className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white" aria-label="Close participants"><X size={16} /></button>
             </div>
             <div className="flex-1 space-y-2 overflow-auto p-3">
               {[...participants].sort((a, b) => Number(raisedHands.has(b.identity)) - Number(raisedHands.has(a.identity))).map((participant) => (
                 <div key={participant.identity} className={`flex items-center gap-3 rounded-xl border px-3 py-3 ${raisedHands.has(participant.identity) ? "border-primary/35 bg-primary/[0.07]" : "border-white/10 bg-white/[0.025]"}`}>
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-sm font-semibold text-primary">{(participant.name || participant.identity).slice(0, 1).toUpperCase()}</div>
-                  <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}{raisedHands.has(participant.identity) ? " ✋" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? (isModerator ? "Room owner · Moderator" : "You · local participant") : "Participant"}</div>{isModerator && !participant.isLocal ? <div className="mt-2 flex flex-wrap gap-1">{raisedHands.has(participant.identity) ? <button type="button" onClick={() => void clearRaisedHand(participant)} className="rounded-md border border-primary/30 px-2 py-1 text-[10px] text-primary hover:bg-primary/10">Acknowledge hand</button> : null}<button type="button" onClick={() => void moderate("mute", participant.identity)} className="rounded-md border border-white/10 px-2 py-1 text-[10px] hover:bg-white/[0.08]">Mute</button><button type="button" onClick={() => void moderate("remove", participant.identity)} className="rounded-md border border-red-400/20 px-2 py-1 text-[10px] text-red-200 hover:bg-red-500/10">Remove</button></div> : null}</div>
+                  <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}{raisedHands.has(participant.identity) ? " ✋" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? (isModerator ? "Room owner · Moderator" : "You · local participant") : "Participant"}{participantJoinedAt.has(participant.identity) ? ` · Joined ${new Date(participantJoinedAt.get(participant.identity)!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}</div>{isModerator && !participant.isLocal ? <div className="mt-2 flex flex-wrap gap-1">{raisedHands.has(participant.identity) ? <button type="button" onClick={() => void clearRaisedHand(participant)} className="rounded-md border border-primary/30 px-2 py-1 text-[10px] text-primary hover:bg-primary/10">Acknowledge hand</button> : null}<button type="button" onClick={() => void moderate("mute", participant.identity)} className="rounded-md border border-white/10 px-2 py-1 text-[10px] hover:bg-white/[0.08]">Mute</button><button type="button" onClick={() => void moderate("remove", participant.identity)} className="rounded-md border border-red-400/20 px-2 py-1 text-[10px] text-red-200 hover:bg-red-500/10">Remove</button></div> : null}</div>
                   <div className="flex items-center gap-1.5 text-white/45" title={participant.isMicrophoneEnabled ? "Microphone enabled" : "Microphone disabled"}>{participant.isMicrophoneEnabled ? <Mic size={14} /> : <MicOff size={14} />}{participant.isCameraEnabled ? <Camera size={14} /> : <CameraOff size={14} />}</div>
                 </div>
               ))}
