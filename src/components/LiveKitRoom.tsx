@@ -134,6 +134,8 @@ export function LiveKitRoom({
     if (room) await room.disconnect();
     setJoined(false);
     setParticipants([]);
+    setHandRaised(false);
+    setRaisedHands(new Set());
     setChatOpen(false);
     setSettingsOpen(false);
     setMoreOpen(false);
@@ -259,6 +261,8 @@ export function LiveKitRoom({
         .on(RoomEvent.Disconnected, () => {
           setJoined(false);
           setParticipants([]);
+          setHandRaised(false);
+          setRaisedHands(new Set());
         });
 
       await room.connect(data.url, data.token);
