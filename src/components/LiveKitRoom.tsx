@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Copy,
   Grid2X2,
+  Hand,
   LogOut,
   Maximize,
   MessageCircle,
@@ -94,6 +95,8 @@ export function LiveKitRoom({
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [raisedHands, setRaisedHands] = useState<Set<string>>(() => new Set());
+  const [handRaised, setHandRaised] = useState(false);
   const [mic, setMic] = useState(true);
   const [camera, setCamera] = useState(true);
   const [screen, setScreen] = useState(false);
@@ -210,7 +213,14 @@ export function LiveKitRoom({
       roomRef.current = room;
       room
         .on(RoomEvent.ParticipantConnected, refresh)
-        .on(RoomEvent.ParticipantDisconnected, refresh)
+        .on(RoomEvent.ParticipantDisconnected, (participant) => {
+          setRaisedHands((current) => {
+            const next = new Set(current);
+            next.delete(participant.identity);
+            return next;
+          });
+          refresh();
+        })
         .on(RoomEvent.LocalTrackPublished, refresh)
         .on(RoomEvent.LocalTrackUnpublished, refresh)
         .on(RoomEvent.TrackSubscribed, refresh)
@@ -221,6 +231,15 @@ export function LiveKitRoom({
             const decoded = JSON.parse(new TextDecoder().decode(payload)) as {
               type?: string; id?: string; text?: string; recipientId?: string; recipientName?: string;
             };
+            if (decoded.type === "raise-hand" && typeof decoded.raised === "boolean") {
+              setRaisedHands((current) => {
+                const next = new Set(current);
+                if (decoded.raised) next.add(participant.identity);
+                else next.delete(participant.identity);
+                return next;
+              });
+              return;
+            }
             if (decoded.type !== "chat-message" || typeof decoded.text !== "string" || typeof decoded.id !== "string") return;
             const localId = room.localParticipant.identity;
             if (decoded.recipientId && decoded.recipientId !== localId) return;
@@ -316,6 +335,25 @@ export function LiveKitRoom({
       refresh();
     } catch (screenError) {
       setError(screenError instanceof Error ? screenError.message : "Screen sharing failed.");
+    }
+  };
+
+  const toggleRaiseHand = async () => {
+    const room = roomRef.current;
+    if (!room) return;
+    const nextRaised = !handRaised;
+    try {
+      const payload = new TextEncoder().encode(JSON.stringify({ type: "raise-hand", raised: nextRaised }));
+      await room.localParticipant.publishData(payload, { reliable: true, topic: "infinit-chat" });
+      setHandRaised(nextRaised);
+      setRaisedHands((current) => {
+        const next = new Set(current);
+        if (nextRaised) next.add(room.localParticipant.identity);
+        else next.delete(room.localParticipant.identity);
+        return next;
+      });
+    } catch (handError) {
+      setError(handError instanceof Error ? handError.message : "Unable to update raised hand.");
     }
   };
 
@@ -525,7 +563,7 @@ export function LiveKitRoom({
               {participants.map((participant) => (
                 <div key={participant.identity} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.025] px-3 py-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-sm font-semibold text-primary">{(participant.name || participant.identity).slice(0, 1).toUpperCase()}</div>
-                  <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? (isModerator ? "Room owner · Moderator" : "You · local participant") : "Participant"}</div>{isModerator && !participant.isLocal ? <div className="mt-2 flex flex-wrap gap-1"><button type="button" onClick={() => void moderate("mute", participant.identity)} className="rounded-md border border-white/10 px-2 py-1 text-[10px] hover:bg-white/[0.08]">Mute</button><button type="button" onClick={() => void moderate("remove", participant.identity)} className="rounded-md border border-red-400/20 px-2 py-1 text-[10px] text-red-200 hover:bg-red-500/10">Remove</button></div> : null}</div>
+                  <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{participant.name || participant.identity}{participant.isLocal ? " (You)" : ""}{raisedHands.has(participant.identity) ? " ✋" : ""}</div><div className="mt-0.5 text-[10px] text-white/40">{participant.isLocal ? (isModerator ? "Room owner · Moderator" : "You · local participant") : "Participant"}</div>{isModerator && !participant.isLocal ? <div className="mt-2 flex flex-wrap gap-1"><button type="button" onClick={() => void moderate("mute", participant.identity)} className="rounded-md border border-white/10 px-2 py-1 text-[10px] hover:bg-white/[0.08]">Mute</button><button type="button" onClick={() => void moderate("remove", participant.identity)} className="rounded-md border border-red-400/20 px-2 py-1 text-[10px] text-red-200 hover:bg-red-500/10">Remove</button></div> : null}</div>
                   <div className="flex items-center gap-1.5 text-white/45" title={participant.isMicrophoneEnabled ? "Microphone enabled" : "Microphone disabled"}>{participant.isMicrophoneEnabled ? <Mic size={14} /> : <MicOff size={14} />}{participant.isCameraEnabled ? <Camera size={14} /> : <CameraOff size={14} />}</div>
                 </div>
               ))}
@@ -596,6 +634,7 @@ export function LiveKitRoom({
           <button type="button" onClick={() => void toggleMic()} className={`group relative flex h-11 w-11 items-center justify-center rounded-2xl border transition-all hover:-translate-y-0.5 hover:bg-white/[0.08] ${mic ? "border-white/10 bg-white/[0.04]" : "border-red-400/30 bg-red-500/15 text-red-200"}`} aria-label={mic ? "Mute microphone" : "Unmute microphone"} title={mic ? "Mute microphone" : "Unmute microphone"}>{mic ? <Mic size={19} /> : <MicOff size={19} />}<span className="pointer-events-none absolute -top-9 rounded-lg border border-white/10 bg-[#0b0c12] px-2 py-1 text-[10px] opacity-0 shadow-xl transition group-hover:opacity-100">{mic ? "Mute" : "Unmute"}</span></button>
           <button type="button" onClick={() => void toggleCamera()} className={`group relative flex h-11 w-11 items-center justify-center rounded-2xl border transition-all hover:-translate-y-0.5 hover:bg-white/[0.08] ${camera ? "border-white/10 bg-white/[0.04]" : "border-red-400/30 bg-red-500/15 text-red-200"}`} aria-label={camera ? "Turn camera off" : "Turn camera on"} title={camera ? "Turn camera off" : "Turn camera on"}>{camera ? <Camera size={19} /> : <CameraOff size={19} />}<span className="pointer-events-none absolute -top-9 rounded-lg border border-white/10 bg-[#0b0c12] px-2 py-1 text-[10px] opacity-0 shadow-xl transition group-hover:opacity-100">{camera ? "Camera" : "Camera off"}</span></button>
           <button type="button" onClick={() => void toggleScreen()} className={`group relative flex h-11 w-11 items-center justify-center rounded-2xl border transition-all hover:-translate-y-0.5 hover:bg-primary/10 ${screen ? "border-primary/45 bg-primary/10 text-primary shadow-[0_0_22px_rgba(212,175,55,0.12)]" : "border-white/10 bg-white/[0.04]"}`} aria-label={screen ? "Stop screen sharing" : "Share screen"} title={screen ? "Stop screen sharing" : "Share screen"}><MonitorUp size={19} /><span className="pointer-events-none absolute -top-9 rounded-lg border border-white/10 bg-[#0b0c12] px-2 py-1 text-[10px] opacity-0 shadow-xl transition group-hover:opacity-100">{screen ? "Stop share" : "Share screen"}</span></button>
+          <button type="button" onClick={() => void toggleRaiseHand()} className={`group relative flex h-11 w-11 items-center justify-center rounded-2xl border transition-all hover:-translate-y-0.5 hover:bg-primary/10 ${handRaised ? "border-primary/45 bg-primary/10 text-primary" : "border-white/10 bg-white/[0.04]"}`} aria-label={handRaised ? "Lower hand" : "Raise hand"} title={handRaised ? "Lower hand" : "Raise hand"}><Hand size={19} /><span className="pointer-events-none absolute -top-9 rounded-lg border border-white/10 bg-[#0b0c12] px-2 py-1 text-[10px] opacity-0 shadow-xl transition group-hover:opacity-100">{handRaised ? "Lower hand" : "Raise hand"}</span></button>
           <button type="button" onClick={() => setChatOpen((open) => !open)} className={`group relative flex h-11 w-11 items-center justify-center rounded-2xl border transition-all hover:-translate-y-0.5 hover:bg-primary/10 ${chatOpen ? "border-primary/45 bg-primary/10 text-primary shadow-[0_0_22px_rgba(212,175,55,0.12)]" : "border-white/10 bg-white/[0.04]"}`} aria-label="Toggle chat" title="Chat"><MessageCircle size={19} /><span className="pointer-events-none absolute -top-9 rounded-lg border border-white/10 bg-[#0b0c12] px-2 py-1 text-[10px] opacity-0 shadow-xl transition group-hover:opacity-100">Chat</span></button>
           <button type="button" onClick={() => setSettingsOpen((open) => !open)} className={`group relative flex h-11 w-11 items-center justify-center rounded-2xl border transition-all hover:-translate-y-0.5 hover:bg-primary/10 ${settingsOpen ? "border-primary/45 bg-primary/10 text-primary shadow-[0_0_22px_rgba(212,175,55,0.12)]" : "border-white/10 bg-white/[0.04]"}`} aria-label="Settings" title="Settings"><Settings size={19} /><span className="pointer-events-none absolute -top-9 rounded-lg border border-white/10 bg-[#0b0c12] px-2 py-1 text-[10px] opacity-0 shadow-xl transition group-hover:opacity-100">Settings</span></button>
           <div className="mx-1 h-7 w-px bg-white/10" />
