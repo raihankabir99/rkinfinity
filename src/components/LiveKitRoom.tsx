@@ -32,6 +32,7 @@ import {
 
 type ChatMessage = { id: string; sender: string; senderId: string; text: string; own: boolean; recipientId?: string; recipientName?: string };
 type DeviceOption = { deviceId: string; label: string };
+type AttendanceRecord = { identity: string; name: string; joinedAt: number; leftAt?: number };
 
 function VideoTile({ participant }: { participant: Participant }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -97,6 +98,7 @@ export function LiveKitRoom({
   const [statusMessage, setStatusMessage] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [participantJoinedAt, setParticipantJoinedAt] = useState<Map<string, number>>(() => new Map());
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [raisedHands, setRaisedHands] = useState<Set<string>>(() => new Set());
   const [handRaised, setHandRaised] = useState(false);
   const [mic, setMic] = useState(true);
@@ -120,6 +122,35 @@ export function LiveKitRoom({
   const [selectedMic, setSelectedMic] = useState("");
   const [selectedCamera, setSelectedCamera] = useState("");
   const [selectedSpeaker, setSelectedSpeaker] = useState("");
+
+  const exportAttendanceCsv = useCallback(() => {
+    if (!isModerator || attendanceRecords.length === 0) return;
+    const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const rows = [
+      ["Name", "Participant ID", "Joined At", "Left At", "Duration Minutes"],
+      ...attendanceRecords.map((record) => {
+        const end = record.leftAt || Date.now();
+        const duration = Math.max(0, Math.round((end - record.joinedAt) / 60000));
+        return [
+          record.name,
+          record.identity,
+          new Date(record.joinedAt).toISOString(),
+          record.leftAt ? new Date(record.leftAt).toISOString() : "Still in room",
+          String(duration),
+        ];
+      }),
+    ];
+    const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8;" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `infinit-attendance-${roomCode || "class"}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setStatusMessage("Attendance CSV exported for this live session.");
+  }, [attendanceRecords, isModerator, roomCode]);
 
   const refresh = useCallback(() => {
     const room = roomRef.current;
@@ -218,14 +249,30 @@ export function LiveKitRoom({
       roomRef.current = room;
       room
         .on(RoomEvent.ParticipantConnected, (participant) => {
+          const joinedAt = Date.now();
           setParticipantJoinedAt((current) => {
             const next = new Map(current);
-            next.set(participant.identity, Date.now());
+            next.set(participant.identity, joinedAt);
             return next;
           });
+          setAttendanceRecords((current) => [
+            ...current,
+            { identity: participant.identity, name: participant.name || participant.identity, joinedAt },
+          ]);
           refresh();
         })
         .on(RoomEvent.ParticipantDisconnected, (participant) => {
+          const leftAt = Date.now();
+          setAttendanceRecords((current) => {
+            const next = [...current];
+            for (let index = next.length - 1; index >= 0; index -= 1) {
+              if (next[index].identity === participant.identity && !next[index].leftAt) {
+                next[index] = { ...next[index], leftAt };
+                break;
+              }
+            }
+            return next;
+          });
           setParticipantJoinedAt((current) => {
             const next = new Map(current);
             next.delete(participant.identity);
@@ -293,6 +340,11 @@ export function LiveKitRoom({
         });
 
       await room.connect(data.url, data.token);
+      const localJoinedAt = Date.now();
+      setAttendanceRecords((current) => [
+        ...current,
+        { identity: room.localParticipant.identity, name: room.localParticipant.name || trimmed, joinedAt: localJoinedAt },
+      ]);
       setParticipantJoinedAt((current) => {
         const next = new Map(current);
         next.set(room.localParticipant.identity, Date.now());
@@ -616,7 +668,7 @@ export function LiveKitRoom({
           <aside className="absolute inset-y-0 left-0 z-20 flex w-[min(320px,92vw)] flex-col border-r border-white/10 bg-[#090a0f]/98 shadow-2xl backdrop-blur-xl sm:relative sm:w-[300px]">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3.5">
               <div><div className="text-sm font-semibold">Attendance · Live</div><div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">{participants.length} present · {raisedHands.size} hand{raisedHands.size === 1 ? "" : "s"} raised</div></div>
-              <button type="button" onClick={() => setParticipantsOpen(false)} className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white" aria-label="Close participants"><X size={16} /></button>
+              <div className="flex items-center gap-1">{isModerator ? <button type="button" onClick={exportAttendanceCsv} disabled={attendanceRecords.length === 0} className="rounded-lg border border-primary/25 px-2 py-1.5 text-[10px] text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40" title="Export attendance for this live session">Export CSV</button> : null}<button type="button" onClick={() => setParticipantsOpen(false)} className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white" aria-label="Close participants"><X size={16} /></button></div>
             </div>
             <div className="flex-1 space-y-2 overflow-auto p-3">
               {[...participants].sort((a, b) => Number(raisedHands.has(b.identity)) - Number(raisedHands.has(a.identity))).map((participant) => (
