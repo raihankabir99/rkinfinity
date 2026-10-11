@@ -272,7 +272,12 @@ export function LiveKitRoom({
   };
 
   const moderate = async (action: "mute" | "remove" | "lock" | "unlock" | "end", participantIdentity?: string) => {
-    if (!moderatorToken) return;
+    if (!moderatorToken) {
+      setError("Moderator authorization is missing. Rejoin as the room creator.");
+      return;
+    }
+    if (action === "end" && !window.confirm("End this meeting for everyone? Participants will be disconnected.")) return;
+    if (action === "remove" && !window.confirm("Remove this participant from the room?")) return;
     try {
       const response = await fetch("/api/livekit/room/moderate", { method: "POST", headers: { "content-type": "application/json", Authorization: `Bearer ${moderatorToken}` }, body: JSON.stringify({ action, participantIdentity }) });
       const data = await response.json() as { ok?: boolean; error?: string };
