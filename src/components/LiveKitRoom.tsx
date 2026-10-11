@@ -550,7 +550,14 @@ export function LiveKitRoom({
               {chatMode === "private" ? <label className="col-span-2 text-xs text-white/55">Send privately to<select value={privateRecipient} onChange={(event) => setPrivateRecipient(event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none"><option value="">Choose participant…</option>{participants.filter((participant) => !participant.isLocal).map((participant) => <option key={participant.identity} value={participant.identity}>{participant.name || participant.identity}</option>)}</select></label> : null}
             </div>
             <div className="min-h-0 flex-1 space-y-3 overflow-auto p-4">
-              {messages.filter((message) => chatMode === "group" ? !message.recipientId : (message.recipientId === roomRef.current?.localParticipant.identity || message.senderId === roomRef.current?.localParticipant.identity && message.recipientId === privateRecipient)).map((message) => (
+              {messages.filter((message) => {
+                if (chatMode === "group") return !message.recipientId;
+                const localIdentity = roomRef.current?.localParticipant.identity;
+                if (!privateRecipient || !localIdentity) return false;
+                const isIncomingConversationMessage = message.senderId === privateRecipient && message.recipientId === localIdentity;
+                const isOutgoingConversationMessage = message.senderId === localIdentity && message.recipientId === privateRecipient;
+                return isIncomingConversationMessage || isOutgoingConversationMessage;
+              }).map((message) => (
                 <div key={message.id} className={message.own ? "text-right" : "text-left"}>
                   <div className="mb-1 text-[10px] text-white/35">{message.own ? "You" : message.sender}{message.recipientId ? ` · private${message.own ? ` to ${message.recipientName || "participant"}` : ""}` : ""}</div>
                   <div className={`inline-block max-w-[90%] rounded-2xl px-3.5 py-2.5 text-sm ${message.own ? "bg-primary text-black" : "border border-white/10 bg-white/[0.06]"}`}>{message.text}</div>
