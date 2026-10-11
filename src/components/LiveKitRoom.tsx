@@ -332,6 +332,18 @@ export function LiveKitRoom({
           }
         })
         .on(RoomEvent.Disconnected, () => {
+          const leftAt = Date.now();
+          const localIdentity = room.localParticipant.identity;
+          setAttendanceRecords((current) => {
+            const next = [...current];
+            for (let index = next.length - 1; index >= 0; index -= 1) {
+              if (next[index].identity === localIdentity && !next[index].leftAt) {
+                next[index] = { ...next[index], leftAt };
+                break;
+              }
+            }
+            return next;
+          });
           setJoined(false);
           setParticipants([]);
           setParticipantJoinedAt(new Map());
