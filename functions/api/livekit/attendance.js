@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
     if (!bearer || bearer.length > MAX_TOKEN_LENGTH) return json({ error: "Authorization required." }, 401);
 
     if (action === "history") {
-      const moderator = await verifySignedToken(bearer, LIVEKIT_API_SECRET);
+      const moderator = await verifyModeratorToken(bearer, LIVEKIT_API_SECRET);
       if (!moderator || !moderator.room || !moderator.identity) return json({ error: "Moderator authorization required." }, 403);
       const rows = await supabaseRequest(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
         `classroom_attendance?room_name=eq.${encodeURIComponent(moderator.room)}&select=id,room_name,participant_identity,participant_name,joined_at,left_at&order=joined_at.asc`);
@@ -64,6 +64,23 @@ export async function onRequestPost(context) {
     console.error("Classroom attendance request failed:", error);
     return json({ error: "Unable to process attendance." }, 500);
   }
+}
+
+async function verifyModeratorToken(token, secret) {
+  if (!token || token.length > MAX_TOKEN_LENGTH) return null;
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+  const [payloadPart, signaturePart] = parts;
+  try {
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
+    const signature = Uint8Array.from(atob(signaturePart.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - signaturePart.length % 4) % 4)), (c) => c.charCodeAt(0));
+    const valid = await crypto.subtle.verify("HMAC", key, signature, new TextEncoder().encode(payloadPart));
+    if (!valid) return null;
+    const payload = JSON.parse(decodeBase64Url(payloadPart));
+    if (typeof payload.room !== "string" || !payload.room || typeof payload.identity !== "string" || !payload.identity ||
+      !Number.isFinite(payload.exp) || payload.exp <= Date.now() / 1000) return null;
+    return payload;
+  } catch { return null; }
 }
 
 async function verifyLiveKitToken(token, secret) {
