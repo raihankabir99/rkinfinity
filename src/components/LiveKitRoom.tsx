@@ -86,6 +86,7 @@ export function LiveKitRoom({
   adminOnly?: boolean;
 }) {
   const roomRef = useRef<Room | null>(null);
+  const attendanceTokenRef = useRef("");
   const stageRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
   const [roomCode, setRoomCode] = useState(() => new URLSearchParams(window.location.search).get("room") || "");
@@ -123,34 +124,46 @@ export function LiveKitRoom({
   const [selectedCamera, setSelectedCamera] = useState("");
   const [selectedSpeaker, setSelectedSpeaker] = useState("");
 
-  const exportAttendanceCsv = useCallback(() => {
-    if (!isModerator || attendanceRecords.length === 0) return;
-    const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
-    const rows = [
-      ["Name", "Participant ID", "Joined At", "Left At", "Duration Minutes"],
-      ...attendanceRecords.map((record) => {
-        const end = record.leftAt || Date.now();
-        const duration = Math.max(0, Math.round((end - record.joinedAt) / 60000));
-        return [
-          record.name,
-          record.identity,
-          new Date(record.joinedAt).toISOString(),
-          record.leftAt ? new Date(record.leftAt).toISOString() : "Still in room",
-          String(duration),
-        ];
-      }),
-    ];
-    const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\r\n");
-    const url = URL.createObjectURL(new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8;" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `infinit-attendance-${roomCode || "class"}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-    setStatusMessage("Attendance CSV exported for this live session.");
-  }, [attendanceRecords, isModerator, roomCode]);
+  const exportAttendanceCsv = useCallback(async () => {
+    if (!isModerator || !moderatorToken) return;
+    try {
+      const response = await fetch("/api/livekit/attendance", {
+        method: "POST",
+        headers: { "content-type": "application/json", Authorization: `Bearer ${moderatorToken}` },
+        body: JSON.stringify({ action: "history" }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to load attendance history.");
+      const records = Array.isArray(result.records) ? result.records as AttendanceRecord[] : [];
+      setAttendanceRecords(records);
+      if (records.length === 0) {
+        setStatusMessage("No attendance records have been saved for this room yet.");
+        return;
+      }
+      const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+      const rows = [
+        ["Name", "Participant ID", "Joined At", "Left At", "Duration Minutes"],
+        ...records.map((record) => {
+          const end = record.leftAt || Date.now();
+          const duration = Math.max(0, Math.round((end - record.joinedAt) / 60000));
+          return [record.name, record.identity, new Date(record.joinedAt).toISOString(),
+            record.leftAt ? new Date(record.leftAt).toISOString() : "Still in room", String(duration)];
+        }),
+      ];
+      const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\\r\\n");
+      const url = URL.createObjectURL(new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8;" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `infinit-attendance-${roomCode || "class"}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatusMessage("Saved attendance history exported.");
+    } catch (exportError) {
+      setError(exportError instanceof Error ? exportError.message : "Unable to export attendance.");
+    }
+  }, [isModerator, moderatorToken, roomCode]);
 
   const refresh = useCallback(() => {
     const room = roomRef.current;
@@ -163,6 +176,19 @@ export function LiveKitRoom({
 
   const leave = useCallback(async () => {
     const room = roomRef.current;
+    if (room && attendanceTokenRef.current) {
+      try {
+        await fetch("/api/livekit/attendance", {
+          method: "POST",
+          headers: { "content-type": "application/json", Authorization: `Bearer ${attendanceTokenRef.current}` },
+          body: JSON.stringify({ action: "leave" }),
+          keepalive: true,
+        });
+      } catch (attendanceError) {
+        console.error("Attendance leave persistence failed:", attendanceError);
+      }
+    }
+    attendanceTokenRef.current = "";
     roomRef.current = null;
     if (room) await room.disconnect();
     setJoined(false);
@@ -351,12 +377,33 @@ export function LiveKitRoom({
           setRaisedHands(new Set());
         });
 
+      attendanceTokenRef.current = data.token;
       await room.connect(data.url, data.token);
       const localJoinedAt = Date.now();
       setAttendanceRecords((current) => [
         ...current,
         { identity: room.localParticipant.identity, name: room.localParticipant.name || trimmed, joinedAt: localJoinedAt },
       ]);
+      void fetch("/api/livekit/attendance", {
+        method: "POST",
+        headers: { "content-type": "application/json", Authorization: `Bearer ${data.token}` },
+        body: JSON.stringify({ action: "join" }),
+      }).then(async (response) => {
+        if (!response.ok) throw new Error("Attendance join could not be saved.");
+      }).catch((attendanceError) => {
+        console.error("Attendance join persistence failed:", attendanceError);
+        setStatusMessage("Connected, but attendance could not be saved. Ask the host to check server configuration.");
+      });
+      if (data.role === "moderator" && data.moderatorToken) {
+        void fetch("/api/livekit/attendance", {
+          method: "POST",
+          headers: { "content-type": "application/json", Authorization: `Bearer ${data.moderatorToken}` },
+          body: JSON.stringify({ action: "history" }),
+        }).then(async (response) => {
+          const result = await response.json();
+          if (response.ok && Array.isArray(result.records)) setAttendanceRecords(result.records as AttendanceRecord[]);
+        }).catch((historyError) => console.error("Attendance history load failed:", historyError));
+      }
       setParticipantJoinedAt((current) => {
         const next = new Map(current);
         next.set(room.localParticipant.identity, Date.now());
