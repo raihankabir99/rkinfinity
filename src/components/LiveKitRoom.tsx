@@ -100,6 +100,7 @@ export function LiveKitRoom({
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [participantJoinedAt, setParticipantJoinedAt] = useState<Map<string, number>>(() => new Map());
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [raisedHands, setRaisedHands] = useState<Set<string>>(() => new Set());
   const [handRaised, setHandRaised] = useState(false);
   const [mic, setMic] = useState(true);
@@ -123,6 +124,25 @@ export function LiveKitRoom({
   const [selectedMic, setSelectedMic] = useState("");
   const [selectedCamera, setSelectedCamera] = useState("");
   const [selectedSpeaker, setSelectedSpeaker] = useState("");
+
+  const refreshAttendanceHistory = useCallback(async () => {
+    if (!isModerator || !moderatorToken) return;
+    setAttendanceLoading(true);
+    try {
+      const response = await fetch("/api/livekit/attendance", {
+        method: "POST",
+        headers: { "content-type": "application/json", Authorization: `Bearer ${moderatorToken}` },
+        body: JSON.stringify({ action: "history" }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to load attendance history.");
+      setAttendanceRecords(Array.isArray(result.records) ? result.records as AttendanceRecord[] : []);
+    } catch (historyError) {
+      setError(historyError instanceof Error ? historyError.message : "Unable to load attendance history.");
+    } finally {
+      setAttendanceLoading(false);
+    }
+  }, [isModerator, moderatorToken]);
 
   const exportAttendanceCsv = useCallback(async () => {
     if (!isModerator || !moderatorToken) return;
@@ -738,6 +758,31 @@ export function LiveKitRoom({
                 </div>
               ))}
               {participants.length === 0 ? <div className="p-4 text-center text-xs text-white/40">No participants found.</div> : null}
+              {isModerator ? (
+                <section className="mt-4 border-t border-white/10 pt-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-semibold">Saved attendance</div>
+                      <div className="mt-0.5 text-[10px] text-white/35">{attendanceRecords.length} session record{attendanceRecords.length === 1 ? "" : "s"}</div>
+                    </div>
+                    <button type="button" onClick={() => void refreshAttendanceHistory()} disabled={!moderatorToken || attendanceLoading} className="rounded-md border border-white/10 px-2 py-1.5 text-[10px] text-white/65 hover:bg-white/[0.06] disabled:opacity-40">
+                      {attendanceLoading ? "Loading…" : "Refresh"}
+                    </button>
+                  </div>
+                  {attendanceRecords.length ? (
+                    <div className="space-y-2">
+                      {[...attendanceRecords].sort((a, b) => b.joinedAt - a.joinedAt).slice(0, 20).map((record, index) => {
+                        const end = record.leftAt || Date.now();
+                        const minutes = Math.max(0, Math.floor((end - record.joinedAt) / 60000));
+                        return <div key={`${record.identity}-${record.joinedAt}-${index}`} className="rounded-lg border border-white/10 bg-white/[0.025] px-3 py-2">
+                          <div className="truncate text-xs font-medium">{record.name}</div>
+                          <div className="mt-1 text-[10px] text-white/40">{new Date(record.joinedAt).toLocaleString()} · {record.leftAt ? `${minutes} min` : "In room"}</div>
+                        </div>;
+                      })}
+                    </div>
+                  ) : <div className="rounded-lg border border-dashed border-white/10 p-3 text-center text-[10px] text-white/35">No saved attendance yet.</div>}
+                </section>
+              ) : null}
             </div>
             <div className="border-t border-white/10 p-3 space-y-2">{isModerator ? <><div className="text-[10px] uppercase tracking-wider text-primary">Room moderation</div><div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => void moderate(roomLocked ? "unlock" : "lock")} className="rounded-lg border border-white/10 px-2 py-2 text-[11px] hover:bg-white/[0.06]">{roomLocked ? "Unlock room" : "Lock room"}</button><button type="button" onClick={() => void moderate("end")} className="rounded-lg border border-red-400/25 px-2 py-2 text-[11px] text-red-200 hover:bg-red-500/10">End meeting</button></div></> : <div className="text-[11px] leading-5 text-white/40">Only the room creator can moderate this room.</div>}</div>
           </aside>
