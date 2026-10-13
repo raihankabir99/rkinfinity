@@ -170,8 +170,8 @@ export function LiveKitRoom({
             record.leftAt ? new Date(record.leftAt).toISOString() : "Still in room", String(duration)];
         }),
       ];
-      const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\\r\\n");
-      const url = URL.createObjectURL(new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8;" }));
+      const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\r\n");
+      const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" }));
       const link = document.createElement("a");
       link.href = url;
       link.download = `infinit-attendance-${roomCode || "class"}.csv`;
