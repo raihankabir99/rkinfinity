@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Linkedin, Facebook, Instagram, Music, Youtube, Pin } from "lucide-react";
+import { Linkedin, Facebook, Instagram, Youtube } from "lucide-react";
 
 const facebookUrl = "https://www.facebook.com/profile.php?id=61590233936241";
 const linkedinUrl = "https://www.linkedin.com/in/raihan-kabir-ovi99";
@@ -8,12 +8,25 @@ const tiktokUrl = "https://www.tiktok.com/@rkinfinity_";
 const pinterestUrl = "https://www.pinterest.com/rkinfinity_/";
 const youtubeUrl = "https://www.youtube.com/@rkinfinity.studio";
 
+
+const TikTokIcon = ({ size = 18 }: { size?: number }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-3.77V2h-3.56v13.08a2.91 2.91 0 1 1-2-2.77v-3.62a6.5 6.5 0 1 0 5.56 6.39V8.74a8.35 8.35 0 0 0 4.88 1.56V6.69h-1.11Z" />
+  </svg>
+);
+
+const PinterestIcon = ({ size = 18 }: { size?: number }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+    <path d="M12 2a10 10 0 0 0-3.64 19.31c-.05-1.65 0-3.63.41-5.21l1.08-4.57s-.27-.54-.27-1.34c0-1.25.73-2.18 1.64-2.18.77 0 1.14.58 1.14 1.27 0 .77-.49 1.93-.74 3-.21.94.45 1.71 1.38 1.71 1.66 0 2.94-1.75 2.94-4.28 0-2.24-1.61-3.8-3.91-3.8-2.66 0-4.22 2-4.22 4.07 0 .81.31 1.68.7 2.15.08.1.09.19.07.29l-.26 1.05c-.04.17-.14.2-.32.12-1.19-.55-1.93-2.27-1.93-3.66 0-2.98 2.17-5.72 6.26-5.72 3.29 0 5.85 2.35 5.85 5.49 0 3.27-2.06 5.9-4.92 5.9-.96 0-1.86-.5-2.17-1.09l-.59 2.25c-.21.82-.78 1.85-1.16 2.48A10 10 0 1 0 12 2Z" />
+  </svg>
+);
+
 const socials = [
   { Icon: Facebook, href: facebookUrl, label: "Facebook" },
   { Icon: Linkedin, href: linkedinUrl, label: "LinkedIn" },
   { Icon: Instagram, href: instagramUrl, label: "Instagram" },
-  { Icon: Music, href: tiktokUrl, label: "TikTok" }, // Using Music icon for TikTok
-  { Icon: Pin, href: pinterestUrl, label: "Pinterest" }, // Using Pin icon for Pinterest
+  { Icon: TikTokIcon, href: tiktokUrl, label: "TikTok" },
+  { Icon: PinterestIcon, href: pinterestUrl, label: "Pinterest" },
   { Icon: Youtube, href: youtubeUrl, label: "YouTube" },
 ];
 

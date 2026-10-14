@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageShell } from "@/components/PageShell";
+import { AdminShell } from "@/admin/AdminShell";
 import {
   Activity,
   Users,
@@ -164,11 +164,11 @@ function AdminPage() {
 
   if (authChecking) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="flex min-h-[60vh] items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
 

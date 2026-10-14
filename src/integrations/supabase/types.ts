@@ -50,6 +50,18 @@ export type Database = {
         };
         Relationships: [];
       };
+      blog_post_revisions: {
+        Row: { id: string; post_id: string; version: number; title: string; slug: string; excerpt: string | null; content: string; category: string; read_minutes: number; cover_url: string | null; published: boolean; created_by: string | null; created_at: string };
+        Insert: { id?: string; post_id: string; version: number; title: string; slug: string; excerpt?: string | null; content: string; category: string; read_minutes: number; cover_url?: string | null; published: boolean; created_by?: string | null; created_at?: string };
+        Update: { id?: string; post_id?: string; version?: number; title?: string; slug?: string; excerpt?: string | null; content?: string; category?: string; read_minutes?: number; cover_url?: string | null; published?: boolean; created_by?: string | null; created_at?: string };
+        Relationships: [];
+      };
+      blog_seo_metadata: {
+        Row: { post_id: string; meta_title: string | null; meta_description: string | null; canonical_url: string | null; og_title: string | null; og_description: string | null; og_image_url: string | null; noindex: boolean; updated_at: string; updated_by: string | null };
+        Insert: { post_id: string; meta_title?: string | null; meta_description?: string | null; canonical_url?: string | null; og_title?: string | null; og_description?: string | null; og_image_url?: string | null; noindex?: boolean; updated_at?: string; updated_by?: string | null };
+        Update: { post_id?: string; meta_title?: string | null; meta_description?: string | null; canonical_url?: string | null; og_title?: string | null; og_description?: string | null; og_image_url?: string | null; noindex?: boolean; updated_at?: string; updated_by?: string | null };
+        Relationships: [];
+      };
       bot_training: {
         Row: {
           answer: string;
