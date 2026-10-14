@@ -439,7 +439,30 @@ export function LiveKitRoom({
       setCamera(true);
       refresh();
     } catch (joinError) {
+      // If connection succeeded but device setup failed, close the room and mark
+      // attendance as left so we do not leave a ghost participant/session.
+      const failedRoom = roomRef.current;
+      const attendanceToken = attendanceTokenRef.current;
+      if (failedRoom && attendanceToken) {
+        try {
+          await fetch("/api/livekit/attendance", {
+            method: "POST",
+            headers: { "content-type": "application/json", Authorization: `Bearer ${attendanceToken}` },
+            body: JSON.stringify({ action: "leave" }),
+            keepalive: true,
+          });
+        } catch (attendanceError) {
+          console.error("Attendance cleanup after failed join did not persist:", attendanceError);
+        }
+      }
+      attendanceTokenRef.current = "";
       roomRef.current = null;
+      if (failedRoom) {
+        try { await failedRoom.disconnect(); }
+        catch (disconnectError) { console.error("LiveKit cleanup after failed join failed:", disconnectError); }
+      }
+      setJoined(false);
+      setParticipants([]);
       setError(joinError instanceof Error ? joinError.message : "Unable to join the room.");
     } finally {
       setConnecting(false);
