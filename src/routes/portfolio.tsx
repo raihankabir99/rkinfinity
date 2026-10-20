@@ -209,7 +209,7 @@ function Portfolio() {
                   : "Certificates"}
             </h3>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65">
-              {activeFilter === "all"
+              {activeFilter === "certificates"
                 ? "Connect your real certificate links or upload certificate images to build this gallery. No sample credentials are shown as if they were yours."
                 : activeFilter === "internship"
                   ? "Add your real internship and professional experience certificates to this category."
