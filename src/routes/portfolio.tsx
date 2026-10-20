@@ -58,15 +58,14 @@ const projectItems = [
 ];
 
 const certificateFilters = [
-  { id: "all", label: "All Certificates" },
-  { id: "it", label: "IT Certificates" },
+  { id: "certificates", label: "Certificates" },
   { id: "internship", label: "Internship Certificates" },
 ] as const;
 
 type CertificateFilter = (typeof certificateFilters)[number]["id"];
 
 function Portfolio() {
-  const [activeFilter, setActiveFilter] = useState<CertificateFilter>("all");
+  const [activeFilter, setActiveFilter] = useState<CertificateFilter>("certificates");
   const visibleProjects = useMemo(() => projectItems, []);
 
   return (
@@ -203,18 +202,18 @@ function Portfolio() {
               )}
             </div>
             <h3 className="text-2xl font-bold text-white">
-              {activeFilter === "all"
+              {activeFilter === "certificates"
                 ? "Your certificates will appear here"
-                : activeFilter === "it"
-                  ? "IT certificates"
-                  : "Internship certificates"}
+                : activeFilter === "internship"
+                  ? "Internship certificates"
+                  : "Certificates"}
             </h3>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65">
               {activeFilter === "all"
                 ? "Connect your real certificate links or upload certificate images to build this gallery. No sample credentials are shown as if they were yours."
-                : activeFilter === "it"
-                  ? "Add your verified IT, programming, web development, AI, and computer science credentials to this category."
-                  : "Add your real internship and professional experience certificates to this category."}
+                : activeFilter === "internship"
+                  ? "Add your real internship and professional experience certificates to this category."
+                  : "Add your real IT, programming, web development, AI, and other verified certificates to this category."}
             </p>
             <a
               href="https://www.credential.net/profile/raihankabir99/wallet"
