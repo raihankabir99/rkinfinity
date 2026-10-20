@@ -23,6 +23,12 @@ const ROUTE_METADATA: Record<string, Metadata> = {
       "Meet RK — SEO strategist, digital marketer, AI-powered web developer, and storyteller turning curiosity into methodical craft.",
     keywords: "raihan kabir ovi, about rk, seo specialist biography, portfolio",
   },
+  "/portfolio": {
+    title: "Portfolio & Certificates — rkInfinity",
+    description:
+      "Explore selected digital projects, development work, and professional certificates from RK.",
+    keywords: "portfolio, web development projects, IT certificates, internship certificates, raihan kabir",
+  },
   "/services": {
     title: "Services & Strategy — rkInfinity",
     description:
