@@ -7,6 +7,7 @@ const links = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
   { to: "/story", label: "Story" },
+  { to: "/portfolio", label: "Portfolio" },
   { to: "/services", label: "Services" },
   { to: "/tools", label: "Tools" },
   { to: "/blog", label: "Blog" },
@@ -61,7 +62,6 @@ export function Navbar() {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* This button is now hidden on screens smaller than 'lg' (tablets/mobiles) */}
               <button
                 type="button"
                 onClick={() => setSubOpen(true)}
@@ -69,18 +69,17 @@ export function Navbar() {
               >
                 Subscribe
               </button>
-              {/* This is the hamburger menu button, visible only on smaller screens */}
               <button
                 onClick={() => setOpen(!open)}
                 className="lg:hidden p-2 text-foreground"
                 aria-label="Toggle menu"
+                aria-expanded={open}
               >
                 {open ? <X size={22} /> : <Menu size={22} />}
               </button>
             </div>
           </nav>
 
-          {/* This is the mobile menu content */}
           {open && (
             <div className="glass mt-2 rounded-2xl p-3 lg:hidden animate-fade-in">
               <div className="flex justify-center mb-4">
@@ -113,7 +112,6 @@ export function Navbar() {
                     {l.label}
                   </Link>
                 ))}
-                {/* This is the Subscribe button inside the mobile menu */}
                 <button
                   type="button"
                   onClick={() => {
