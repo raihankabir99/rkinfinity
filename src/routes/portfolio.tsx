@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import {
   ArrowUpRight,
@@ -57,15 +57,7 @@ const projectItems = [
   },
 ];
 
-const certificateFilters = [
-  { id: "certificates", label: "Certificates" },
-  { id: "internship", label: "Internship Certificates" },
-] as const;
-
-type CertificateFilter = (typeof certificateFilters)[number]["id"];
-
 function Portfolio() {
-  const [activeFilter, setActiveFilter] = useState<CertificateFilter>("certificates");
   const visibleProjects = useMemo(() => projectItems, []);
 
   return (
@@ -88,8 +80,7 @@ function Portfolio() {
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
               A collection of projects, practical skills, and learning milestones.
-              Explore the work, then browse certificates and verify credentials from
-              their original issuer.
+              Explore the work, then view verified credentials from their original issuer.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#projects" className="btn-gold btn-pill inline-flex items-center gap-2">
@@ -167,53 +158,17 @@ function Portfolio() {
         <SectionHeader
           eyebrow="Credentials"
           title="Certificates & learning."
-          sub="Browse credentials by category. Each certificate should link back to its original issuer for verification."
+          sub="View my certificates and digital badges through my Credential.net wallet."
         />
-
-        <div className="mb-8 flex flex-wrap gap-2" role="tablist" aria-label="Certificate categories">
-          {certificateFilters.map((filter) => {
-            const selected = activeFilter === filter.id;
-            return (
-              <button
-                key={filter.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => setActiveFilter(filter.id)}
-                className={
-                  selected
-                    ? "rounded-full border border-[color:var(--gold)] bg-[color:var(--gold)] px-4 py-2.5 text-sm font-bold text-black transition"
-                    : "rounded-full border border-white/15 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-white/70 transition hover:border-[color:var(--gold)]/50 hover:text-white"
-                }
-              >
-                {filter.label}
-              </button>
-            );
-          })}
-        </div>
 
         <div className="glass rounded-3xl border border-white/10 p-7 md:p-10">
           <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
             <div className="mb-5 grid h-16 w-16 place-items-center rounded-2xl border border-[color:var(--gold)]/30 bg-[color:var(--gold)]/10 text-[color:var(--gold)]">
-              {activeFilter === "internship" ? (
-                <BriefcaseBusiness size={29} aria-hidden="true" />
-              ) : (
-                <Award size={29} aria-hidden="true" />
-              )}
+              <ShieldCheck size={29} aria-hidden="true" />
             </div>
-            <h3 className="text-2xl font-bold text-white">
-              {activeFilter === "certificates"
-                ? "Your certificates will appear here"
-                : activeFilter === "internship"
-                  ? "Internship certificates"
-                  : "Certificates"}
-            </h3>
+            <h3 className="text-2xl font-bold text-white">My Credential Wallet</h3>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65">
-              {activeFilter === "certificates"
-                ? "Connect your real certificate links or upload certificate images to build this gallery. No sample credentials are shown as if they were yours."
-                : activeFilter === "internship"
-                  ? "Add your real internship and professional experience certificates to this category."
-                  : "Add your real IT, programming, web development, AI, and other verified certificates to this category."}
+              Explore my available certificates, digital badges, and credential verification details on Credential.net.
             </p>
             <a
               href="https://www.credential.net/profile/raihankabir99/wallet"
@@ -222,13 +177,9 @@ function Portfolio() {
               className="btn-gold btn-pill mt-7 inline-flex items-center gap-2"
               aria-label="Open Raihan Kabir's Credential.net wallet in a new tab"
             >
-              <ShieldCheck size={17} aria-hidden="true" />
               View My Credential.net Wallet
               <ExternalLink size={15} aria-hidden="true" />
             </a>
-            <p className="mt-4 text-xs text-white/45">
-              Credentials are opened on Credential.net so their original issuer and verification details remain available.
-            </p>
           </div>
         </div>
       </section>
