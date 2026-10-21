@@ -218,15 +218,16 @@ function Portfolio() {
             <a
               href="https://www.credential.net/profile/raihankabir99/wallet"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="btn-gold btn-pill mt-7 inline-flex items-center gap-2"
+              aria-label="Open Raihan Kabir's Credential.net wallet in a new tab"
             >
               <ShieldCheck size={17} aria-hidden="true" />
-              Open Credential Wallet
+              View My Credential.net Wallet
               <ExternalLink size={15} aria-hidden="true" />
             </a>
             <p className="mt-4 text-xs text-white/45">
-              Original source: Credential.net · Open the wallet to view and verify available credentials.
+              Credentials are opened on Credential.net so their original issuer and verification details remain available.
             </p>
           </div>
         </div>
