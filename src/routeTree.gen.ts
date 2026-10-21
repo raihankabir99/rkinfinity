@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as StoryRouteImport } from './routes/story'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BlogRouteImport } from './routes/blog'
@@ -40,6 +41,11 @@ const StoryRoute = StoryRouteImport.update({
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/portfolio': typeof PortfolioRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/portfolio': typeof PortfolioRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/portfolio': typeof PortfolioRoute
   '/services': typeof ServicesRoute
   '/story': typeof StoryRoute
   '/tools': typeof ToolsRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/contact'
     | '/login'
+    | '/portfolio'
     | '/services'
     | '/story'
     | '/tools'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/contact'
     | '/login'
+    | '/portfolio'
     | '/services'
     | '/story'
     | '/tools'
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/contact'
     | '/login'
+    | '/portfolio'
     | '/services'
     | '/story'
     | '/tools'
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRouteWithChildren
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
+  PortfolioRoute: typeof PortfolioRoute
   ServicesRoute: typeof ServicesRoute
   StoryRoute: typeof StoryRoute
   ToolsRoute: typeof ToolsRoute
@@ -262,6 +275,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -404,6 +424,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRouteWithChildren,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
+  PortfolioRoute: PortfolioRoute,
   ServicesRoute: ServicesRoute,
   StoryRoute: StoryRoute,
   ToolsRoute: ToolsRoute,

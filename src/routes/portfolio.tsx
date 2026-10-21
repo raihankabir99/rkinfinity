@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { PageShell, SectionHeader } from "@/components/PageShell";
 import {
   ArrowUpRight,
-  Award,
   BriefcaseBusiness,
   Code2,
   ExternalLink,
@@ -14,16 +13,16 @@ import {
 export const Route = createFileRoute("/portfolio")({
   head: () => ({
     meta: [
-      { title: "Portfolio & Certificates — rkInfinity" },
+      { title: "Portfolio — rkInfinity" },
       {
         name: "description",
         content:
-          "Explore RK's selected digital projects, development work, and professional certificates.",
+          "Explore RK's selected digital projects, development work, and learning milestones.",
       },
-      { property: "og:title", content: "Portfolio & Certificates — rkInfinity" },
+      { property: "og:title", content: "Portfolio — rkInfinity" },
       {
         property: "og:description",
-        content: "Selected projects, skills, and verified learning achievements.",
+        content: "Selected projects, skills, and digital work.",
       },
     ],
   }),
@@ -50,8 +49,7 @@ const projectItems = [
   {
     title: "T-shirt Website",
     category: "E-commerce",
-    description:
-      "A T-shirt-focused website project with a storefront-oriented user experience.",
+    description: "A T-shirt-focused website project with a storefront-oriented user experience.",
     tags: ["Next.js", "E-commerce", "Responsive UI"],
     href: "https://github.com/raihankabir99/tshirtwebsite1v0",
   },
@@ -79,18 +77,22 @@ function Portfolio() {
               My <span className="text-gradient">Portfolio.</span>
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
-              A collection of projects, practical skills, and learning milestones.
-              Explore the work, then view verified credentials from their original issuer.
+              A collection of projects, practical skills, and learning milestones. Explore the work
+              and repositories below.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#projects" className="btn-gold btn-pill inline-flex items-center gap-2">
                 Explore Projects <ArrowUpRight size={17} aria-hidden="true" />
               </a>
               <a
-                href="#certificates"
+                href="https://www.credential.net/profile/raihankabir99/wallet"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:border-[color:var(--gold)]/60 hover:text-[color:var(--gold)]"
+                aria-label="Open Raihan Kabir's Credential.net wallet in a new tab"
               >
-                <Award size={17} aria-hidden="true" /> View Certificates
+                <ShieldCheck size={17} aria-hidden="true" /> View My Certificates
+                <ExternalLink size={15} aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -149,46 +151,25 @@ function Portfolio() {
             </article>
           ))}
         </div>
-      </section>
 
-      <section
-        id="certificates"
-        className="mx-auto max-w-7xl scroll-mt-28 px-4 py-12 md:py-16"
-      >
-        <SectionHeader
-          eyebrow="Credentials"
-          title="Certificates & learning."
-          sub="View my certificates and digital badges through my Credential.net wallet."
-        />
-
-        <div className="glass rounded-3xl border border-white/10 p-7 md:p-10">
-          <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-            <div className="mb-5 grid h-16 w-16 place-items-center rounded-2xl border border-[color:var(--gold)]/30 bg-[color:var(--gold)]/10 text-[color:var(--gold)]">
-              <ShieldCheck size={29} aria-hidden="true" />
-            </div>
-            <h3 className="text-2xl font-bold text-white">My Credential Wallet</h3>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65">
-              Explore my available certificates, digital badges, and credential verification details on Credential.net.
-            </p>
-            <a
-              href="https://www.credential.net/profile/raihankabir99/wallet"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-gold btn-pill mt-7 inline-flex items-center gap-2"
-              aria-label="Open Raihan Kabir's Credential.net wallet in a new tab"
-            >
-              View My Credential.net Wallet
-              <ExternalLink size={15} aria-hidden="true" />
-            </a>
-          </div>
+        <div className="mt-12 flex justify-center">
+          <a
+            href="https://www.credential.net/profile/raihankabir99/wallet"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-gold btn-pill inline-flex items-center gap-2"
+            aria-label="Open Raihan Kabir's Credential.net wallet in a new tab"
+          >
+            <ShieldCheck size={17} aria-hidden="true" />
+            View My Certificates
+            <ExternalLink size={15} aria-hidden="true" />
+          </a>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-24 pt-8">
         <div className="rounded-3xl border border-[color:var(--gold)]/25 bg-black/40 p-8 text-center md:p-12">
-          <h2 className="text-2xl font-black text-white md:text-3xl">
-            Have a project in mind?
-          </h2>
+          <h2 className="text-2xl font-black text-white md:text-3xl">Have a project in mind?</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/65">
             Explore the services page or get in touch to discuss your next digital project.
           </p>

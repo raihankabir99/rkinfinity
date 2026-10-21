@@ -1,6 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, SectionHeader } from "@/components/PageShell";
-import { Mail, MapPin, MessageCircle, Send, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  MessageCircle,
+  Send,
+  Loader2,
+  CheckCircle2,
+  Calendar,
+  ArrowUpRight,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -95,15 +104,53 @@ function Contact() {
             )}
 
             <a
+              href="https://calendar.app.google/4EtJ2rst5VidUdAx7"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="glass rounded-2xl p-6 flex items-center justify-between gap-4 hover:border-[color:var(--gold)]/60 hover:shadow-[0_0_24px_rgba(212,175,55,0.25)] transition group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary group-hover:scale-110 transition">
+                  <Calendar size={22} />
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Google Calendar
+                  </div>
+                  <div className="font-semibold group-hover:text-[color:var(--gold)] transition">
+                    Book a Schedule
+                  </div>
+                </div>
+              </div>
+              <ArrowUpRight
+                size={18}
+                className="text-muted-foreground group-hover:text-[color:var(--gold)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition"
+                aria-hidden="true"
+              />
+            </a>
+
+            <a
               href="https://wa.me/966540742748"
               target="_blank"
               rel="noopener noreferrer"
-              className="glass rounded-2xl p-6 flex items-center gap-4 hover:border-[color:var(--gold)]/60 hover:shadow-[0_0_24px_oklch(0.85_0.2_142/0.25)] transition group"
+              className="glass rounded-2xl p-6 flex items-center justify-between gap-4 hover:border-[color:var(--gold)]/60 hover:shadow-[0_0_24px_oklch(0.85_0.2_142/0.25)] transition group"
             >
-              <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-[oklch(0.85_0.2_142/0.25)] to-[oklch(0.78_0.14_85/0.2)] text-[color:var(--neon)] group-hover:scale-110 transition">
-                <MessageCircle size={22} />
+              <div className="flex items-center gap-4">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-[oklch(0.85_0.2_142/0.25)] to-[oklch(0.78_0.14_85/0.2)] text-[color:var(--neon)] group-hover:scale-110 transition">
+                  <MessageCircle size={22} />
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Instant Chat
+                  </div>
+                  <div className="font-semibold">Chat on WhatsApp</div>
+                </div>
               </div>
-              <div className="font-semibold">Chat on WhatsApp</div>
+              <ArrowUpRight
+                size={18}
+                className="text-muted-foreground group-hover:text-[color:var(--gold)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition"
+                aria-hidden="true"
+              />
             </a>
 
             {[{ icon: MapPin, t: "Based in", d: "Remote · Worldwide" }].map(
