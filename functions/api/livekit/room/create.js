@@ -20,7 +20,7 @@ export async function onRequestPost(context) {
       name: room,
       emptyTimeout: 300,
       maxParticipants: 100,
-      metadata: JSON.stringify({ ownerIdentity: identity, locked: false, createdAt: new Date().toISOString() }),
+      metadata: JSON.stringify({ ownerIdentity: identity, locked: false, waitingRoom: true, createdAt: new Date().toISOString() }),
     });
 
     const token = new AccessToken(apiKey, apiSecret, { identity, name, ttl: "2h", metadata: JSON.stringify({ role: "moderator" }) });
