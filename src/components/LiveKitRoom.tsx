@@ -31,7 +31,7 @@ import {
   X,
 } from "lucide-react";
 
-type ChatMessage = { id: string; sender: string; senderId: string; text: string; own: boolean; recipientId?: string; recipientName?: string };
+type ChatMessage = { id: string; sender: string; senderId: string; text: string; own: boolean; recipientId?: string; recipientName?: string; createdAt?: string };
 type DeviceOption = { deviceId: string; label: string };
 type AttendanceRecord = { identity: string; name: string; joinedAt: number; leftAt?: number };
 
@@ -133,6 +133,8 @@ export function LiveKitRoom({
   const [moreOpen, setMoreOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [loadingOlderMessages, setLoadingOlderMessages] = useState(false);
   const [chatMode, setChatMode] = useState<"group" | "private">("group");
   const [privateRecipient, setPrivateRecipient] = useState("");
   const [layout, setLayout] = useState<"grid" | "focus">("grid");
@@ -420,6 +422,24 @@ export function LiveKitRoom({
 
       attendanceTokenRef.current = data.token;
       await room.connect(data.url, data.token);
+      try {
+        const historyResponse = await fetch("/api/livekit/chat", {
+          method: "POST",
+          headers: { "content-type": "application/json", Authorization: "Bearer " + data.token },
+          body: JSON.stringify({ action: "history", limit: 30 }),
+        });
+        const history = await historyResponse.json();
+        if (!historyResponse.ok) throw new Error(history.error || "Unable to load room chat history.");
+        const historyMessages = (Array.isArray(history.messages) ? history.messages : []).map((message: { id: string; sender: string; senderId: string; text: string; recipientId?: string; createdAt?: string }) => ({
+          ...message, own: message.senderId === room.localParticipant.identity,
+          recipientName: message.recipientId ? participants.find((participant) => participant.identity === message.recipientId)?.name : undefined,
+        } satisfies ChatMessage));
+        setMessages(historyMessages);
+        setHasMoreMessages(Boolean(history.hasMore));
+      } catch (historyError) {
+        console.error("Room chat history could not be loaded:", historyError);
+        setStatusMessage("Connected; previous chat history could not be loaded.");
+      }
       const localJoinedAt = Date.now();
       setAttendanceRecords((current) => [
         ...current,
@@ -616,6 +636,14 @@ export function LiveKitRoom({
       recipientName: target ? (target.name || target.identity) : undefined,
     };
     try {
+      const persistResponse = await fetch("/api/livekit/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json", Authorization: "Bearer " + attendanceTokenRef.current },
+        body: JSON.stringify({ action: "send", clientMessageId: message.id, content: text, recipientIdentity: message.recipientId || null }),
+      });
+      const persisted = await persistResponse.json();
+      if (!persistResponse.ok) throw new Error(persisted.error || "Unable to save the message.");
+      message.createdAt = persisted.message?.createdAt;
       const payload = new TextEncoder().encode(JSON.stringify({
         type: "chat-message", id: message.id, text,
         recipientId: message.recipientId, recipientName: message.recipientName,
@@ -847,6 +875,24 @@ export function LiveKitRoom({
               {chatMode === "private" ? <label className="col-span-2 text-xs text-white/55">Send privately to<select value={privateRecipient} onChange={(event) => setPrivateRecipient(event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none"><option value="">Choose participant…</option>{participants.filter((participant) => !participant.isLocal).map((participant) => <option key={participant.identity} value={participant.identity}>{participant.name || participant.identity}</option>)}</select></label> : null}
             </div>
             <div className="min-h-0 flex-1 space-y-3 overflow-auto p-4">
+              {hasMoreMessages ? (
+                <button type="button" disabled={loadingOlderMessages} onClick={async () => {
+                  const first = messages.find((message) => message.createdAt);
+                  if (!first?.createdAt || !attendanceTokenRef.current) return;
+                  setLoadingOlderMessages(true);
+                  try {
+                    const response = await fetch("/api/livekit/chat", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + attendanceTokenRef.current }, body: JSON.stringify({ action: "history", limit: 30, before: first.createdAt }) });
+                    const page = await response.json();
+                    if (!response.ok) throw new Error(page.error || "Unable to load older messages.");
+                    const older = (Array.isArray(page.messages) ? page.messages : []).map((message: { id: string; sender: string; senderId: string; text: string; recipientId?: string; createdAt?: string }) => ({ ...message, own: message.senderId === roomRef.current?.localParticipant.identity } satisfies ChatMessage));
+                    setMessages((current) => [...older.filter((message) => !current.some((existing) => existing.id === message.id)), ...current]);
+                    setHasMoreMessages(Boolean(page.hasMore));
+                  } catch (olderError) { setError(olderError instanceof Error ? olderError.message : "Unable to load older messages."); }
+                  finally { setLoadingOlderMessages(false); }
+                }} className="mx-auto block rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 hover:bg-white/5 disabled:opacity-50">
+                  {loadingOlderMessages ? "Loading…" : "Load older messages"}
+                </button>
+              ) : null}
               {messages.filter((message) => {
                 if (chatMode === "group") return !message.recipientId;
                 const localIdentity = roomRef.current?.localParticipant.identity;
