@@ -22,6 +22,7 @@ import {
   MonitorUp,
   MoreHorizontal,
   PanelRight,
+  PictureInPicture,
   RefreshCw,
   Settings,
   Users,
@@ -68,6 +69,26 @@ function VideoTile({ participant }: { participant: Participant }) {
           {name.slice(0, 1).toUpperCase()}
         </div>
       )}
+      {publication?.track?.kind === Track.Kind.Video && typeof document !== "undefined" && "pictureInPictureEnabled" in document ? (
+        <button
+          type="button"
+          title="Open video in picture-in-picture"
+          aria-label={"Open " + name + "'s video in picture-in-picture"}
+          onClick={async () => {
+            const video = videoRef.current;
+            if (!video || !document.pictureInPictureEnabled || typeof video.requestPictureInPicture !== "function") return;
+            try {
+              if (document.pictureInPictureElement === video) await document.exitPictureInPicture();
+              else await video.requestPictureInPicture();
+            } catch (pipError) {
+              console.error("Picture-in-picture could not be started:", pipError);
+            }
+          }}
+          className="absolute right-3 top-3 z-10 rounded-lg border border-white/15 bg-black/65 p-2 text-white/80 backdrop-blur transition hover:bg-black/90 hover:text-white"
+        >
+          <PictureInPicture size={16} />
+        </button>
+      ) : null}
       <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/75 to-transparent" />
       <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-white/10 bg-black/65 px-3 py-1.5 text-xs text-white backdrop-blur-md">
         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
