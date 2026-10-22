@@ -39,6 +39,7 @@ export async function onRequestPost(context) {
     try { metadata = existingRoom.metadata ? JSON.parse(existingRoom.metadata) : {}; }
     catch { return json({ error: "Room metadata is invalid." }, 500); }
     if (metadata.locked) return json({ error: "This room is locked by its moderator." }, 403);
+    if (metadata.waitingRoom === true) return json({ error: "Waiting room is enabled. Request admission through the waiting room." }, 403);
 
     const identity = `rkInfinity-${crypto.randomUUID()}`;
     const token = new AccessToken(apiKey, apiSecret, {
