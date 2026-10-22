@@ -22,6 +22,7 @@ import {
   MonitorUp,
   MoreHorizontal,
   PanelRight,
+  Paperclip,
   PictureInPicture,
   RefreshCw,
   Settings,
@@ -31,7 +32,7 @@ import {
   X,
 } from "lucide-react";
 
-type ChatMessage = { id: string; sender: string; senderId: string; text: string; own: boolean; recipientId?: string; recipientName?: string; createdAt?: string };
+type ChatMessage = { id: string; sender: string; senderId: string; text: string; own: boolean; recipientId?: string; recipientName?: string; createdAt?: string; attachmentPath?: string; attachmentName?: string; attachmentMime?: string; attachmentSize?: number };
 type DeviceOption = { deviceId: string; label: string };
 type AttendanceRecord = { identity: string; name: string; joinedAt: number; leftAt?: number };
 
@@ -362,7 +363,7 @@ export function LiveKitRoom({
           if (topic !== "infinit-chat" || !participant) return;
           try {
             const decoded = JSON.parse(new TextDecoder().decode(payload)) as {
-              type?: string; id?: string; text?: string; recipientId?: string; recipientName?: string;
+              type?: string; id?: string; text?: string; recipientId?: string; recipientName?: string; attachmentPath?: string; attachmentName?: string; attachmentMime?: string; attachmentSize?: number;
             };
             if (decoded.type === "raise-hand" && typeof decoded.raised === "boolean") {
               setRaisedHands((current) => {
@@ -395,6 +396,10 @@ export function LiveKitRoom({
               own: false,
               recipientId: decoded.recipientId,
               recipientName: decoded.recipientName,
+              attachmentPath: decoded.attachmentPath,
+              attachmentName: decoded.attachmentName,
+              attachmentMime: decoded.attachmentMime,
+              attachmentSize: decoded.attachmentSize,
             }]);
           } catch {
             // Ignore malformed or unrelated data packets.
@@ -639,7 +644,7 @@ export function LiveKitRoom({
       const persistResponse = await fetch("/api/livekit/chat", {
         method: "POST",
         headers: { "content-type": "application/json", Authorization: "Bearer " + attendanceTokenRef.current },
-        body: JSON.stringify({ action: "send", clientMessageId: message.id, content: text, recipientIdentity: message.recipientId || null }),
+        body: JSON.stringify({ action: "send", clientMessageId: message.id, content: text, recipientIdentity: message.recipientId || null, attachmentPath: message.attachmentPath || null, attachmentName: message.attachmentName || null, attachmentMime: message.attachmentMime || null, attachmentSize: message.attachmentSize || null }),
       });
       const persisted = await persistResponse.json();
       if (!persistResponse.ok) throw new Error(persisted.error || "Unable to save the message.");
@@ -658,6 +663,38 @@ export function LiveKitRoom({
     } catch (sendError) {
       setError(sendError instanceof Error ? sendError.message : "Unable to send the message.");
     }
+  };
+
+  const sendAttachment = async (file: File) => {
+    const room = roomRef.current;
+    if (!room || !attendanceTokenRef.current) return;
+    if (file.size > 15 * 1024 * 1024) { setError("Files must be smaller than 15 MB."); return; }
+    if (chatMode === "private" && !privateRecipient) { setError("Choose a participant for your private attachment."); return; }
+    const target = chatMode === "private" ? participants.find((participant) => participant.identity === privateRecipient) : undefined;
+    if (chatMode === "private" && (!target || target.isLocal)) { setError("That participant is no longer in this room."); return; }
+    try {
+      const form = new FormData(); form.append("file", file);
+      const uploadResponse = await fetch("/api/livekit/attachment", { method: "POST", headers: { Authorization: "Bearer " + attendanceTokenRef.current }, body: form });
+      const upload = await uploadResponse.json();
+      if (!uploadResponse.ok) throw new Error(upload.error || "Attachment upload failed.");
+      const message: ChatMessage = { id: crypto.randomUUID(), sender: room.localParticipant.name || room.localParticipant.identity, senderId: room.localParticipant.identity, text: upload.name, own: true, recipientId: target?.identity, recipientName: target ? (target.name || target.identity) : undefined, attachmentPath: upload.path, attachmentName: upload.name, attachmentMime: upload.mime, attachmentSize: upload.size };
+      const saveResponse = await fetch("/api/livekit/chat", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + attendanceTokenRef.current }, body: JSON.stringify({ action: "send", clientMessageId: message.id, content: upload.name, recipientIdentity: message.recipientId || null, attachmentPath: upload.path, attachmentName: upload.name, attachmentMime: upload.mime, attachmentSize: upload.size }) });
+      const saved = await saveResponse.json();
+      if (!saveResponse.ok) throw new Error(saved.error || "Unable to save attachment message.");
+      message.createdAt = saved.message?.createdAt;
+      const payload = new TextEncoder().encode(JSON.stringify({ type: "chat-message", id: message.id, text: message.text, recipientId: message.recipientId, recipientName: message.recipientName, attachmentPath: message.attachmentPath, attachmentName: message.attachmentName, attachmentMime: message.attachmentMime, attachmentSize: message.attachmentSize }));
+      await room.localParticipant.publishData(payload, { reliable: true, topic: "infinit-chat", ...(target ? { destinationIdentities: [target.identity] } : {}) });
+      setMessages((current) => [...current, message]); setStatusMessage("Attachment sent.");
+    } catch (attachmentError) { setError(attachmentError instanceof Error ? attachmentError.message : "Unable to send attachment."); }
+  };
+
+  const openAttachment = async (path: string) => {
+    try {
+      const response = await fetch("/api/livekit/attachment", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + attendanceTokenRef.current }, body: JSON.stringify({ action: "download", path }) });
+      const result = await response.json();
+      if (!response.ok || typeof result.url !== "string") throw new Error(result.error || "Unable to open attachment.");
+      const link = document.createElement("a"); link.href = result.url; link.target = "_blank"; link.rel = "noopener noreferrer"; link.click();
+    } catch (attachmentError) { setError(attachmentError instanceof Error ? attachmentError.message : "Unable to open attachment."); }
   };
 
   const copyInvite = async () => {
@@ -903,7 +940,7 @@ export function LiveKitRoom({
               }).map((message) => (
                 <div key={message.id} className={message.own ? "text-right" : "text-left"}>
                   <div className="mb-1 text-[10px] text-white/35">{message.own ? "You" : message.sender}{message.recipientId ? ` · private${message.own ? ` to ${message.recipientName || "participant"}` : ""}` : ""}</div>
-                  <div className={`inline-block max-w-[90%] rounded-2xl px-3.5 py-2.5 text-sm ${message.own ? "bg-primary text-black" : "border border-white/10 bg-white/[0.06]"}`}>{message.text}</div>
+                  <div className={`inline-block max-w-[90%] rounded-2xl px-3.5 py-2.5 text-sm ${message.own ? "bg-primary text-black" : "border border-white/10 bg-white/[0.06]"}`}>{message.attachmentPath ? <button type="button" onClick={() => void openAttachment(message.attachmentPath!)} className="flex max-w-full items-center gap-2 text-left underline underline-offset-2"><Paperclip size={14} className="shrink-0" /><span className="truncate">{message.attachmentName || message.text}</span>{message.attachmentSize ? <span className="shrink-0 text-[10px] opacity-60">{(message.attachmentSize / 1048576).toFixed(1)} MB</span> : null}</button> : message.text}</div>
                 </div>
               ))}
               {messages.filter((message) => {
@@ -915,6 +952,7 @@ export function LiveKitRoom({
               }).length === 0 ? <div className="flex h-full items-center justify-center text-center text-xs leading-5 text-white/35">{chatMode === "private" ? "Choose a participant and send a private message." : "No group messages yet. Start the conversation."}</div> : null}
             </div>
             <div className="flex gap-2 border-t border-white/10 p-3">
+              <label className="flex cursor-pointer items-center justify-center rounded-xl border border-white/10 px-2.5 text-white/60 hover:bg-white/5" title="Attach a file"><Paperclip size={16} /><input type="file" className="hidden" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/webm,audio/ogg,application/pdf,text/plain" onChange={(event) => { const file = event.currentTarget.files?.[0]; if (file) void sendAttachment(file); event.currentTarget.value = ""; }} /></label>
               <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void sendChat(); }} placeholder="Write a message…" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/40" />
               <button type="button" onClick={() => void sendChat()} className="rounded-xl bg-primary p-2.5 text-black transition hover:brightness-110" aria-label="Send message"><MessageCircle size={16} /></button>
             </div>
