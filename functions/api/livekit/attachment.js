@@ -19,6 +19,8 @@ export async function onRequestPost(context) {
     const identity = typeof claims.sub === "string" ? claims.sub : "";
     if (!grant.roomJoin || !room || !identity) return json({ error: "Token does not authorize a room participant." }, 403);
 
+    const requestLength = Number(context.request.headers.get("content-length") || 0);
+    if (requestLength > MAX_FILE_BYTES + 100_000) return json({ error: "Upload request exceeds the 15 MB limit." }, 413);
     const contentType = context.request.headers.get("content-type") || "";
     if (contentType.includes("multipart/form-data")) {
       const form = await context.request.formData();
