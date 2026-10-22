@@ -36,7 +36,7 @@ export async function onRequestPost(context) {
       const filters = [
         `room_name=eq.${encodeURIComponent(room)}`,
         `or=(recipient_identity.is.null,recipient_identity.eq.${encodeURIComponent(identity)},sender_identity.eq.${encodeURIComponent(identity)})`,
-        "select=id,room_name,client_message_id,sender_identity,sender_name,recipient_identity,content,created_at",
+        "select=id,room_name,client_message_id,sender_identity,sender_name,recipient_identity,content,attachment_path,attachment_name,attachment_mime,attachment_size,created_at",
         "order=created_at.desc,id.desc",
         `limit=${limit + 1}`,
       ];
@@ -50,14 +50,24 @@ export async function onRequestPost(context) {
     if (action === "send") {
       const id = typeof body.clientMessageId === "string" ? body.clientMessageId : "";
       const content = typeof body.content === "string" ? body.content.trim() : "";
-      const recipient = body.recipientIdentity == null ? null :
-        (typeof body.recipientIdentity === "string" ? body.recipientIdentity.trim() : "");
+      const recipient = body.recipientIdentity == null ? null : (typeof body.recipientIdentity === "string" ? body.recipientIdentity.trim() : "");
+      const attachmentPath = typeof body.attachmentPath === "string" ? body.attachmentPath.trim() : "";
+      const attachmentName = typeof body.attachmentName === "string" ? body.attachmentName.trim().slice(0, 180) : "";
+      const attachmentMime = typeof body.attachmentMime === "string" ? body.attachmentMime.trim() : "";
+      const attachmentSize = Number.isInteger(body.attachmentSize) ? body.attachmentSize : null;
       if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
         return json({ error: "A valid client message ID is required." }, 400);
       }
-      if (!content || content.length > 4000) return json({ error: "Message must be between 1 and 4000 characters." }, 400);
+      if ((!content && !attachmentPath) || content.length > 4000) return json({ error: "Message must contain text or an attachment." }, 400);
       if (recipient === "" || (recipient && (recipient.length > 200 || recipient === identity))) {
         return json({ error: "Invalid private-message recipient." }, 400);
+      }
+      if (attachmentPath) {
+        const expectedPrefix = room + "/" + identity + "/";
+        const allowedMime = ["image/jpeg","image/png","image/webp","image/gif","video/mp4","video/webm","audio/mpeg","audio/mp4","audio/webm","audio/ogg","application/pdf","text/plain"];
+        if (!attachmentPath.startsWith(expectedPrefix) || attachmentPath.includes("..") || !attachmentName || !allowedMime.includes(attachmentMime) || !attachmentSize || attachmentSize > 15728640) return json({ error: "Invalid attachment metadata or access path." }, 400);
+      } else if (attachmentName || attachmentMime || attachmentSize) {
+        return json({ error: "Attachment metadata is incomplete." }, 400);
       }
       const inserted = await supabaseRequest(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
         "classroom_chat_messages?on_conflict=room_name,sender_identity,client_message_id", {
@@ -69,7 +79,11 @@ export async function onRequestPost(context) {
             sender_identity: identity,
             sender_name: name.slice(0, 120) || identity,
             recipient_identity: recipient,
-            content,
+            content: content || attachmentName,
+            attachment_path: attachmentPath || null,
+            attachment_name: attachmentPath ? attachmentName : null,
+            attachment_mime: attachmentPath ? attachmentMime : null,
+            attachment_size: attachmentPath ? attachmentSize : null,
           }]),
         });
       if (inserted.length) return json({ message: toClientMessage(inserted[0]) }, 201);
@@ -94,6 +108,10 @@ function toClientMessage(row) {
     text: row.content,
     recipientId: row.recipient_identity || undefined,
     createdAt: row.created_at,
+    attachmentPath: row.attachment_path || undefined,
+    attachmentName: row.attachment_name || undefined,
+    attachmentMime: row.attachment_mime || undefined,
+    attachmentSize: row.attachment_size || undefined,
   };
 }
 
