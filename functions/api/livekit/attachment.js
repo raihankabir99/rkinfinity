@@ -27,7 +27,7 @@ export async function onRequestPost(context) {
       if (!file.size || file.size > MAX_FILE_BYTES) return json({ error: "Files must be smaller than 15 MB." }, 413);
       const extension = MIME_EXTENSIONS[file.type];
       if (!extension) return json({ error: "This file type is not allowed." }, 415);
-      const originalName = file.name.replace(/[\\/\\x00-\\x1f\\x7f]/g, "_").trim().slice(0, 180) || ("attachment." + extension);
+      const originalName = file.name.replace(/[^a-zA-Z0-9._ -]/g, "_").trim().slice(0, 180) || ("attachment." + extension);
       const path = room + "/" + identity + "/" + crypto.randomUUID() + "." + extension;
       const upload = await fetch(storageUrl(SUPABASE_URL, "object/classroom-attachments/" + encodePath(path)), {
         method: "POST",
@@ -64,7 +64,7 @@ export async function onRequestPost(context) {
     const signed = await signedResponse.json();
     const relative = signed.signedURL || signed.signedUrl;
     if (typeof relative !== "string") return json({ error: "Storage did not return a signed URL." }, 502);
-    const url = relative.startsWith("http") ? relative : SUPABASE_URL.replace(/\\/$/, "") + "/storage/v1" + (relative.startsWith("/") ? relative : "/" + relative);
+    const url = relative.startsWith("http") ? relative : stripTrailingSlash(SUPABASE_URL) + "/storage/v1" + (relative.startsWith("/") ? relative : "/" + relative);
     return json({ url, expiresIn: 300 });
   } catch (error) {
     console.error("Classroom attachment request failed:", error);
@@ -90,9 +90,10 @@ async function verifyLiveKitToken(token, secret) {
 }
 function decodeBase64Url(value) { return decodeURIComponent(escape(atob(value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - value.length % 4) % 4)))); }
 function encodePath(path) { return path.split("/").map(encodeURIComponent).join("/"); }
-function storageUrl(base, path) { return base.replace(/\\/$/, "") + "/storage/v1/" + path; }
+function storageUrl(base, path) { return stripTrailingSlash(base) + "/storage/v1/" + path; }
+function stripTrailingSlash(value) { return value.endsWith("/") ? value.slice(0, -1) : value; }
 async function supabaseRequest(baseUrl, serviceKey, path) {
-  const response = await fetch(baseUrl.replace(/\\/$/, "") + "/rest/v1/" + path, { headers: { apikey: serviceKey, Authorization: "Bearer " + serviceKey, "Content-Type": "application/json" } });
+  const response = await fetch(stripTrailingSlash(baseUrl) + "/rest/v1/" + path, { headers: { apikey: serviceKey, Authorization: "Bearer " + serviceKey, "Content-Type": "application/json" } });
   if (!response.ok) { const detail = await response.text(); console.error("Attachment access query failed:", response.status, detail.slice(0, 300)); throw new Error("Attachment access query failed."); }
   const text = await response.text();
   return text ? JSON.parse(text) : [];
