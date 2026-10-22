@@ -294,23 +294,36 @@ export function LiveKitRoom({
     setError("");
 
     try {
-      let data: { token?: string; url?: string; room?: string; role?: string; moderatorToken?: string; error?: string } = preset || {};
+      let data: { token?: string; url?: string; room?: string; role?: string; moderatorToken?: string; error?: string; waiting?: boolean; requestToken?: string; status?: string } = preset || {};
       if (!preset) {
         const requestedRoom = roomCode.trim() || roomName;
-        const response = await fetch("/api/livekit/token", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ room: requestedRoom, name: trimmed }),
+        const response = await fetch("/api/livekit/admission", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ action: "request", room: requestedRoom, name: trimmed }),
         });
-        const contentType = response.headers.get("content-type") || "";
-        const raw = await response.text();
-        if (raw) {
-          if (contentType.includes("application/json")) data = JSON.parse(raw) as typeof data;
-          else throw new Error(`LiveKit token endpoint returned an unexpected response (HTTP ${response.status}).`);
+        data = await response.json() as typeof data;
+        if (!response.ok) throw new Error(data.error || "Unable to request room admission.");
+        if (data.waiting && data.requestToken) {
+          setStatusMessage("Waiting for the host to admit you…");
+          let admitted = false;
+          for (let attempt = 0; attempt < 120; attempt += 1) {
+            await new Promise((resolve) => window.setTimeout(resolve, 3000));
+            const statusResponse = await fetch("/api/livekit/admission", {
+              method: "POST",
+              headers: { "content-type": "application/json", Authorization: "Bearer " + data.requestToken },
+              body: JSON.stringify({ action: "status" }),
+            });
+            const statusData = await statusResponse.json() as typeof data;
+            if (!statusResponse.ok) throw new Error(statusData.error || "Unable to check admission status.");
+            if (statusData.status === "rejected") throw new Error("The host did not admit this request.");
+            if (statusData.token && statusData.url && statusData.room) { data = statusData; admitted = true; break; }
+            setStatusMessage("Waiting for host approval… (" + Math.floor((attempt + 1) * 3 / 60) + " min)");
+          }
+          if (!admitted) throw new Error("Waiting room timed out. Please ask the host to admit you and try again.");
         }
-        if (!response.ok) throw new Error(data.error || "Unable to create LiveKit access token.");
       }
       if (!data.token || !data.url || !data.room) throw new Error(data.error || "Unable to create LiveKit access token.");
+      setStatusMessage("");
       setRoomCode(data.room);
       setIsModerator(data.role === "moderator");
       if (data.moderatorToken) setModeratorToken(data.moderatorToken);
