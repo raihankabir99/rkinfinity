@@ -35,6 +35,7 @@ import {
 type ChatMessage = { id: string; sender: string; senderId: string; text: string; own: boolean; recipientId?: string; recipientName?: string; createdAt?: string; attachmentPath?: string; attachmentName?: string; attachmentMime?: string; attachmentSize?: number };
 type DeviceOption = { deviceId: string; label: string };
 type AttendanceRecord = { identity: string; name: string; joinedAt: number; leftAt?: number };
+type AdmissionRequest = { id: string; name: string; createdAt: string };
 
 function VideoTile({ participant }: { participant: Participant }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -122,6 +123,7 @@ export function LiveKitRoom({
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [participantJoinedAt, setParticipantJoinedAt] = useState<Map<string, number>>(() => new Map());
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [pendingAdmissions, setPendingAdmissions] = useState<AdmissionRequest[]>([]);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [raisedHands, setRaisedHands] = useState<Set<string>>(() => new Set());
   const [handRaised, setHandRaised] = useState(false);
@@ -167,6 +169,34 @@ export function LiveKitRoom({
       setAttendanceLoading(false);
     }
   }, [isModerator, moderatorToken]);
+
+  const refreshPendingAdmissions = useCallback(async () => {
+    if (!isModerator || !moderatorToken) return;
+    try {
+      const response = await fetch("/api/livekit/admission", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action: "pending" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to load waiting room requests.");
+      setPendingAdmissions(Array.isArray(result.requests) ? result.requests : []);
+    } catch (admissionError) { console.error("Waiting room refresh failed:", admissionError); }
+  }, [isModerator, moderatorToken]);
+
+  useEffect(() => {
+    if (!joined || !isModerator || !moderatorToken) return;
+    void refreshPendingAdmissions();
+    const timer = window.setInterval(() => { void refreshPendingAdmissions(); }, 3000);
+    return () => window.clearInterval(timer);
+  }, [joined, isModerator, moderatorToken, refreshPendingAdmissions]);
+
+  const decideAdmission = async (requestId: string, action: "approve" | "reject") => {
+    if (!moderatorToken) return;
+    try {
+      const response = await fetch("/api/livekit/admission", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action, requestId }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to update admission request.");
+      setPendingAdmissions((current) => current.filter((request) => request.id !== requestId));
+      setStatusMessage(action === "approve" ? "Participant admitted." : "Admission request declined.");
+    } catch (admissionError) { setError(admissionError instanceof Error ? admissionError.message : "Unable to update admission request."); }
+  };
 
   const exportAttendanceCsv = useCallback(async () => {
     if (!isModerator || !moderatorToken) return;
@@ -872,6 +902,21 @@ export function LiveKitRoom({
               <div className="flex items-center gap-1">{isModerator ? <button type="button" onClick={exportAttendanceCsv} disabled={attendanceRecords.length === 0} className="rounded-lg border border-primary/25 px-2 py-1.5 text-[10px] text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40" title="Export attendance for this live session">Export CSV</button> : null}<button type="button" onClick={() => setParticipantsOpen(false)} className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white" aria-label="Close participants"><X size={16} /></button></div>
             </div>
             <div className="flex-1 space-y-2 overflow-auto p-3">
+              {isModerator ? (
+                <section className="mb-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-3">
+                  <div className="mb-2 flex items-center justify-between"><span className="text-xs font-semibold text-primary">Waiting room</span><span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{pendingAdmissions.length} pending</span></div>
+                  {pendingAdmissions.length ? pendingAdmissions.map((request) => (
+                    <div key={request.id} className="mb-2 rounded-lg border border-white/10 bg-black/20 p-2.5 last:mb-0">
+                      <div className="truncate text-xs text-white/85">{request.name}</div>
+                      <div className="mt-1 text-[10px] text-white/35">{new Date(request.createdAt).toLocaleTimeString()}</div>
+                      <div className="mt-2 flex gap-2">
+                        <button type="button" onClick={() => void decideAdmission(request.id, "approve")} className="flex-1 rounded-md bg-primary px-2 py-1.5 text-[10px] font-semibold text-black">Admit</button>
+                        <button type="button" onClick={() => void decideAdmission(request.id, "reject")} className="flex-1 rounded-md border border-white/10 px-2 py-1.5 text-[10px] text-white/60 hover:bg-white/5">Decline</button>
+                      </div>
+                    </div>
+                  )) : <div className="text-[10px] leading-4 text-white/35">No one is waiting to join.</div>}
+                </section>
+              ) : null}
               {[...participants].sort((a, b) => Number(raisedHands.has(b.identity)) - Number(raisedHands.has(a.identity))).map((participant) => (
                 <div key={participant.identity} className={`flex items-center gap-3 rounded-xl border px-3 py-3 ${raisedHands.has(participant.identity) ? "border-primary/35 bg-primary/[0.07]" : "border-white/10 bg-white/[0.025]"}`}>
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-sm font-semibold text-primary">{(participant.name || participant.identity).slice(0, 1).toUpperCase()}</div>
