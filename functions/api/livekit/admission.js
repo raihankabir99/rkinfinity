@@ -7,7 +7,9 @@ export async function onRequestPost(context) {
   try {
     const { LIVEKIT_API_KEY: apiKey, LIVEKIT_API_SECRET: apiSecret, LIVEKIT_URL: livekitUrl, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = context.env;
     if (!apiKey || !apiSecret || !livekitUrl || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return json({ error: "Waiting room is not configured on the server." }, 500);
-    const body = await context.request.json();
+    const parsed = await readLimitedJson(context.request, 12000);
+    if (parsed.error) return json({ error: parsed.error }, parsed.status);
+    const body = parsed.body;
     const action = typeof body?.action === "string" ? body.action : "";
     const roomService = new RoomServiceClient(livekitUrl.replace(/^wss:/, "https:").replace(/^ws:/, "http:"), apiKey, apiSecret);
 
@@ -116,3 +118,12 @@ async function supabaseRequest(baseUrl, serviceKey, path, options = {}) {
 }
 function corsHeaders() { return { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization", "Cache-Control": "no-store" }; }
 function json(body, status = 200) { return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders(), "Content-Type": "application/json; charset=utf-8" } }); }
+
+async function readLimitedJson(request, maxBytes) {
+  const declaredLength = Number(request.headers.get("content-length") || 0);
+  if (declaredLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).byteLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  try { return { body: JSON.parse(raw) }; }
+  catch { return { error: "Invalid JSON body.", status: 400 }; }
+}
