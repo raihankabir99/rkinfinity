@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Camera,
   CameraOff,
+  CalendarClock,
   Check,
   ChevronDown,
   Copy,
@@ -36,6 +37,7 @@ type ChatMessage = { id: string; sender: string; senderId: string; text: string;
 type DeviceOption = { deviceId: string; label: string };
 type AttendanceRecord = { identity: string; name: string; joinedAt: number; leftAt?: number };
 type AdmissionRequest = { id: string; name: string; createdAt: string };
+type ScheduledMeeting = { id: string; title: string; starts_at: string; ends_at: string };
 
 function VideoTile({ participant }: { participant: Participant }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -124,6 +126,11 @@ export function LiveKitRoom({
   const [participantJoinedAt, setParticipantJoinedAt] = useState<Map<string, number>>(() => new Map());
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [pendingAdmissions, setPendingAdmissions] = useState<AdmissionRequest[]>([]);
+  const [scheduledMeetings, setScheduledMeetings] = useState<ScheduledMeeting[]>([]);
+  const [scheduleTitle, setScheduleTitle] = useState("");
+  const [scheduleStartsAt, setScheduleStartsAt] = useState("");
+  const [scheduleEndsAt, setScheduleEndsAt] = useState("");
+  const [scheduleBusy, setScheduleBusy] = useState(false);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [raisedHands, setRaisedHands] = useState<Set<string>>(() => new Set());
   const [handRaised, setHandRaised] = useState(false);
@@ -196,6 +203,41 @@ export function LiveKitRoom({
       setPendingAdmissions((current) => current.filter((request) => request.id !== requestId));
       setStatusMessage(action === "approve" ? "Participant admitted." : "Admission request declined.");
     } catch (admissionError) { setError(admissionError instanceof Error ? admissionError.message : "Unable to update admission request."); }
+  };
+
+  const refreshScheduledMeetings = useCallback(async () => {
+    if (!isModerator || !moderatorToken) return;
+    try {
+      const response = await fetch("/api/livekit/schedule", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action: "list" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to load scheduled meetings.");
+      setScheduledMeetings(Array.isArray(result.meetings) ? result.meetings : []);
+    } catch (scheduleError) { console.error("Scheduled meetings refresh failed:", scheduleError); }
+  }, [isModerator, moderatorToken]);
+
+  useEffect(() => { if (joined && isModerator && moderatorToken) void refreshScheduledMeetings(); }, [joined, isModerator, moderatorToken, refreshScheduledMeetings]);
+
+  const createScheduledMeeting = async () => {
+    if (!moderatorToken) return;
+    setScheduleBusy(true); setError("");
+    try {
+      const response = await fetch("/api/livekit/schedule", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action: "create", title: scheduleTitle, startsAt: scheduleStartsAt ? new Date(scheduleStartsAt).toISOString() : "", endsAt: scheduleEndsAt ? new Date(scheduleEndsAt).toISOString() : "" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to schedule meeting.");
+      setScheduleTitle(""); setScheduleStartsAt(""); setScheduleEndsAt("");
+      await refreshScheduledMeetings(); setStatusMessage("Meeting scheduled.");
+    } catch (scheduleError) { setError(scheduleError instanceof Error ? scheduleError.message : "Unable to schedule meeting."); }
+    finally { setScheduleBusy(false); }
+  };
+
+  const cancelScheduledMeeting = async (id: string) => {
+    if (!moderatorToken || !window.confirm("Cancel this scheduled meeting?")) return;
+    try {
+      const response = await fetch("/api/livekit/schedule", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action: "cancel", id }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to cancel meeting.");
+      setScheduledMeetings((current) => current.filter((meeting) => meeting.id !== id)); setStatusMessage("Scheduled meeting cancelled.");
+    } catch (scheduleError) { setError(scheduleError instanceof Error ? scheduleError.message : "Unable to cancel meeting."); }
   };
 
   const exportAttendanceCsv = useCallback(async () => {
@@ -915,6 +957,27 @@ export function LiveKitRoom({
                       </div>
                     </div>
                   )) : <div className="text-[10px] leading-4 text-white/35">No one is waiting to join.</div>}
+                </section>
+              ) : null}
+              {isModerator ? (
+                <section className="mb-3 rounded-xl border border-white/10 bg-white/[0.025] p-3">
+                  <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-white/80"><CalendarClock size={15} className="text-primary" /> Schedule a meeting</div>
+                  <input value={scheduleTitle} onChange={(event) => setScheduleTitle(event.target.value)} maxLength={120} placeholder="Meeting title" className="mb-2 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white outline-none focus:border-primary/40" />
+                  <label className="mb-1 block text-[10px] text-white/40">Starts</label>
+                  <input type="datetime-local" value={scheduleStartsAt} onChange={(event) => setScheduleStartsAt(event.target.value)} className="mb-2 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white outline-none focus:border-primary/40" />
+                  <label className="mb-1 block text-[10px] text-white/40">Ends</label>
+                  <input type="datetime-local" value={scheduleEndsAt} onChange={(event) => setScheduleEndsAt(event.target.value)} className="mb-2 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white outline-none focus:border-primary/40" />
+                  <button type="button" disabled={scheduleBusy || !scheduleTitle.trim() || !scheduleStartsAt || !scheduleEndsAt} onClick={() => void createScheduledMeeting()} className="w-full rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">{scheduleBusy ? "Scheduling…" : "Schedule meeting"}</button>
+                  <div className="mt-3 border-t border-white/10 pt-3">
+                    <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-white/45">Upcoming meetings</div>
+                    {scheduledMeetings.length ? scheduledMeetings.map((meeting) => (
+                      <div key={meeting.id} className="mb-2 rounded-lg border border-white/10 bg-black/20 p-2.5 last:mb-0">
+                        <div className="text-xs font-medium text-white/85">{meeting.title}</div>
+                        <div className="mt-1 text-[10px] leading-4 text-white/40">{new Date(meeting.starts_at).toLocaleString()} – {new Date(meeting.ends_at).toLocaleTimeString()}</div>
+                        <button type="button" onClick={() => void cancelScheduledMeeting(meeting.id)} className="mt-2 text-[10px] text-red-300/80 hover:text-red-200">Cancel meeting</button>
+                      </div>
+                    )) : <div className="text-[10px] text-white/35">No scheduled meetings yet.</div>}
+                  </div>
                 </section>
               ) : null}
               {[...participants].sort((a, b) => Number(raisedHands.has(b.identity)) - Number(raisedHands.has(a.identity))).map((participant) => (
