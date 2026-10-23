@@ -15,7 +15,9 @@ export async function onRequestPost(context) {
     try { metadata = liveRooms[0].metadata ? JSON.parse(liveRooms[0].metadata) : {}; } catch { return json({ error: "Room metadata is invalid." }, 500); }
     if (metadata.ownerIdentity !== moderator.identity) return json({ error: "Only this room creator can manage its schedule." }, 403);
     const { SUPABASE_URL: baseUrl, SUPABASE_SERVICE_ROLE_KEY: serviceKey } = context.env;
-    const body = await context.request.json();
+    const parsed = await readLimitedJson(context.request, 8000);
+    if (parsed.error) return json({ error: parsed.error }, parsed.status);
+    const body = parsed.body;
     const action = typeof body?.action === "string" ? body.action : "";
     if (action === "list") {
       const rows = await supabaseRequest(baseUrl, serviceKey, "classroom_scheduled_meetings?room_name=eq." + encodeURIComponent(moderator.room) + "&owner_identity=eq." + encodeURIComponent(moderator.identity) + "&cancelled_at=is.null&select=id,title,starts_at,ends_at,created_at&order=starts_at.asc&limit=50");
@@ -69,3 +71,12 @@ async function supabaseRequest(baseUrl, serviceKey, path, options = {}) {
 }
 function corsHeaders() { return { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization", "Cache-Control": "no-store" }; }
 function json(body, status = 200) { return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders(), "Content-Type": "application/json; charset=utf-8" } }); }
+
+async function readLimitedJson(request, maxBytes) {
+  const declaredLength = Number(request.headers.get("content-length") || 0);
+  if (declaredLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).byteLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  try { return { body: JSON.parse(raw) }; }
+  catch { return { error: "Invalid JSON body.", status: 400 }; }
+}
