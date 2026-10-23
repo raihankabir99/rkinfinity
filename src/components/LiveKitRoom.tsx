@@ -1002,7 +1002,10 @@ export function LiveKitRoom({
                       <div key={meeting.id} className="mb-2 rounded-lg border border-white/10 bg-black/20 p-2.5 last:mb-0">
                         <div className="text-xs font-medium text-white/85">{meeting.title}</div>
                         <div className="mt-1 text-[10px] leading-4 text-white/40">{new Date(meeting.starts_at).toLocaleString()} – {new Date(meeting.ends_at).toLocaleTimeString()}</div>
-                        <button type="button" onClick={() => void cancelScheduledMeeting(meeting.id)} className="mt-2 text-[10px] text-red-300/80 hover:text-red-200">Cancel meeting</button>
+                        <div className="mt-2 flex flex-wrap items-center gap-3">
+                          <button type="button" onClick={() => void copyInvite()} className="inline-flex items-center gap-1 text-[10px] text-primary/90 hover:text-primary"><Copy size={11} /> {copied ? "Copied room link" : "Copy room link"}</button>
+                          <button type="button" onClick={() => void cancelScheduledMeeting(meeting.id)} className="text-[10px] text-red-300/80 hover:text-red-200">Cancel meeting</button>
+                        </div>
                       </div>
                     )) : <div className="text-[10px] text-white/35">No scheduled meetings yet.</div>}
                   </div>
