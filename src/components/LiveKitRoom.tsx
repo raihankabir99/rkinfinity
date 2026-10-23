@@ -818,8 +818,8 @@ export function LiveKitRoom({
   };
 
   const downloadMeetingCalendar = (meeting: ScheduledMeeting) => {
-    const toIcsDate = (value: string) => new Date(value).toISOString().replace(/[-:]/g, "").replace(/\\.\\d{3}Z$/, "Z");
-    const escapeIcs = (value: string) => value.replace(/\\\\/g, "\\\\\\\\").replace(/;/g, "\\\\;").replace(/,/g, "\\\\,").replace(/\\r?\\n/g, "\\\\n");
+    const toIcsDate = (value: string) => new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+    const escapeIcs = (value: string) => value.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
     const inviteUrl = new URL("/communication", window.location.origin);
     inviteUrl.searchParams.set("room", roomCode || roomName);
     inviteUrl.searchParams.set("meeting", meeting.title);
@@ -842,7 +842,7 @@ export function LiveKitRoom({
       "END:VEVENT",
       "END:VCALENDAR",
       "",
-    ].join("\\r\\n");
+    ].join("\r\n");
     const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
