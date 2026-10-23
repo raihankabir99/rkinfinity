@@ -817,6 +817,43 @@ export function LiveKitRoom({
     } catch (attachmentError) { setError(attachmentError instanceof Error ? attachmentError.message : "Unable to open attachment."); }
   };
 
+  const downloadMeetingCalendar = (meeting: ScheduledMeeting) => {
+    const toIcsDate = (value: string) => new Date(value).toISOString().replace(/[-:]/g, "").replace(/\\.\\d{3}Z$/, "Z");
+    const escapeIcs = (value: string) => value.replace(/\\\\/g, "\\\\\\\\").replace(/;/g, "\\\\;").replace(/,/g, "\\\\,").replace(/\\r?\\n/g, "\\\\n");
+    const inviteUrl = new URL("/communication", window.location.origin);
+    inviteUrl.searchParams.set("room", roomCode || roomName);
+    inviteUrl.searchParams.set("meeting", meeting.title);
+    inviteUrl.searchParams.set("startsAt", meeting.starts_at);
+    inviteUrl.searchParams.set("endsAt", meeting.ends_at);
+    const ics = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//rkInfinity//Meeting Invite//EN",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      "UID:" + escapeIcs(meeting.id) + "@rkinfinity",
+      "DTSTAMP:" + toIcsDate(new Date().toISOString()),
+      "DTSTART:" + toIcsDate(meeting.starts_at),
+      "DTEND:" + toIcsDate(meeting.ends_at),
+      "SUMMARY:" + escapeIcs(meeting.title),
+      "DESCRIPTION:" + escapeIcs("Join meeting: " + inviteUrl.toString()),
+      "URL:" + inviteUrl.toString(),
+      "END:VEVENT",
+      "END:VCALENDAR",
+      "",
+    ].join("\\r\\n");
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = meeting.title.trim().replace(/[^a-z0-9-_]+/gi, "-").replace(/^-|-$/g, "").slice(0, 60) + ".ics";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   const copyInvite = async (meeting?: ScheduledMeeting) => {
     try {
       const inviteUrl = new URL("/communication", window.location.origin);
@@ -1019,6 +1056,7 @@ export function LiveKitRoom({
                         <div className="mt-1 text-[10px] leading-4 text-white/40">{new Date(meeting.starts_at).toLocaleString()} – {new Date(meeting.ends_at).toLocaleTimeString()}</div>
                         <div className="mt-2 flex flex-wrap items-center gap-3">
                           <button type="button" onClick={() => void copyInvite(meeting)} className="inline-flex items-center gap-1 text-[10px] text-primary/90 hover:text-primary"><Copy size={11} /> {copied ? "Copied invite link" : "Copy invite link"}</button>
+                          <button type="button" onClick={() => downloadMeetingCalendar(meeting)} className="inline-flex items-center gap-1 text-[10px] text-white/60 hover:text-white"><CalendarClock size={11} /> Add to calendar</button>
                           <button type="button" onClick={() => void cancelScheduledMeeting(meeting.id)} className="text-[10px] text-red-300/80 hover:text-red-200">Cancel meeting</button>
                         </div>
                       </div>
