@@ -38,6 +38,7 @@ type DeviceOption = { deviceId: string; label: string };
 type AttendanceRecord = { identity: string; name: string; joinedAt: number; leftAt?: number };
 type AdmissionRequest = { id: string; name: string; createdAt: string };
 type ScheduledMeeting = { id: string; title: string; starts_at: string; ends_at: string };
+type MeetingInvite = { title: string; startsAt: string; endsAt: string };
 
 function VideoTile({ participant }: { participant: Participant }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -115,6 +116,12 @@ export function LiveKitRoom({
   const stageRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
   const [roomCode, setRoomCode] = useState(() => new URLSearchParams(window.location.search).get("room") || "");
+  const [meetingInvite] = useState<MeetingInvite | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const title = params.get("meeting"); const startsAt = params.get("startsAt"); const endsAt = params.get("endsAt");
+    if (!title || !startsAt || !endsAt || !Number.isFinite(Date.parse(startsAt)) || !Number.isFinite(Date.parse(endsAt))) return null;
+    return { title: title.slice(0, 120), startsAt, endsAt };
+  });
   const [isModerator, setIsModerator] = useState(false);
   const [moderatorToken, setModeratorToken] = useState("");
   const [roomLocked, setRoomLocked] = useState(false);
@@ -810,9 +817,16 @@ export function LiveKitRoom({
     } catch (attachmentError) { setError(attachmentError instanceof Error ? attachmentError.message : "Unable to open attachment."); }
   };
 
-  const copyInvite = async () => {
+  const copyInvite = async (meeting?: ScheduledMeeting) => {
     try {
-      await navigator.clipboard?.writeText(window.location.origin + "/communication?room=" + encodeURIComponent(roomCode || roomName));
+      const inviteUrl = new URL("/communication", window.location.origin);
+      inviteUrl.searchParams.set("room", roomCode || roomName);
+      if (meeting) {
+        inviteUrl.searchParams.set("meeting", meeting.title);
+        inviteUrl.searchParams.set("startsAt", meeting.starts_at);
+        inviteUrl.searchParams.set("endsAt", meeting.ends_at);
+      }
+      await navigator.clipboard?.writeText(inviteUrl.toString());
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -875,6 +889,7 @@ export function LiveKitRoom({
               <MessageCircle className="text-primary" size={25} />
             </div>
           </div>
+          {meetingInvite ? <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/[0.07] px-4 py-3"><div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/80">Meeting invitation</div><div className="mt-1 font-semibold text-white">{meetingInvite.title}</div><div className="mt-1 text-xs text-white/55">Starts: {new Date(meetingInvite.startsAt).toLocaleString()} · Ends: {new Date(meetingInvite.endsAt).toLocaleString()}</div><div className="mt-2 text-[10px] leading-4 text-white/40">Times are shown in your device time zone. The room must be active and available when you join.</div></div> : null}
           <label className="block text-sm font-medium text-white/75">
             Your name
             <input
@@ -1003,7 +1018,7 @@ export function LiveKitRoom({
                         <div className="text-xs font-medium text-white/85">{meeting.title}</div>
                         <div className="mt-1 text-[10px] leading-4 text-white/40">{new Date(meeting.starts_at).toLocaleString()} – {new Date(meeting.ends_at).toLocaleTimeString()}</div>
                         <div className="mt-2 flex flex-wrap items-center gap-3">
-                          <button type="button" onClick={() => void copyInvite()} className="inline-flex items-center gap-1 text-[10px] text-primary/90 hover:text-primary"><Copy size={11} /> {copied ? "Copied room link" : "Copy room link"}</button>
+                          <button type="button" onClick={() => void copyInvite(meeting)} className="inline-flex items-center gap-1 text-[10px] text-primary/90 hover:text-primary"><Copy size={11} /> {copied ? "Copied invite link" : "Copy invite link"}</button>
                           <button type="button" onClick={() => void cancelScheduledMeeting(meeting.id)} className="text-[10px] text-red-300/80 hover:text-red-200">Cancel meeting</button>
                         </div>
                       </div>
