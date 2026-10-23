@@ -205,7 +205,7 @@ export function LiveKitRoom({
   useEffect(() => {
     if (!joined || !isModerator || !moderatorToken) return;
     void refreshPendingAdmissions();
-    const timer = window.setInterval(() => { void refreshPendingAdmissions(); }, 3000);
+    const timer = window.setInterval(() => { void refreshPendingAdmissions(); }, 8000);
     return () => window.clearInterval(timer);
   }, [joined, isModerator, moderatorToken, refreshPendingAdmissions]);
 
@@ -394,7 +394,7 @@ export function LiveKitRoom({
           setStatusMessage("Waiting for the host to admit you…");
           let admitted = false;
           for (let attempt = 0; attempt < 120; attempt += 1) {
-            await new Promise((resolve) => window.setTimeout(resolve, 3000));
+            await new Promise((resolve) => window.setTimeout(resolve, 5000));
             const statusResponse = await fetch("/api/livekit/admission", {
               method: "POST",
               headers: { "content-type": "application/json", Authorization: "Bearer " + data.requestToken },
@@ -488,19 +488,24 @@ export function LiveKitRoom({
             if (decoded.type !== "chat-message" || typeof decoded.text !== "string" || typeof decoded.id !== "string") return;
             const localId = room.localParticipant.identity;
             if (decoded.recipientId && decoded.recipientId !== localId) return;
-            setMessages((current) => [...current, {
-              id: decoded.id!,
-              sender: participant.name || participant.identity,
-              senderId: participant.identity,
-              text: decoded.text!,
-              own: false,
-              recipientId: decoded.recipientId,
-              recipientName: decoded.recipientName,
-              attachmentPath: decoded.attachmentPath,
-              attachmentName: decoded.attachmentName,
-              attachmentMime: decoded.attachmentMime,
-              attachmentSize: decoded.attachmentSize,
-            }]);
+            setMessages((current) => {
+              // Realtime reconnects can replay packets; avoid duplicate rows and bound memory use.
+              if (current.some((message) => message.id === decoded.id)) return current;
+              const next = [...current, {
+                id: decoded.id!,
+                sender: participant.name || participant.identity,
+                senderId: participant.identity,
+                text: decoded.text!,
+                own: false,
+                recipientId: decoded.recipientId,
+                recipientName: decoded.recipientName,
+                attachmentPath: decoded.attachmentPath,
+                attachmentName: decoded.attachmentName,
+                attachmentMime: decoded.attachmentMime,
+                attachmentSize: decoded.attachmentSize,
+              }];
+              return next.length > 500 ? next.slice(-500) : next;
+            });
             if (!chatOpenRef.current) setUnreadMessages((current) => Math.min(current + 1, 99));
             if (!chatOpenRef.current && soundNotifications && typeof window !== "undefined") {
               try {
