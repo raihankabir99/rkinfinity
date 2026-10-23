@@ -138,6 +138,11 @@ export function LiveKitRoom({
   const [camera, setCamera] = useState(true);
   const [screen, setScreen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const chatOpenRef = useRef(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [soundNotifications, setSoundNotifications] = useState(() => {
+    try { return window.localStorage.getItem("rk-chat-sound-notifications") !== "false"; } catch { return true; }
+  });
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -157,6 +162,9 @@ export function LiveKitRoom({
   const [selectedMic, setSelectedMic] = useState("");
   const [selectedCamera, setSelectedCamera] = useState("");
   const [selectedSpeaker, setSelectedSpeaker] = useState("");
+
+  useEffect(() => { chatOpenRef.current = chatOpen; if (chatOpen) setUnreadMessages(0); }, [chatOpen]);
+  useEffect(() => { try { window.localStorage.setItem("rk-chat-sound-notifications", String(soundNotifications)); } catch { /* Storage can be unavailable in private browsing. */ } }, [soundNotifications]);
 
   const refreshAttendanceHistory = useCallback(async () => {
     if (!isModerator || !moderatorToken) return;
@@ -486,6 +494,26 @@ export function LiveKitRoom({
               attachmentMime: decoded.attachmentMime,
               attachmentSize: decoded.attachmentSize,
             }]);
+            if (!chatOpenRef.current) setUnreadMessages((current) => Math.min(current + 1, 99));
+            if (!chatOpenRef.current && soundNotifications && typeof window !== "undefined") {
+              try {
+                const AudioContextCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+                if (AudioContextCtor) {
+                  const audioContext = new AudioContextCtor();
+                  if (audioContext.state === "running") {
+                    const oscillator = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    oscillator.frequency.value = 740;
+                    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.04, audioContext.currentTime + 0.015);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.12);
+                    oscillator.connect(gain); gain.connect(audioContext.destination);
+                    oscillator.start(); oscillator.stop(audioContext.currentTime + 0.13);
+                    oscillator.onended = () => { void audioContext.close(); };
+                  } else { void audioContext.close(); }
+                }
+              } catch { /* Sound is optional; never interrupt message delivery. */ }
+            }
           } catch {
             // Ignore malformed or unrelated data packets.
           }
@@ -913,7 +941,7 @@ export function LiveKitRoom({
         {moreOpen ? (
           <div className="absolute right-3 top-[calc(100%+8px)] w-56 rounded-2xl border border-white/10 bg-[#0b0c12]/95 p-2 shadow-2xl backdrop-blur-xl">
             <button type="button" onClick={() => { void copyInvite(); setMoreOpen(false); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 hover:bg-white/[0.07] hover:text-white"><Copy size={15} /> Copy invite link</button>
-            <button type="button" onClick={() => { setChatOpen((value) => !value); setMoreOpen(false); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 hover:bg-white/[0.07] hover:text-white"><MessageCircle size={15} /> {chatOpen ? "Close chat" : "Open chat"}</button>
+            <button type="button" onClick={() => { setChatOpen((value) => !value); setUnreadMessages(0); setMoreOpen(false); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 hover:bg-white/[0.07] hover:text-white"><MessageCircle size={15} /> {chatOpen ? "Close chat" : "Open chat"}{!chatOpen && unreadMessages > 0 ? <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-black">{unreadMessages > 9 ? "9+" : unreadMessages}</span> : null}</button>
             <button type="button" onClick={() => { void toggleFullscreen(); setMoreOpen(false); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 hover:bg-white/[0.07] hover:text-white"><Maximize size={15} /> Fullscreen</button>
           </div>
         ) : null}
@@ -1093,6 +1121,14 @@ export function LiveKitRoom({
               <label className="block text-xs text-white/55">Microphone<select value={selectedMic} onChange={(event) => void switchDevice("audioinput", event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none">{devices.microphones.map((device) => <option key={device.deviceId} value={device.deviceId}>{device.label}</option>)}</select></label>
               <label className="block text-xs text-white/55">Camera<select value={selectedCamera} onChange={(event) => void switchDevice("videoinput", event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none">{devices.cameras.map((device) => <option key={device.deviceId} value={device.deviceId}>{device.label}</option>)}</select></label>
               <label className="block text-xs text-white/55">Speaker<select value={selectedSpeaker} onChange={(event) => void switchDevice("audiooutput", event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none">{devices.speakers.map((device) => <option key={device.deviceId} value={device.deviceId}>{device.label}</option>)}</select></label>
+              <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3">
+                <div className="mb-2 text-xs font-semibold text-white/75">Notification preferences</div>
+                <label className="flex cursor-pointer items-center justify-between gap-3 text-xs text-white/60">
+                  <span>Sound for incoming chat messages</span>
+                  <input type="checkbox" checked={soundNotifications} onChange={(event) => setSoundNotifications(event.target.checked)} className="h-4 w-4 accent-yellow-500" />
+                </label>
+                <p className="mt-2 text-[10px] leading-4 text-white/35">Stored on this device. Sound may require a prior browser interaction and is skipped when audio playback is unavailable.</p>
+              </div>
               <button type="button" onClick={() => void loadDevices()} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-xs text-white/65 hover:bg-white/[0.06] hover:text-white"><RefreshCw size={14} /> Refresh devices</button>
             </div>
           </aside>
