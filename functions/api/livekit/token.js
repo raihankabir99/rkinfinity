@@ -12,7 +12,9 @@ export async function onRequestOptions() {
 
 export async function onRequestPost(context) {
   try {
-    const body = await context.request.json();
+    const parsed = await readLimitedJson(context.request, 12000);
+    if (parsed.error) return json({ error: parsed.error }, parsed.status);
+    const body = parsed.body;
     const room = typeof body?.room === "string" ? body.room.trim() : "";
     const name = typeof body?.name === "string" ? body.name.trim() : "";
 
@@ -76,4 +78,14 @@ function json(body, status = 200) {
       "Access-Control-Allow-Origin": "*",
     },
   });
+}
+
+
+async function readLimitedJson(request, maxBytes) {
+  const declaredLength = Number(request.headers.get("content-length") || 0);
+  if (declaredLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).byteLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  try { return { body: JSON.parse(raw) }; }
+  catch { return { error: "Invalid JSON body.", status: 400 }; }
 }
