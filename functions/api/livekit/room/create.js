@@ -6,6 +6,8 @@ export async function onRequestOptions() {
 
 export async function onRequestPost(context) {
   try {
+    const rateLimit = await enforceCloudflareLimit(context, "LIVEKIT_CREATE_LIMITER");
+    if (rateLimit) return rateLimit;
     const parsed = await readLimitedJson(context.request, 12000);
     if (parsed.error) return json({ error: parsed.error }, parsed.status);
     const body = parsed.body;
@@ -53,4 +55,21 @@ async function readLimitedJson(request, maxBytes) {
   if (new TextEncoder().encode(raw).byteLength > maxBytes) return { error: "Request body is too large.", status: 413 };
   try { return { body: JSON.parse(raw) }; }
   catch { return { error: "Invalid JSON body.", status: 400 }; }
+}
+
+
+async function enforceCloudflareLimit(context, bindingName) {
+  const limiter = context.env[bindingName];
+  // Bindings are optional so existing deployments keep working until configured.
+  if (!limiter || typeof limiter.limit !== "function") return null;
+  const ip = context.request.headers.get("CF-Connecting-IP") || "unknown";
+  try {
+    const result = await limiter.limit({ key: ip });
+    if (!result.success) return json({ error: "Too many requests. Please wait and try again." }, 429);
+    return null;
+  } catch (error) {
+    console.error("Cloudflare rate-limit binding failed:", bindingName, error);
+    // Fail closed when a limiter is configured but unavailable.
+    return json({ error: "Temporarily unable to process this request. Please try again shortly." }, 503);
+  }
 }
