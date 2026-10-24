@@ -28,4 +28,5 @@ jobs:
       - name: Check LiveKit file formatting
         run: npx prettier --check src/components/LiveKitRoom.tsx functions/api/livekit/token.js functions/api/livekit/room/create.js functions/api/livekit/room/moderate.js
       - name: Lint LiveKit files
+        if: always()
         run: npx eslint src/components/LiveKitRoom.tsx functions/api/livekit/token.js functions/api/livekit/room/create.js functions/api/livekit/room/moderate.js
