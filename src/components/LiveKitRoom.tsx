@@ -793,7 +793,7 @@ export function LiveKitRoom({
   const sendAttachment = async (file: File) => {
     const room = roomRef.current;
     if (!room || !attendanceTokenRef.current) return;
-    if (file.size > 15 * 1024 * 1024) { setError("Files must be smaller than 15 MB."); return; }
+    if (file.size > 4 * 1024 * 1024) { setError("Files must be 4 MB or smaller on this host."); return; }
     if (chatMode === "private" && !privateRecipient) { setError("Choose a participant for your private attachment."); return; }
     const target = chatMode === "private" ? participants.find((participant) => participant.identity === privateRecipient) : undefined;
     if (chatMode === "private" && (!target || target.isLocal)) { setError("That participant is no longer in this room."); return; }
