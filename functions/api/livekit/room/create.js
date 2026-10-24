@@ -6,7 +6,11 @@ export async function onRequestOptions() {
 
 export async function onRequestPost(context) {
   try {
-    const body = await context.request.json();
+    const rateLimit = await enforceCloudflareLimit(context, "LIVEKIT_CREATE_LIMITER");
+    if (rateLimit) return rateLimit;
+    const parsed = await readLimitedJson(context.request, 12000);
+    if (parsed.error) return json({ error: parsed.error }, parsed.status);
+    const body = parsed.body;
     const name = typeof body?.name === "string" ? body.name.trim() : "";
     if (!name || name.length > 80) return json({ error: "Enter a valid display name." }, 400);
 
@@ -20,7 +24,7 @@ export async function onRequestPost(context) {
       name: room,
       emptyTimeout: 300,
       maxParticipants: 100,
-      metadata: JSON.stringify({ ownerIdentity: identity, locked: false, createdAt: new Date().toISOString() }),
+      metadata: JSON.stringify({ ownerIdentity: identity, locked: false, waitingRoom: true, createdAt: new Date().toISOString() }),
     });
 
     const token = new AccessToken(apiKey, apiSecret, { identity, name, ttl: "2h", metadata: JSON.stringify({ role: "moderator" }) });
@@ -42,3 +46,30 @@ async function signModeratorToken(payload, secret) {
 }
 function corsHeaders() { return { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", "Cache-Control": "no-store" }; }
 function json(body, status = 200) { return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders(), "Content-Type": "application/json; charset=utf-8" } }); }
+
+
+async function readLimitedJson(request, maxBytes) {
+  const declaredLength = Number(request.headers.get("content-length") || 0);
+  if (declaredLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).byteLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  try { return { body: JSON.parse(raw) }; }
+  catch { return { error: "Invalid JSON body.", status: 400 }; }
+}
+
+
+async function enforceCloudflareLimit(context, bindingName) {
+  const limiter = context.env[bindingName];
+  // Bindings are optional so existing deployments keep working until configured.
+  if (!limiter || typeof limiter.limit !== "function") return null;
+  const ip = context.request.headers.get("CF-Connecting-IP") || "unknown";
+  try {
+    const result = await limiter.limit({ key: ip });
+    if (!result.success) return json({ error: "Too many requests. Please wait and try again." }, 429);
+    return null;
+  } catch (error) {
+    console.error("Cloudflare rate-limit binding failed:", bindingName, error);
+    // Fail closed when a limiter is configured but unavailable.
+    return json({ error: "Temporarily unable to process this request. Please try again shortly." }, 503);
+  }
+}

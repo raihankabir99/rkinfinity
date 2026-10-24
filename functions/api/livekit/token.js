@@ -12,7 +12,11 @@ export async function onRequestOptions() {
 
 export async function onRequestPost(context) {
   try {
-    const body = await context.request.json();
+    const rateLimit = await enforceCloudflareLimit(context, "LIVEKIT_TOKEN_LIMITER");
+    if (rateLimit) return rateLimit;
+    const parsed = await readLimitedJson(context.request, 12000);
+    if (parsed.error) return json({ error: parsed.error }, parsed.status);
+    const body = parsed.body;
     const room = typeof body?.room === "string" ? body.room.trim() : "";
     const name = typeof body?.name === "string" ? body.name.trim() : "";
 
@@ -39,6 +43,7 @@ export async function onRequestPost(context) {
     try { metadata = existingRoom.metadata ? JSON.parse(existingRoom.metadata) : {}; }
     catch { return json({ error: "Room metadata is invalid." }, 500); }
     if (metadata.locked) return json({ error: "This room is locked by its moderator." }, 403);
+    if (metadata.waitingRoom === true) return json({ error: "Waiting room is enabled. Request admission through the waiting room." }, 403);
 
     const identity = `rkInfinity-${crypto.randomUUID()}`;
     const token = new AccessToken(apiKey, apiSecret, {
@@ -75,4 +80,31 @@ function json(body, status = 200) {
       "Access-Control-Allow-Origin": "*",
     },
   });
+}
+
+
+async function readLimitedJson(request, maxBytes) {
+  const declaredLength = Number(request.headers.get("content-length") || 0);
+  if (declaredLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).byteLength > maxBytes) return { error: "Request body is too large.", status: 413 };
+  try { return { body: JSON.parse(raw) }; }
+  catch { return { error: "Invalid JSON body.", status: 400 }; }
+}
+
+
+async function enforceCloudflareLimit(context, bindingName) {
+  const limiter = context.env[bindingName];
+  // Bindings are optional so existing deployments keep working until configured.
+  if (!limiter || typeof limiter.limit !== "function") return null;
+  const ip = context.request.headers.get("CF-Connecting-IP") || "unknown";
+  try {
+    const result = await limiter.limit({ key: ip });
+    if (!result.success) return json({ error: "Too many requests. Please wait and try again." }, 429);
+    return null;
+  } catch (error) {
+    console.error("Cloudflare rate-limit binding failed:", bindingName, error);
+    // Fail closed when a limiter is configured but unavailable.
+    return json({ error: "Temporarily unable to process this request. Please try again shortly." }, 503);
+  }
 }

@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Camera,
   CameraOff,
+  CalendarClock,
   Check,
   ChevronDown,
   Copy,
@@ -22,6 +23,8 @@ import {
   MonitorUp,
   MoreHorizontal,
   PanelRight,
+  Paperclip,
+  PictureInPicture,
   RefreshCw,
   Settings,
   Users,
@@ -30,9 +33,12 @@ import {
   X,
 } from "lucide-react";
 
-type ChatMessage = { id: string; sender: string; senderId: string; text: string; own: boolean; recipientId?: string; recipientName?: string };
+type ChatMessage = { id: string; sender: string; senderId: string; text: string; own: boolean; recipientId?: string; recipientName?: string; createdAt?: string; attachmentPath?: string; attachmentName?: string; attachmentMime?: string; attachmentSize?: number };
 type DeviceOption = { deviceId: string; label: string };
 type AttendanceRecord = { identity: string; name: string; joinedAt: number; leftAt?: number };
+type AdmissionRequest = { id: string; name: string; createdAt: string };
+type ScheduledMeeting = { id: string; title: string; starts_at: string; ends_at: string };
+type MeetingInvite = { title: string; startsAt: string; endsAt: string };
 
 function VideoTile({ participant }: { participant: Participant }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -68,6 +74,26 @@ function VideoTile({ participant }: { participant: Participant }) {
           {name.slice(0, 1).toUpperCase()}
         </div>
       )}
+      {publication?.track?.kind === Track.Kind.Video && typeof document !== "undefined" && "pictureInPictureEnabled" in document ? (
+        <button
+          type="button"
+          title="Open video in picture-in-picture"
+          aria-label={"Open " + name + "'s video in picture-in-picture"}
+          onClick={async () => {
+            const video = videoRef.current;
+            if (!video || !document.pictureInPictureEnabled || typeof video.requestPictureInPicture !== "function") return;
+            try {
+              if (document.pictureInPictureElement === video) await document.exitPictureInPicture();
+              else await video.requestPictureInPicture();
+            } catch (pipError) {
+              console.error("Picture-in-picture could not be started:", pipError);
+            }
+          }}
+          className="absolute right-3 top-3 z-10 rounded-lg border border-white/15 bg-black/65 p-2 text-white/80 backdrop-blur transition hover:bg-black/90 hover:text-white"
+        >
+          <PictureInPicture size={16} />
+        </button>
+      ) : null}
       <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/75 to-transparent" />
       <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-white/10 bg-black/65 px-3 py-1.5 text-xs text-white backdrop-blur-md">
         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -90,6 +116,12 @@ export function LiveKitRoom({
   const stageRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
   const [roomCode, setRoomCode] = useState(() => new URLSearchParams(window.location.search).get("room") || "");
+  const [meetingInvite] = useState<MeetingInvite | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const title = params.get("meeting"); const startsAt = params.get("startsAt"); const endsAt = params.get("endsAt");
+    if (!title || !startsAt || !endsAt || !Number.isFinite(Date.parse(startsAt)) || !Number.isFinite(Date.parse(endsAt))) return null;
+    return { title: title.slice(0, 120), startsAt, endsAt };
+  });
   const [isModerator, setIsModerator] = useState(false);
   const [moderatorToken, setModeratorToken] = useState("");
   const [roomLocked, setRoomLocked] = useState(false);
@@ -100,6 +132,12 @@ export function LiveKitRoom({
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [participantJoinedAt, setParticipantJoinedAt] = useState<Map<string, number>>(() => new Map());
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [pendingAdmissions, setPendingAdmissions] = useState<AdmissionRequest[]>([]);
+  const [scheduledMeetings, setScheduledMeetings] = useState<ScheduledMeeting[]>([]);
+  const [scheduleTitle, setScheduleTitle] = useState("");
+  const [scheduleStartsAt, setScheduleStartsAt] = useState("");
+  const [scheduleEndsAt, setScheduleEndsAt] = useState("");
+  const [scheduleBusy, setScheduleBusy] = useState(false);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [raisedHands, setRaisedHands] = useState<Set<string>>(() => new Set());
   const [handRaised, setHandRaised] = useState(false);
@@ -107,11 +145,18 @@ export function LiveKitRoom({
   const [camera, setCamera] = useState(true);
   const [screen, setScreen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const chatOpenRef = useRef(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [soundNotifications, setSoundNotifications] = useState(() => {
+    try { return window.localStorage.getItem("rk-chat-sound-notifications") !== "false"; } catch { return true; }
+  });
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [loadingOlderMessages, setLoadingOlderMessages] = useState(false);
   const [chatMode, setChatMode] = useState<"group" | "private">("group");
   const [privateRecipient, setPrivateRecipient] = useState("");
   const [layout, setLayout] = useState<"grid" | "focus">("grid");
@@ -124,6 +169,9 @@ export function LiveKitRoom({
   const [selectedMic, setSelectedMic] = useState("");
   const [selectedCamera, setSelectedCamera] = useState("");
   const [selectedSpeaker, setSelectedSpeaker] = useState("");
+
+  useEffect(() => { chatOpenRef.current = chatOpen; if (chatOpen) setUnreadMessages(0); }, [chatOpen]);
+  useEffect(() => { try { window.localStorage.setItem("rk-chat-sound-notifications", String(soundNotifications)); } catch { /* Storage can be unavailable in private browsing. */ } }, [soundNotifications]);
 
   const refreshAttendanceHistory = useCallback(async () => {
     if (!isModerator || !moderatorToken) return;
@@ -143,6 +191,69 @@ export function LiveKitRoom({
       setAttendanceLoading(false);
     }
   }, [isModerator, moderatorToken]);
+
+  const refreshPendingAdmissions = useCallback(async () => {
+    if (!isModerator || !moderatorToken) return;
+    try {
+      const response = await fetch("/api/livekit/admission", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action: "pending" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to load waiting room requests.");
+      setPendingAdmissions(Array.isArray(result.requests) ? result.requests : []);
+    } catch (admissionError) { console.error("Waiting room refresh failed:", admissionError); }
+  }, [isModerator, moderatorToken]);
+
+  useEffect(() => {
+    if (!joined || !isModerator || !moderatorToken) return;
+    void refreshPendingAdmissions();
+    const timer = window.setInterval(() => { void refreshPendingAdmissions(); }, 8000);
+    return () => window.clearInterval(timer);
+  }, [joined, isModerator, moderatorToken, refreshPendingAdmissions]);
+
+  const decideAdmission = async (requestId: string, action: "approve" | "reject") => {
+    if (!moderatorToken) return;
+    try {
+      const response = await fetch("/api/livekit/admission", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action, requestId }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to update admission request.");
+      setPendingAdmissions((current) => current.filter((request) => request.id !== requestId));
+      setStatusMessage(action === "approve" ? "Participant admitted." : "Admission request declined.");
+    } catch (admissionError) { setError(admissionError instanceof Error ? admissionError.message : "Unable to update admission request."); }
+  };
+
+  const refreshScheduledMeetings = useCallback(async () => {
+    if (!isModerator || !moderatorToken) return;
+    try {
+      const response = await fetch("/api/livekit/schedule", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action: "list" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to load scheduled meetings.");
+      setScheduledMeetings(Array.isArray(result.meetings) ? result.meetings : []);
+    } catch (scheduleError) { console.error("Scheduled meetings refresh failed:", scheduleError); }
+  }, [isModerator, moderatorToken]);
+
+  useEffect(() => { if (joined && isModerator && moderatorToken) void refreshScheduledMeetings(); }, [joined, isModerator, moderatorToken, refreshScheduledMeetings]);
+
+  const createScheduledMeeting = async () => {
+    if (!moderatorToken) return;
+    setScheduleBusy(true); setError("");
+    try {
+      const response = await fetch("/api/livekit/schedule", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action: "create", title: scheduleTitle, startsAt: scheduleStartsAt ? new Date(scheduleStartsAt).toISOString() : "", endsAt: scheduleEndsAt ? new Date(scheduleEndsAt).toISOString() : "" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to schedule meeting.");
+      setScheduleTitle(""); setScheduleStartsAt(""); setScheduleEndsAt("");
+      await refreshScheduledMeetings(); setStatusMessage("Meeting scheduled.");
+    } catch (scheduleError) { setError(scheduleError instanceof Error ? scheduleError.message : "Unable to schedule meeting."); }
+    finally { setScheduleBusy(false); }
+  };
+
+  const cancelScheduledMeeting = async (id: string) => {
+    if (!moderatorToken || !window.confirm("Cancel this scheduled meeting?")) return;
+    try {
+      const response = await fetch("/api/livekit/schedule", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + moderatorToken }, body: JSON.stringify({ action: "cancel", id }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to cancel meeting.");
+      setScheduledMeetings((current) => current.filter((meeting) => meeting.id !== id)); setStatusMessage("Scheduled meeting cancelled.");
+    } catch (scheduleError) { setError(scheduleError instanceof Error ? scheduleError.message : "Unable to cancel meeting."); }
+  };
 
   const exportAttendanceCsv = useCallback(async () => {
     if (!isModerator || !moderatorToken) return;
@@ -270,23 +381,36 @@ export function LiveKitRoom({
     setError("");
 
     try {
-      let data: { token?: string; url?: string; room?: string; role?: string; moderatorToken?: string; error?: string } = preset || {};
+      let data: { token?: string; url?: string; room?: string; role?: string; moderatorToken?: string; error?: string; waiting?: boolean; requestToken?: string; status?: string } = preset || {};
       if (!preset) {
         const requestedRoom = roomCode.trim() || roomName;
-        const response = await fetch("/api/livekit/token", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ room: requestedRoom, name: trimmed }),
+        const response = await fetch("/api/livekit/admission", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ action: "request", room: requestedRoom, name: trimmed }),
         });
-        const contentType = response.headers.get("content-type") || "";
-        const raw = await response.text();
-        if (raw) {
-          if (contentType.includes("application/json")) data = JSON.parse(raw) as typeof data;
-          else throw new Error(`LiveKit token endpoint returned an unexpected response (HTTP ${response.status}).`);
+        data = await response.json() as typeof data;
+        if (!response.ok) throw new Error(data.error || "Unable to request room admission.");
+        if (data.waiting && data.requestToken) {
+          setStatusMessage("Waiting for the host to admit you…");
+          let admitted = false;
+          for (let attempt = 0; attempt < 120; attempt += 1) {
+            await new Promise((resolve) => window.setTimeout(resolve, 5000));
+            const statusResponse = await fetch("/api/livekit/admission", {
+              method: "POST",
+              headers: { "content-type": "application/json", Authorization: "Bearer " + data.requestToken },
+              body: JSON.stringify({ action: "status" }),
+            });
+            const statusData = await statusResponse.json() as typeof data;
+            if (!statusResponse.ok) throw new Error(statusData.error || "Unable to check admission status.");
+            if (statusData.status === "rejected") throw new Error("The host did not admit this request.");
+            if (statusData.token && statusData.url && statusData.room) { data = statusData; admitted = true; break; }
+            setStatusMessage("Waiting for host approval… (" + Math.floor((attempt + 1) * 3 / 60) + " min)");
+          }
+          if (!admitted) throw new Error("Waiting room timed out. Please ask the host to admit you and try again.");
         }
-        if (!response.ok) throw new Error(data.error || "Unable to create LiveKit access token.");
       }
       if (!data.token || !data.url || !data.room) throw new Error(data.error || "Unable to create LiveKit access token.");
+      setStatusMessage("");
       setRoomCode(data.room);
       setIsModerator(data.role === "moderator");
       if (data.moderatorToken) setModeratorToken(data.moderatorToken);
@@ -339,7 +463,7 @@ export function LiveKitRoom({
           if (topic !== "infinit-chat" || !participant) return;
           try {
             const decoded = JSON.parse(new TextDecoder().decode(payload)) as {
-              type?: string; id?: string; text?: string; recipientId?: string; recipientName?: string;
+              type?: string; id?: string; text?: string; recipientId?: string; recipientName?: string; attachmentPath?: string; attachmentName?: string; attachmentMime?: string; attachmentSize?: number;
             };
             if (decoded.type === "raise-hand" && typeof decoded.raised === "boolean") {
               setRaisedHands((current) => {
@@ -364,15 +488,44 @@ export function LiveKitRoom({
             if (decoded.type !== "chat-message" || typeof decoded.text !== "string" || typeof decoded.id !== "string") return;
             const localId = room.localParticipant.identity;
             if (decoded.recipientId && decoded.recipientId !== localId) return;
-            setMessages((current) => [...current, {
-              id: decoded.id!,
-              sender: participant.name || participant.identity,
-              senderId: participant.identity,
-              text: decoded.text!,
-              own: false,
-              recipientId: decoded.recipientId,
-              recipientName: decoded.recipientName,
-            }]);
+            setMessages((current) => {
+              // Realtime reconnects can replay packets; avoid duplicate rows and bound memory use.
+              if (current.some((message) => message.id === decoded.id)) return current;
+              const next = [...current, {
+                id: decoded.id!,
+                sender: participant.name || participant.identity,
+                senderId: participant.identity,
+                text: decoded.text!,
+                own: false,
+                recipientId: decoded.recipientId,
+                recipientName: decoded.recipientName,
+                attachmentPath: decoded.attachmentPath,
+                attachmentName: decoded.attachmentName,
+                attachmentMime: decoded.attachmentMime,
+                attachmentSize: decoded.attachmentSize,
+              }];
+              return next.length > 500 ? next.slice(-500) : next;
+            });
+            if (!chatOpenRef.current) setUnreadMessages((current) => Math.min(current + 1, 99));
+            if (!chatOpenRef.current && soundNotifications && typeof window !== "undefined") {
+              try {
+                const AudioContextCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+                if (AudioContextCtor) {
+                  const audioContext = new AudioContextCtor();
+                  if (audioContext.state === "running") {
+                    const oscillator = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    oscillator.frequency.value = 740;
+                    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.04, audioContext.currentTime + 0.015);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.12);
+                    oscillator.connect(gain); gain.connect(audioContext.destination);
+                    oscillator.start(); oscillator.stop(audioContext.currentTime + 0.13);
+                    oscillator.onended = () => { void audioContext.close(); };
+                  } else { void audioContext.close(); }
+                }
+              } catch { /* Sound is optional; never interrupt message delivery. */ }
+            }
           } catch {
             // Ignore malformed or unrelated data packets.
           }
@@ -399,6 +552,24 @@ export function LiveKitRoom({
 
       attendanceTokenRef.current = data.token;
       await room.connect(data.url, data.token);
+      try {
+        const historyResponse = await fetch("/api/livekit/chat", {
+          method: "POST",
+          headers: { "content-type": "application/json", Authorization: "Bearer " + data.token },
+          body: JSON.stringify({ action: "history", limit: 30 }),
+        });
+        const history = await historyResponse.json();
+        if (!historyResponse.ok) throw new Error(history.error || "Unable to load room chat history.");
+        const historyMessages = (Array.isArray(history.messages) ? history.messages : []).map((message: { id: string; sender: string; senderId: string; text: string; recipientId?: string; createdAt?: string }) => ({
+          ...message, own: message.senderId === room.localParticipant.identity,
+          recipientName: message.recipientId ? participants.find((participant) => participant.identity === message.recipientId)?.name : undefined,
+        } satisfies ChatMessage));
+        setMessages(historyMessages);
+        setHasMoreMessages(Boolean(history.hasMore));
+      } catch (historyError) {
+        console.error("Room chat history could not be loaded:", historyError);
+        setStatusMessage("Connected; previous chat history could not be loaded.");
+      }
       const localJoinedAt = Date.now();
       setAttendanceRecords((current) => [
         ...current,
@@ -595,6 +766,14 @@ export function LiveKitRoom({
       recipientName: target ? (target.name || target.identity) : undefined,
     };
     try {
+      const persistResponse = await fetch("/api/livekit/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json", Authorization: "Bearer " + attendanceTokenRef.current },
+        body: JSON.stringify({ action: "send", clientMessageId: message.id, content: text, recipientIdentity: message.recipientId || null, attachmentPath: message.attachmentPath || null, attachmentName: message.attachmentName || null, attachmentMime: message.attachmentMime || null, attachmentSize: message.attachmentSize || null }),
+      });
+      const persisted = await persistResponse.json();
+      if (!persistResponse.ok) throw new Error(persisted.error || "Unable to save the message.");
+      message.createdAt = persisted.message?.createdAt;
       const payload = new TextEncoder().encode(JSON.stringify({
         type: "chat-message", id: message.id, text,
         recipientId: message.recipientId, recipientName: message.recipientName,
@@ -611,9 +790,48 @@ export function LiveKitRoom({
     }
   };
 
-  const copyInvite = async () => {
+  const sendAttachment = async (file: File) => {
+    const room = roomRef.current;
+    if (!room || !attendanceTokenRef.current) return;
+    if (file.size > 4 * 1024 * 1024) { setError("Files must be 4 MB or smaller on this host."); return; }
+    if (chatMode === "private" && !privateRecipient) { setError("Choose a participant for your private attachment."); return; }
+    const target = chatMode === "private" ? participants.find((participant) => participant.identity === privateRecipient) : undefined;
+    if (chatMode === "private" && (!target || target.isLocal)) { setError("That participant is no longer in this room."); return; }
     try {
-      await navigator.clipboard?.writeText(window.location.origin + "/communication?room=" + encodeURIComponent(roomCode || roomName));
+      const form = new FormData(); form.append("file", file);
+      const uploadResponse = await fetch("/api/livekit/attachment", { method: "POST", headers: { Authorization: "Bearer " + attendanceTokenRef.current }, body: form });
+      const upload = await uploadResponse.json();
+      if (!uploadResponse.ok) throw new Error(upload.error || "Attachment upload failed.");
+      const message: ChatMessage = { id: crypto.randomUUID(), sender: room.localParticipant.name || room.localParticipant.identity, senderId: room.localParticipant.identity, text: upload.name, own: true, recipientId: target?.identity, recipientName: target ? (target.name || target.identity) : undefined, attachmentPath: upload.path, attachmentName: upload.name, attachmentMime: upload.mime, attachmentSize: upload.size };
+      const saveResponse = await fetch("/api/livekit/chat", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + attendanceTokenRef.current }, body: JSON.stringify({ action: "send", clientMessageId: message.id, content: upload.name, recipientIdentity: message.recipientId || null, attachmentPath: upload.path, attachmentName: upload.name, attachmentMime: upload.mime, attachmentSize: upload.size }) });
+      const saved = await saveResponse.json();
+      if (!saveResponse.ok) throw new Error(saved.error || "Unable to save attachment message.");
+      message.createdAt = saved.message?.createdAt;
+      const payload = new TextEncoder().encode(JSON.stringify({ type: "chat-message", id: message.id, text: message.text, recipientId: message.recipientId, recipientName: message.recipientName, attachmentPath: message.attachmentPath, attachmentName: message.attachmentName, attachmentMime: message.attachmentMime, attachmentSize: message.attachmentSize }));
+      await room.localParticipant.publishData(payload, { reliable: true, topic: "infinit-chat", ...(target ? { destinationIdentities: [target.identity] } : {}) });
+      setMessages((current) => [...current, message]); setStatusMessage("Attachment sent.");
+    } catch (attachmentError) { setError(attachmentError instanceof Error ? attachmentError.message : "Unable to send attachment."); }
+  };
+
+  const openAttachment = async (path: string) => {
+    try {
+      const response = await fetch("/api/livekit/attachment", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + attendanceTokenRef.current }, body: JSON.stringify({ action: "download", path }) });
+      const result = await response.json();
+      if (!response.ok || typeof result.url !== "string") throw new Error(result.error || "Unable to open attachment.");
+      const link = document.createElement("a"); link.href = result.url; link.target = "_blank"; link.rel = "noopener noreferrer"; link.click();
+    } catch (attachmentError) { setError(attachmentError instanceof Error ? attachmentError.message : "Unable to open attachment."); }
+  };
+
+  const copyInvite = async (meeting?: ScheduledMeeting) => {
+    try {
+      const inviteUrl = new URL("/communication", window.location.origin);
+      inviteUrl.searchParams.set("room", roomCode || roomName);
+      if (meeting) {
+        inviteUrl.searchParams.set("meeting", meeting.title);
+        inviteUrl.searchParams.set("startsAt", meeting.starts_at);
+        inviteUrl.searchParams.set("endsAt", meeting.ends_at);
+      }
+      await navigator.clipboard?.writeText(inviteUrl.toString());
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -676,6 +894,7 @@ export function LiveKitRoom({
               <MessageCircle className="text-primary" size={25} />
             </div>
           </div>
+          {meetingInvite ? <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/[0.07] px-4 py-3"><div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/80">Meeting invitation</div><div className="mt-1 font-semibold text-white">{meetingInvite.title}</div><div className="mt-1 text-xs text-white/55">Starts: {new Date(meetingInvite.startsAt).toLocaleString()} · Ends: {new Date(meetingInvite.endsAt).toLocaleString()}</div><div className="mt-2 text-[10px] leading-4 text-white/40">Times are shown in your device time zone. The room must be active and available when you join.</div></div> : null}
           <label className="block text-sm font-medium text-white/75">
             Your name
             <input
@@ -742,7 +961,7 @@ export function LiveKitRoom({
         {moreOpen ? (
           <div className="absolute right-3 top-[calc(100%+8px)] w-56 rounded-2xl border border-white/10 bg-[#0b0c12]/95 p-2 shadow-2xl backdrop-blur-xl">
             <button type="button" onClick={() => { void copyInvite(); setMoreOpen(false); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 hover:bg-white/[0.07] hover:text-white"><Copy size={15} /> Copy invite link</button>
-            <button type="button" onClick={() => { setChatOpen((value) => !value); setMoreOpen(false); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 hover:bg-white/[0.07] hover:text-white"><MessageCircle size={15} /> {chatOpen ? "Close chat" : "Open chat"}</button>
+            <button type="button" onClick={() => { setChatOpen((value) => !value); setUnreadMessages(0); setMoreOpen(false); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 hover:bg-white/[0.07] hover:text-white"><MessageCircle size={15} /> {chatOpen ? "Close chat" : "Open chat"}{!chatOpen && unreadMessages > 0 ? <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-black">{unreadMessages > 9 ? "9+" : unreadMessages}</span> : null}</button>
             <button type="button" onClick={() => { void toggleFullscreen(); setMoreOpen(false); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 hover:bg-white/[0.07] hover:text-white"><Maximize size={15} /> Fullscreen</button>
           </div>
         ) : null}
@@ -773,6 +992,45 @@ export function LiveKitRoom({
               <div className="flex items-center gap-1">{isModerator ? <button type="button" onClick={exportAttendanceCsv} disabled={attendanceRecords.length === 0} className="rounded-lg border border-primary/25 px-2 py-1.5 text-[10px] text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40" title="Export attendance for this live session">Export CSV</button> : null}<button type="button" onClick={() => setParticipantsOpen(false)} className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white" aria-label="Close participants"><X size={16} /></button></div>
             </div>
             <div className="flex-1 space-y-2 overflow-auto p-3">
+              {isModerator ? (
+                <section className="mb-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-3">
+                  <div className="mb-2 flex items-center justify-between"><span className="text-xs font-semibold text-primary">Waiting room</span><span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{pendingAdmissions.length} pending</span></div>
+                  {pendingAdmissions.length ? pendingAdmissions.map((request) => (
+                    <div key={request.id} className="mb-2 rounded-lg border border-white/10 bg-black/20 p-2.5 last:mb-0">
+                      <div className="truncate text-xs text-white/85">{request.name}</div>
+                      <div className="mt-1 text-[10px] text-white/35">{new Date(request.createdAt).toLocaleTimeString()}</div>
+                      <div className="mt-2 flex gap-2">
+                        <button type="button" onClick={() => void decideAdmission(request.id, "approve")} className="flex-1 rounded-md bg-primary px-2 py-1.5 text-[10px] font-semibold text-black">Admit</button>
+                        <button type="button" onClick={() => void decideAdmission(request.id, "reject")} className="flex-1 rounded-md border border-white/10 px-2 py-1.5 text-[10px] text-white/60 hover:bg-white/5">Decline</button>
+                      </div>
+                    </div>
+                  )) : <div className="text-[10px] leading-4 text-white/35">No one is waiting to join.</div>}
+                </section>
+              ) : null}
+              {isModerator ? (
+                <section className="mb-3 rounded-xl border border-white/10 bg-white/[0.025] p-3">
+                  <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-white/80"><CalendarClock size={15} className="text-primary" /> Schedule a meeting</div>
+                  <input value={scheduleTitle} onChange={(event) => setScheduleTitle(event.target.value)} maxLength={120} placeholder="Meeting title" className="mb-2 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white outline-none focus:border-primary/40" />
+                  <label className="mb-1 block text-[10px] text-white/40">Starts</label>
+                  <input type="datetime-local" value={scheduleStartsAt} onChange={(event) => setScheduleStartsAt(event.target.value)} className="mb-2 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white outline-none focus:border-primary/40" />
+                  <label className="mb-1 block text-[10px] text-white/40">Ends</label>
+                  <input type="datetime-local" value={scheduleEndsAt} onChange={(event) => setScheduleEndsAt(event.target.value)} className="mb-2 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white outline-none focus:border-primary/40" />
+                  <button type="button" disabled={scheduleBusy || !scheduleTitle.trim() || !scheduleStartsAt || !scheduleEndsAt} onClick={() => void createScheduledMeeting()} className="w-full rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">{scheduleBusy ? "Scheduling…" : "Schedule meeting"}</button>
+                  <div className="mt-3 border-t border-white/10 pt-3">
+                    <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-white/45">Upcoming meetings</div>
+                    {scheduledMeetings.length ? scheduledMeetings.map((meeting) => (
+                      <div key={meeting.id} className="mb-2 rounded-lg border border-white/10 bg-black/20 p-2.5 last:mb-0">
+                        <div className="text-xs font-medium text-white/85">{meeting.title}</div>
+                        <div className="mt-1 text-[10px] leading-4 text-white/40">{new Date(meeting.starts_at).toLocaleString()} – {new Date(meeting.ends_at).toLocaleTimeString()}</div>
+                        <div className="mt-2 flex flex-wrap items-center gap-3">
+                          <button type="button" onClick={() => void copyInvite(meeting)} className="inline-flex items-center gap-1 text-[10px] text-primary/90 hover:text-primary"><Copy size={11} /> {copied ? "Copied invite link" : "Copy invite link"}</button>
+                          <button type="button" onClick={() => void cancelScheduledMeeting(meeting.id)} className="text-[10px] text-red-300/80 hover:text-red-200">Cancel meeting</button>
+                        </div>
+                      </div>
+                    )) : <div className="text-[10px] text-white/35">No scheduled meetings yet.</div>}
+                  </div>
+                </section>
+              ) : null}
               {[...participants].sort((a, b) => Number(raisedHands.has(b.identity)) - Number(raisedHands.has(a.identity))).map((participant) => (
                 <div key={participant.identity} className={`flex items-center gap-3 rounded-xl border px-3 py-3 ${raisedHands.has(participant.identity) ? "border-primary/35 bg-primary/[0.07]" : "border-white/10 bg-white/[0.025]"}`}>
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-sm font-semibold text-primary">{(participant.name || participant.identity).slice(0, 1).toUpperCase()}</div>
@@ -826,6 +1084,24 @@ export function LiveKitRoom({
               {chatMode === "private" ? <label className="col-span-2 text-xs text-white/55">Send privately to<select value={privateRecipient} onChange={(event) => setPrivateRecipient(event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none"><option value="">Choose participant…</option>{participants.filter((participant) => !participant.isLocal).map((participant) => <option key={participant.identity} value={participant.identity}>{participant.name || participant.identity}</option>)}</select></label> : null}
             </div>
             <div className="min-h-0 flex-1 space-y-3 overflow-auto p-4">
+              {hasMoreMessages ? (
+                <button type="button" disabled={loadingOlderMessages} onClick={async () => {
+                  const first = messages.find((message) => message.createdAt);
+                  if (!first?.createdAt || !attendanceTokenRef.current) return;
+                  setLoadingOlderMessages(true);
+                  try {
+                    const response = await fetch("/api/livekit/chat", { method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + attendanceTokenRef.current }, body: JSON.stringify({ action: "history", limit: 30, before: first.createdAt }) });
+                    const page = await response.json();
+                    if (!response.ok) throw new Error(page.error || "Unable to load older messages.");
+                    const older = (Array.isArray(page.messages) ? page.messages : []).map((message: { id: string; sender: string; senderId: string; text: string; recipientId?: string; createdAt?: string }) => ({ ...message, own: message.senderId === roomRef.current?.localParticipant.identity } satisfies ChatMessage));
+                    setMessages((current) => [...older.filter((message) => !current.some((existing) => existing.id === message.id)), ...current]);
+                    setHasMoreMessages(Boolean(page.hasMore));
+                  } catch (olderError) { setError(olderError instanceof Error ? olderError.message : "Unable to load older messages."); }
+                  finally { setLoadingOlderMessages(false); }
+                }} className="mx-auto block rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 hover:bg-white/5 disabled:opacity-50">
+                  {loadingOlderMessages ? "Loading…" : "Load older messages"}
+                </button>
+              ) : null}
               {messages.filter((message) => {
                 if (chatMode === "group") return !message.recipientId;
                 const localIdentity = roomRef.current?.localParticipant.identity;
@@ -836,7 +1112,7 @@ export function LiveKitRoom({
               }).map((message) => (
                 <div key={message.id} className={message.own ? "text-right" : "text-left"}>
                   <div className="mb-1 text-[10px] text-white/35">{message.own ? "You" : message.sender}{message.recipientId ? ` · private${message.own ? ` to ${message.recipientName || "participant"}` : ""}` : ""}</div>
-                  <div className={`inline-block max-w-[90%] rounded-2xl px-3.5 py-2.5 text-sm ${message.own ? "bg-primary text-black" : "border border-white/10 bg-white/[0.06]"}`}>{message.text}</div>
+                  <div className={`inline-block max-w-[90%] rounded-2xl px-3.5 py-2.5 text-sm ${message.own ? "bg-primary text-black" : "border border-white/10 bg-white/[0.06]"}`}>{message.attachmentPath ? <button type="button" onClick={() => void openAttachment(message.attachmentPath!)} className="flex max-w-full items-center gap-2 text-left underline underline-offset-2"><Paperclip size={14} className="shrink-0" /><span className="truncate">{message.attachmentName || message.text}</span>{message.attachmentSize ? <span className="shrink-0 text-[10px] opacity-60">{(message.attachmentSize / 1048576).toFixed(1)} MB</span> : null}</button> : message.text}</div>
                 </div>
               ))}
               {messages.filter((message) => {
@@ -848,6 +1124,7 @@ export function LiveKitRoom({
               }).length === 0 ? <div className="flex h-full items-center justify-center text-center text-xs leading-5 text-white/35">{chatMode === "private" ? "Choose a participant and send a private message." : "No group messages yet. Start the conversation."}</div> : null}
             </div>
             <div className="flex gap-2 border-t border-white/10 p-3">
+              <label className="flex cursor-pointer items-center justify-center rounded-xl border border-white/10 px-2.5 text-white/60 hover:bg-white/5" title="Attach a file"><Paperclip size={16} /><input type="file" className="hidden" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/webm,audio/ogg,application/pdf,text/plain" onChange={(event) => { const file = event.currentTarget.files?.[0]; if (file) void sendAttachment(file); event.currentTarget.value = ""; }} /></label>
               <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void sendChat(); }} placeholder="Write a message…" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/40" />
               <button type="button" onClick={() => void sendChat()} className="rounded-xl bg-primary p-2.5 text-black transition hover:brightness-110" aria-label="Send message"><MessageCircle size={16} /></button>
             </div>
@@ -867,6 +1144,14 @@ export function LiveKitRoom({
               <label className="block text-xs text-white/55">Microphone<select value={selectedMic} onChange={(event) => void switchDevice("audioinput", event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none">{devices.microphones.map((device) => <option key={device.deviceId} value={device.deviceId}>{device.label}</option>)}</select></label>
               <label className="block text-xs text-white/55">Camera<select value={selectedCamera} onChange={(event) => void switchDevice("videoinput", event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none">{devices.cameras.map((device) => <option key={device.deviceId} value={device.deviceId}>{device.label}</option>)}</select></label>
               <label className="block text-xs text-white/55">Speaker<select value={selectedSpeaker} onChange={(event) => void switchDevice("audiooutput", event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none">{devices.speakers.map((device) => <option key={device.deviceId} value={device.deviceId}>{device.label}</option>)}</select></label>
+              <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3">
+                <div className="mb-2 text-xs font-semibold text-white/75">Notification preferences</div>
+                <label className="flex cursor-pointer items-center justify-between gap-3 text-xs text-white/60">
+                  <span>Sound for incoming chat messages</span>
+                  <input type="checkbox" checked={soundNotifications} onChange={(event) => setSoundNotifications(event.target.checked)} className="h-4 w-4 accent-yellow-500" />
+                </label>
+                <p className="mt-2 text-[10px] leading-4 text-white/35">Stored on this device. Sound may require a prior browser interaction and is skipped when audio playback is unavailable.</p>
+              </div>
               <button type="button" onClick={() => void loadDevices()} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-xs text-white/65 hover:bg-white/[0.06] hover:text-white"><RefreshCw size={14} /> Refresh devices</button>
             </div>
           </aside>
