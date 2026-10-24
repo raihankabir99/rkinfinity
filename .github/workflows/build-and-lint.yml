@@ -2,9 +2,9 @@ name: Build and lint
 
 on:
   pull_request:
-    branches: [main]
-  push:
     branches: [main, feature/admin-v2-foundation]
+  push:
+    branches: [main, feature/admin-v2-foundation, feature/chat-livekit-production-readiness]
   workflow_dispatch:
 
 permissions:
