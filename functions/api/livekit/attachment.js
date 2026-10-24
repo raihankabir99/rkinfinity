@@ -1,5 +1,5 @@
 const MAX_TOKEN_LENGTH = 8192;
-const MAX_FILE_BYTES = 15 * 1024 * 1024;
+const MAX_FILE_BYTES = 4 * 1024 * 1024;
 const MIME_EXTENSIONS = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "video/mp4": "mp4", "video/webm": "webm", "audio/mpeg": "mp3", "audio/mp4": "m4a", "audio/webm": "webm", "audio/ogg": "ogg", "application/pdf": "pdf", "text/plain": "txt" };
 
 export async function onRequestOptions() {
@@ -20,7 +20,7 @@ export async function onRequestPost(context) {
     if (!grant.roomJoin || !room || !identity) return json({ error: "Token does not authorize a room participant." }, 403);
 
     const requestLength = Number(context.request.headers.get("content-length") || 0);
-    if (requestLength > MAX_FILE_BYTES + 100_000) return json({ error: "Upload request exceeds the 15 MB limit." }, 413);
+    if (requestLength > MAX_FILE_BYTES + 100_000) return json({ error: "Upload request exceeds the 4 MB limit." }, 413);
     const contentType = context.request.headers.get("content-type") || "";
     if (contentType.includes("multipart/form-data")) {
       const form = await context.request.formData();
