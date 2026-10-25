@@ -1,3 +1,5 @@
+import { enforceVercelRateLimit } from "./_rateLimit.js";
+
 const MAX_TOKEN_LENGTH = 8192;
 const MAX_BODY_BYTES = 12_000;
 
@@ -7,6 +9,8 @@ export async function onRequestOptions() {
 
 export async function onRequestPost(context) {
   try {
+    const rateLimit = await enforceVercelRateLimit(context, "chat", 60);
+    if (rateLimit) return rateLimit;
     const { LIVEKIT_API_SECRET, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = context.env;
     if (!LIVEKIT_API_SECRET || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       return json({ error: "Room chat storage is not configured on the server." }, 500);
