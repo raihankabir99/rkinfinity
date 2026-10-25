@@ -1,3 +1,5 @@
+import { enforceVercelRateLimit } from "./_rateLimit.js";
+
 const MAX_TOKEN_LENGTH = 8192;
 const MAX_FILE_BYTES = 4 * 1024 * 1024;
 const MIME_EXTENSIONS = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "video/mp4": "mp4", "video/webm": "webm", "audio/mpeg": "mp3", "audio/mp4": "m4a", "audio/webm": "webm", "audio/ogg": "ogg", "application/pdf": "pdf", "text/plain": "txt" };
@@ -8,6 +10,8 @@ export async function onRequestOptions() {
 
 export async function onRequestPost(context) {
   try {
+    const rateLimit = await enforceVercelRateLimit(context, "attachment", 20);
+    if (rateLimit) return rateLimit;
     const { LIVEKIT_API_SECRET, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = context.env;
     if (!LIVEKIT_API_SECRET || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return json({ error: "Attachment storage is not configured on the server." }, 500);
     const auth = context.request.headers.get("Authorization") || "";
