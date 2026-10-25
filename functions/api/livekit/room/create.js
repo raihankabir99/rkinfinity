@@ -1,4 +1,5 @@
 import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
+import { enforceVercelRateLimit } from "./_rateLimit.js";
 
 export async function onRequestOptions() {
   return new Response(null, { headers: corsHeaders() });
@@ -6,7 +7,7 @@ export async function onRequestOptions() {
 
 export async function onRequestPost(context) {
   try {
-    const rateLimit = await enforceCloudflareLimit(context, "LIVEKIT_CREATE_LIMITER");
+    const rateLimit = await enforceVercelRateLimit(context, "room-create", 5);
     if (rateLimit) return rateLimit;
     const parsed = await readLimitedJson(context.request, 12000);
     if (parsed.error) return json({ error: parsed.error }, parsed.status);
