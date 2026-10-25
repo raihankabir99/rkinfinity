@@ -1,5 +1,5 @@
 import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
-import { enforceVercelRateLimit } from "./_rateLimit.js";
+import { enforceVercelRateLimit } from "../_rateLimit.js";
 
 export async function onRequestOptions() {
   return new Response(null, { headers: corsHeaders() });
