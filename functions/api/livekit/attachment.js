@@ -26,7 +26,7 @@ export async function onRequestPost(context) {
       const form = await context.request.formData();
       const file = form.get("file");
       if (!(file instanceof File)) return json({ error: "Choose a file to upload." }, 400);
-      if (!file.size || file.size > MAX_FILE_BYTES) return json({ error: "Files must be smaller than 15 MB." }, 413);
+      if (!file.size || file.size > MAX_FILE_BYTES) return json({ error: "Files must be 4 MB or smaller." }, 413);
       const extension = MIME_EXTENSIONS[file.type];
       if (!extension) return json({ error: "This file type is not allowed." }, 415);
       const originalName = file.name.replace(/[^a-zA-Z0-9._ -]/g, "_").trim().slice(0, 180) || ("attachment." + extension);
