@@ -1,9 +1,12 @@
 import { RoomServiceClient } from "livekit-server-sdk";
+import { enforceVercelRateLimit } from "./_rateLimit.js";
 
 export async function onRequestOptions() { return new Response(null, { headers: corsHeaders() }); }
 
 export async function onRequestPost(context) {
   try {
+    const rateLimit = await enforceVercelRateLimit(context, "schedule", 20);
+    if (rateLimit) return rateLimit;
     const { LIVEKIT_API_KEY: apiKey, LIVEKIT_API_SECRET: apiSecret, LIVEKIT_URL: livekitUrl, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = context.env;
     if (!apiKey || !apiSecret || !livekitUrl || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return json({ error: "Meeting scheduling is not configured on the server." }, 500);
     const moderator = await verifyModeratorToken(getBearer(context.request), apiSecret);
