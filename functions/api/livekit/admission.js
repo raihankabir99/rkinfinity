@@ -1,11 +1,12 @@
 import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
+import { enforceVercelRateLimit } from "./_rateLimit.js";
 const MAX_TOKEN_LENGTH = 8192;
 
 export async function onRequestOptions() { return new Response(null, { headers: corsHeaders() }); }
 
 export async function onRequestPost(context) {
   try {
-    const rateLimit = await enforceCloudflareLimit(context, "LIVEKIT_ADMISSION_LIMITER");
+    const rateLimit = await enforceVercelRateLimit(context, "admission", 30);
     if (rateLimit) return rateLimit;
     const { LIVEKIT_API_KEY: apiKey, LIVEKIT_API_SECRET: apiSecret, LIVEKIT_URL: livekitUrl, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = context.env;
     if (!apiKey || !apiSecret || !livekitUrl || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return json({ error: "Waiting room is not configured on the server." }, 500);
