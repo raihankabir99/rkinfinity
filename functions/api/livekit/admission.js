@@ -27,7 +27,7 @@ export async function onRequestPost(context) {
       try { metadata = existing.metadata ? JSON.parse(existing.metadata) : {}; } catch { return json({ error: "Room metadata is invalid." }, 500); }
       if (metadata.locked) return json({ error: "This room is locked by its moderator." }, 403);
       const identity = "rkInfinity-" + crypto.randomUUID();
-      if (metadata.waitingRoom !== true) return issueParticipantToken({ room, name, identity, apiKey, apiSecret, livekitUrl });
+      if (metadata.waitingRoom !== true && typeof metadata.ownerIdentity !== "string") return issueParticipantToken({ room, name, identity, apiKey, apiSecret, livekitUrl });
       const rows = await supabaseRequest(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, "classroom_admission_requests", {
         method: "POST", headers: { Prefer: "return=representation" },
         body: JSON.stringify([{ room_name: room, participant_identity: identity, participant_name: name, status: "pending" }]),
