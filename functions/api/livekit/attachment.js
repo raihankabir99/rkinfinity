@@ -50,7 +50,10 @@ export async function onRequestPost(context) {
 
     const length = Number(context.request.headers.get("content-length") || 0);
     if (length > 8000) return json({ error: "Request body is too large." }, 413);
-    const body = await context.request.json();
+    const rawBody = await context.request.text();
+    if (new TextEncoder().encode(rawBody).byteLength > 8000) return json({ error: "Request body is too large." }, 413);
+    let body;
+    try { body = JSON.parse(rawBody); } catch { return json({ error: "Invalid JSON body." }, 400); }
     if (body?.action !== "download" || typeof body.path !== "string") return json({ error: "Unsupported attachment action." }, 400);
     const path = body.path.trim();
     if (!path.startsWith(room + "/") || path.includes("..") || path.length > 500) return json({ error: "Invalid attachment path." }, 403);
