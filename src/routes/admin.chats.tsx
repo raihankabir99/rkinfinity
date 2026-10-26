@@ -53,6 +53,11 @@ function ChatsPage() {
   const [reply, setReply] = useState("");
   const [notif, setNotif] = useState(false);
   const focusRef = useRef(true);
+  const usersRef = useRef(users);
+
+  useEffect(() => {
+    usersRef.current = users;
+  }, [users]);
 
   useEffect(() => {
     const onFocus = () => {
@@ -132,7 +137,7 @@ function ChatsPage() {
             "Notification" in window &&
             Notification.permission === "granted"
           ) {
-            const u = users[row.session_id];
+            const u = usersRef.current[row.session_id];
             new Notification(`New message from ${u?.user_name ?? "visitor"}`, {
               body: row.content.slice(0, 120),
               icon: "/favicon.png",
@@ -148,7 +153,7 @@ function ChatsPage() {
     return () => {
       void supabase.removeChannel(ch);
     };
-  }, [isAdmin, notif, users]);
+  }, [isAdmin, notif]);
 
   const enableNotifications = async () => {
     if (!("Notification" in window)) {
