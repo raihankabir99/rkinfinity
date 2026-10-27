@@ -69,8 +69,12 @@ END;
 $$;
 
 DROP TRIGGER IF EXISTS snapshot_blog_post_revision ON public.blog_posts;
+-- Snapshot inserts and updates only. On DELETE, the revision rows use
+-- ON DELETE CASCADE; attempting to insert a revision in an AFTER DELETE
+-- trigger would violate the blog_post_revisions.post_id foreign key and
+-- unexpectedly block the existing blog deletion flow.
 CREATE TRIGGER snapshot_blog_post_revision
-AFTER INSERT OR UPDATE OR DELETE ON public.blog_posts
+AFTER INSERT OR UPDATE ON public.blog_posts
 FOR EACH ROW EXECUTE FUNCTION public.snapshot_blog_post_revision();
 
 CREATE TABLE IF NOT EXISTS public.blog_seo_metadata (
