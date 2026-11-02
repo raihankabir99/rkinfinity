@@ -70,6 +70,7 @@ function BlogAdminPage() {
   const [slugTouched, setSlugTouched] = useState(false);
   const [preview, setPreview] = useState(false);
   const [seoOpen, setSeoOpen] = useState(false);
+  const [seoLoading, setSeoLoading] = useState(false);
   const [revisionsOpen, setRevisionsOpen] = useState(false);
   const [seo, setSeo] = useState({ meta_title: "", meta_description: "", canonical_url: "", og_title: "", og_description: "", og_image_url: "", noindex: false });
   const [revisions, setRevisions] = useState<Array<{ id: string; version: number; title: string; excerpt: string | null; content: string; created_at: string; published: boolean }>>([]);
@@ -121,6 +122,10 @@ function BlogAdminPage() {
     setCoverUrl("");
     setPublished(true);
     setSlugTouched(false);
+    setSeo({ meta_title: "", meta_description: "", canonical_url: "", og_title: "", og_description: "", og_image_url: "", noindex: false });
+    setRevisions([]);
+    setSeoOpen(false);
+    setRevisionsOpen(false);
   };
 
   const startEdit = (r: PostRow) => {
@@ -134,6 +139,7 @@ function BlogAdminPage() {
     setCoverUrl(r.cover_url ?? "");
     setPublished(r.published);
     setSlugTouched(true);
+    void loadSeo(r.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -143,9 +149,43 @@ function BlogAdminPage() {
   };
 
 
-  const loadSeo = async (postId: string) => { const { data, error } = await supabase.from("blog_seo_metadata").select("*").eq("post_id", postId).maybeSingle(); if (error) { toast.error(error.message); return; } setSeo({ meta_title:data?.meta_title??"", meta_description:data?.meta_description??"", canonical_url:data?.canonical_url??"", og_title:data?.og_title??"", og_description:data?.og_description??"", og_image_url:data?.og_image_url??"", noindex:data?.noindex??false }); };
+  const loadSeo = async (postId: string) => {
+    setSeoLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("blog_seo_metadata")
+        .select("*")
+        .eq("post_id", postId)
+        .maybeSingle();
+      if (error) {
+        toast.error("Unable to load SEO settings: " + error.message);
+        return;
+      }
+      setSeo({
+        meta_title: data?.meta_title ?? "",
+        meta_description: data?.meta_description ?? "",
+        canonical_url: data?.canonical_url ?? "",
+        og_title: data?.og_title ?? "",
+        og_description: data?.og_description ?? "",
+        og_image_url: data?.og_image_url ?? "",
+        noindex: data?.noindex ?? false,
+      });
+    } finally {
+      setSeoLoading(false);
+    }
+  };
   const loadRevisions = async (postId: string) => { const { data, error } = await supabase.from("blog_post_revisions").select("id,version,title,excerpt,content,created_at,published").eq("post_id",postId).order("version",{ascending:false}).limit(50); if(error){toast.error(error.message);return;} setRevisions((data??[]) as typeof revisions); };
-  const saveSeo = async () => { if(!editingId)return; const {error}=await supabase.from("blog_seo_metadata").upsert({post_id:editingId,...seo},{onConflict:"post_id"}); if(error){toast.error(error.message);return;} toast.success("SEO settings saved"); };
+  const saveSeo = async () => {
+    if (!editingId || seoLoading) return;
+    const { error } = await supabase
+      .from("blog_seo_metadata")
+      .upsert({ post_id: editingId, ...seo }, { onConflict: "post_id" });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("SEO settings saved");
+  };
   const restoreRevision = (rev: typeof revisions[number]) => { setTitle(rev.title); setExcerpt(rev.excerpt??""); setContent(rev.content); setPublished(rev.published); setPreview(false); toast.success("Revision loaded into editor. Save to apply it."); };
 
   const submit = async (e: React.FormEvent) => {
@@ -280,7 +320,7 @@ function BlogAdminPage() {
             <h3 className="text-sm font-semibold">SEO metadata</h3>
             {(["meta_title","meta_description","canonical_url","og_title","og_description","og_image_url"] as const).map((key) => <input key={key} value={seo[key]} onChange={(e) => setSeo((s) => ({ ...s, [key]: e.target.value }))} placeholder={key.replaceAll("_", " ")} className="w-full rounded-xl border border-white/10 bg-background/50 px-4 py-2.5 text-sm outline-none focus:border-primary" />)}
             <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={seo.noindex} onChange={(e) => setSeo((s) => ({ ...s, noindex: e.target.checked }))} /> Noindex</label>
-            <button type="button" onClick={saveSeo} className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">Save SEO</button>
+            <button type="button" onClick={saveSeo} disabled={seoLoading} className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-50">{seoLoading ? "Loading SEO…" : "Save SEO"}</button>
           </div>}
           {revisionsOpen && editingId && <div className="rounded-xl border border-white/5 bg-black/20 p-4">
             <h3 className="mb-3 text-sm font-semibold">Revision history</h3>
