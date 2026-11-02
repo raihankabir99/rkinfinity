@@ -65,6 +65,7 @@ function AdminPage() {
   const [refreshing, setRefreshing] = useState(false);
 
   const [visitors, setVisitors] = useState<Visitor[]>([]);
+  const [visitorMetrics, setVisitorMetrics] = useState({ pageviews24h: 0, uniqueSessions24h: 0 });
   const [leads, setLeads] = useState<Lead[]>([]);
   const [errors, setErrors] = useState<SiteError[]>([]);
   const [chats, setChats] = useState<ChatLog[]>([]);
@@ -99,21 +100,46 @@ function AdminPage() {
 
   const loadAll = async () => {
     setRefreshing(true);
-    const [v, l, e, c] = await Promise.all([
-      supabase
-        .from("visitor_tracking")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(50),
-      supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(25),
-      supabase.from("site_errors").select("*").order("created_at", { ascending: false }).limit(25),
-      supabase.from("chat_logs").select("*").order("created_at", { ascending: false }).limit(25),
-    ]);
-    if (v.data) setVisitors(v.data as Visitor[]);
-    if (l.data) setLeads(l.data as Lead[]);
-    if (e.data) setErrors(e.data as SiteError[]);
-    if (c.data) setChats(c.data as ChatLog[]);
-    setRefreshing(false);
+    try {
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const allVisitors: Visitor[] = [];
+      const pageSize = 1000;
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase
+          .from("visitor_tracking")
+          .select("id, session_id, path, country, city, user_agent, created_at")
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        const page = (data ?? []) as Visitor[];
+        allVisitors.push(...page);
+        if (page.length < pageSize) break;
+      }
+
+      const [l, e, c] = await Promise.all([
+        supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(25),
+        supabase.from("site_errors").select("*").order("created_at", { ascending: false }).limit(25),
+        supabase.from("chat_logs").select("*").order("created_at", { ascending: false }).limit(25),
+      ]);
+      if (l.error) throw l.error;
+      if (e.error) throw e.error;
+      if (c.error) throw c.error;
+
+      setVisitors(allVisitors.slice(0, 50));
+      setVisitorMetrics({
+        pageviews24h: allVisitors.length,
+        uniqueSessions24h: new Set(allVisitors.map((visitor) => visitor.session_id).filter(Boolean)).size,
+      });
+      setLeads((l.data ?? []) as Lead[]);
+      setErrors((e.data ?? []) as SiteError[]);
+      setChats((c.data ?? []) as ChatLog[]);
+    } catch (error) {
+      console.error("Admin dashboard refresh failed", error);
+      toast.error("Dashboard data could not be fully refreshed. Please try again.");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -148,19 +174,12 @@ function AdminPage() {
     };
   }, [isAdmin]);
 
-  const stats = useMemo(() => {
-    const now = Date.now();
-    const last24h = visitors.filter(
-      (v) => now - new Date(v.created_at).getTime() < 24 * 60 * 60 * 1000,
-    ).length;
-    const uniqueSessions = new Set(visitors.map((v) => v.session_id)).size;
-    return {
-      pageviews24h: last24h,
-      uniqueSessions,
-      leads: leads.length,
-      errors: errors.length,
-    };
-  }, [visitors, leads, errors]);
+  const stats = useMemo(() => ({
+    pageviews24h: visitorMetrics.pageviews24h,
+    uniqueSessions: visitorMetrics.uniqueSessions24h,
+    leads: leads.length,
+    errors: errors.length,
+  }), [visitorMetrics, leads, errors]);
 
   if (authChecking) {
     return (
