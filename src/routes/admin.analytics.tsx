@@ -68,15 +68,28 @@ function AnalyticsPage() {
   const load = async () => {
     setRefreshing(true);
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const { data, error } = await supabase
-      .from("visitor_tracking")
-      .select("*")
-      .gte("created_at", since)
-      .order("created_at", { ascending: false })
-      .limit(1000);
-    setRefreshing(false);
-    if (error) toast.error(error.message);
-    if (data) setRows(data as VisitorRow[]);
+    const pageSize = 1000;
+    const allRows: VisitorRow[] = [];
+    try {
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase
+          .from("visitor_tracking")
+          .select("id, session_id, path, country, city, referrer, created_at")
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        const page = (data ?? []) as VisitorRow[];
+        allRows.push(...page);
+        if (page.length < pageSize) break;
+      }
+      setRows(allRows);
+    } catch (error) {
+      console.error("Analytics data refresh failed", error);
+      toast.error("Analytics could not be fully loaded. Please refresh and try again.");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const stats = useMemo(() => {
@@ -171,7 +184,7 @@ function AnalyticsPage() {
               </span>
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Last 30 days · {rows.length} pageviews
+              Last 30 days · {stats.total} pageviews
             </p>
           </div>
           <button
