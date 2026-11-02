@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageShell } from "@/components/PageShell";
+import { verifyAdminSession } from "@/lib/admin-session";
+import { AdminShell } from "@/admin/AdminShell";
 import { Mail, Loader2, ShieldCheck, ArrowLeft, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,13 +37,8 @@ function LeadsPage() {
         navigate({ to: "/login" });
         return;
       }
-      const { data: roleRows } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", sess.session.user.id)
-        .eq("role", "admin");
+      const ok = await verifyAdminSession(sess.session.access_token);
       if (!mounted) return;
-      const ok = !!roleRows && roleRows.length > 0;
       setIsAdmin(ok);
       setAuthChecking(false);
       if (ok) void load();
@@ -80,16 +76,16 @@ function LeadsPage() {
 
   if (authChecking) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="flex min-h-[60vh] items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
   if (!isAdmin) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-bold">Admin access required</h1>
@@ -97,12 +93,12 @@ function LeadsPage() {
             ← Back home
           </Link>
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
 
   return (
-    <PageShell>
+    <AdminShell>
       <section className="mx-auto max-w-6xl px-4 py-10">
         <Link
           to="/admin"
@@ -168,6 +164,6 @@ function LeadsPage() {
           ))}
         </div>
       </section>
-    </PageShell>
+    </AdminShell>
   );
 }

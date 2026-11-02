@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageShell } from "@/components/PageShell";
+import { verifyAdminSession } from "@/lib/admin-session";
+import { AdminShell } from "@/admin/AdminShell";
 import {
   BarChart3,
   Loader2,
@@ -49,13 +50,8 @@ function AnalyticsPage() {
         navigate({ to: "/login" });
         return;
       }
-      const { data: roleRows } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", sess.session.user.id)
-        .eq("role", "admin");
+      const ok = await verifyAdminSession(sess.session.access_token);
       if (!mounted) return;
-      const ok = !!roleRows && roleRows.length > 0;
       setIsAdmin(ok);
       setAuthChecking(false);
       if (ok) void load();
@@ -68,15 +64,28 @@ function AnalyticsPage() {
   const load = async () => {
     setRefreshing(true);
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const { data, error } = await supabase
-      .from("visitor_tracking")
-      .select("*")
-      .gte("created_at", since)
-      .order("created_at", { ascending: false })
-      .limit(1000);
-    setRefreshing(false);
-    if (error) toast.error(error.message);
-    if (data) setRows(data as VisitorRow[]);
+    const pageSize = 1000;
+    const allRows: VisitorRow[] = [];
+    try {
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase
+          .from("visitor_tracking")
+          .select("id, session_id, path, country, city, referrer, created_at")
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        const page = (data ?? []) as VisitorRow[];
+        allRows.push(...page);
+        if (page.length < pageSize) break;
+      }
+      setRows(allRows);
+    } catch (error) {
+      console.error("Analytics data refresh failed", error);
+      toast.error("Analytics could not be fully loaded. Please refresh and try again.");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const stats = useMemo(() => {
@@ -127,16 +136,16 @@ function AnalyticsPage() {
 
   if (authChecking) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="flex min-h-[60vh] items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
   if (!isAdmin) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-bold">Admin access required</h1>
@@ -144,14 +153,14 @@ function AnalyticsPage() {
             ← Back home
           </Link>
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
 
   const maxDay = Math.max(1, ...stats.days.map((d) => d.count));
 
   return (
-    <PageShell>
+    <AdminShell>
       <section className="mx-auto max-w-7xl px-4 py-10">
         <Link
           to="/admin"
@@ -171,7 +180,7 @@ function AnalyticsPage() {
               </span>
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Last 30 days · {rows.length} pageviews
+              Last 30 days · {stats.total} pageviews
             </p>
           </div>
           <button
@@ -214,7 +223,7 @@ function AnalyticsPage() {
           <TopList title="Top referrers" rows={stats.topReferrers} />
         </div>
       </section>
-    </PageShell>
+    </AdminShell>
   );
 }
 
