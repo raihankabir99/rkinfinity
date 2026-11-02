@@ -3,42 +3,12 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { AccessToken } from "livekit-server-sdk";
 import { runChat } from "./src/server/chat.server.ts";
-import { requireAdmin } from "./src/server/admin-auth.server.ts";
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json());
-
-  // Validate an authenticated Supabase access token and confirm the admin role.
-  // This endpoint is a server-verified UI gate; protected tables must still use RLS.
-  app.get("/api/admin/session", async (req, res) => {
-    const authorization = req.header("authorization") ?? "";
-    const match = authorization.match(/^Bearer\\s+(.+)$/i);
-    if (!match) {
-      return res.status(401).json({ authenticated: false, isAdmin: false });
-    }
-
-    try {
-      const admin = await requireAdmin(match[1]);
-      return res.set("Cache-Control", "no-store").json({
-        authenticated: true,
-        isAdmin: true,
-        userId: admin.userId,
-      });
-    } catch (error) {
-      const code = error instanceof Error ? error.message : "ADMIN_ROLE_CHECK_FAILED";
-      if (code === "UNAUTHORIZED") {
-        return res.status(401).json({ authenticated: false, isAdmin: false });
-      }
-      if (code === "FORBIDDEN") {
-        return res.status(403).json({ authenticated: true, isAdmin: false });
-      }
-      console.error("Admin session verification failed:", error);
-      return res.status(503).json({ authenticated: false, isAdmin: false });
-    }
-  });
 
   app.post("/api/chat", async (req, res) => {
     try {
