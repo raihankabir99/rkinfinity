@@ -19,9 +19,11 @@ Scope: isolated remediation only. No production, database, or deployment changes
 ## Remaining implementation / verification
 ### Critical
 - [ ] Run production build, TypeScript and lint checks; fix all errors.
-- [ ] Verify every Admin route enforces server-verified identity and role authorization; client-side role checks are UX only.
+- [x] Add a Cloudflare Pages Function that verifies the Supabase access token with Auth and checks the admin role using the authenticated user's RLS-scoped `user_roles` read; all seven Admin routes now use this server-verified check for their access gate.
+- [ ] Confirm that each direct table operation remains protected by its table's RLS policy; the Pages Function is an identity/role gate, not a replacement for database authorization.
 - [ ] Verify Supabase RLS for blog posts, SEO metadata, revisions, leads, chats, knowledge and analytics tables.
-- [ ] Audit server-only service-role usage and ensure it is never imported into browser bundles.
+- [x] Keep the Cloudflare Pages admin-session check on the publishable key and caller's bearer token; it does not use the service-role key.
+- [ ] Audit all other server-only service-role usage and ensure it is never imported into browser bundles.
 - [ ] Verify Admin errors are surfaced rather than silently rendering partial metrics.
 
 ### Dashboard
@@ -57,6 +59,15 @@ Scope: isolated remediation only. No production, database, or deployment changes
 - Dashboard visitor KPIs now read the complete rolling 24-hour result in 1,000-row pages. The visible visitor table remains capped at 50 recent records by design.
 - Analytics reads the complete rolling 30-day result in 1,000-row pages. If any page fails, the UI reports that the report could not be fully loaded instead of showing a silently truncated dataset.
 - Static migration review confirms the initial `user_roles` table has RLS enabled, self/admin read policies, and admin-only role management; the visitor, leads, site-errors, chat-logs, blog, knowledge and bot-training tables also have RLS enabled with admin-gated access for sensitive reads/writes. This is a source review only, not proof that every migration is applied correctly in the connected production Supabase project.
-- Security limitation: the Admin pages perform client-side session/role checks for navigation and UX. These checks are not a substitute for server-side authorization. The server helper `requireAdmin(userId)` checks a role for a supplied ID but does not itself validate a signed request/session, and repository search did not find call sites for it. Treat it as unused until a server route authenticates the request before passing the verified user ID.
+- Security limitation: the Admin pages perform client-side session/role checks for navigation and UX. These checks are not a substitute for server-side authorization. The Cloudflare Pages Function `functions/api/admin/session.js` now validates the supplied access token with `supabase.auth.getUser(token)` and then checks `user_roles` using that same user-scoped client. This prevents a browser-supplied user ID from being trusted as proof of identity. It is an Admin route access gate; direct reads/writes still depend on RLS policies. The Express `server.ts` was deliberately left unchanged so the Cloudflare Pages deployment does not depend on the Node server endpoint.
 - The current visitor pagination is a correctness improvement but still downloads rows to the browser. A server-side aggregate function with explicit RLS/auth validation is a later optimization and would require a separately reviewed migration; none has been created or applied here.
 - Validation status at the time of this update: GitHub reports the PR branch mergeable and Vercel Preview check pending. Build, lint, typecheck and browser regression tests have not yet been confirmed green.
+
+
+## Server-verified Admin access update
+- Added `GET /api/admin/session` as a Cloudflare Pages Function. It requires a Bearer access token, verifies it with Supabase Auth, then queries the caller's own `user_roles` row using the publishable key and that same bearer token. No service-role key is used by this Pages Function.
+- Updated Dashboard, Blog, Knowledge, Chats, Trainer, Leads and Analytics routes to use the Pages Function instead of trusting a client-supplied user ID for the role check.
+- The function fails closed: missing/invalid token returns 401, authenticated non-admin returns 403, and missing configuration or lookup failures return 503.
+- The Express `server.ts` was restored to its base-branch version; Cloudflare Pages Functions are the active architecture for this endpoint.
+- Static migration review: `user_roles` has RLS enabled and a self-read policy, which the Pages Function relies on. Sensitive tables such as leads, visitor_tracking, site_errors, chat_logs and admin writes for blog/knowledge/bot-training have admin role policies. `knowledge_base` and `bot_training` also have public SELECT policies in the initial migration; confirm that public reads are intentional before treating those datasets as private. SEO metadata and revision policies still require separate verification.
+- No migration was applied, no production data was read or changed, and no deployment was promoted.
