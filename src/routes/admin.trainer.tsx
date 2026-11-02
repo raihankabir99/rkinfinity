@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyAdminSession } from "@/lib/admin-session";
 import { AdminShell } from "@/admin/AdminShell";
 import { Brain, Loader2, Plus, Trash2, ShieldCheck, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -36,13 +37,8 @@ function TrainerPage() {
         navigate({ to: "/login" });
         return;
       }
-      const { data: roleRows } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", sess.session.user.id)
-        .eq("role", "admin");
+      const ok = await verifyAdminSession(sess.session.access_token);
       if (!mounted) return;
-      const ok = !!roleRows && roleRows.length > 0;
       setIsAdmin(ok);
       setAuthChecking(false);
       if (ok) void load();
