@@ -174,7 +174,7 @@ function AdminPage() {
 
   if (!isAdmin) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-bold">Admin access required</h1>
@@ -185,12 +185,12 @@ function AdminPage() {
             ← Back home
           </Link>
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
 
   return (
-    <PageShell>
+    <AdminShell>
       <section className="mx-auto max-w-7xl px-4 py-10">
         {/* Header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -338,7 +338,7 @@ function AdminPage() {
           </Panel>
         </div>
       </section>
-    </PageShell>
+    </AdminShell>
   );
 }
 
