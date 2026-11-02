@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageShell } from "@/components/PageShell";
+import { AdminShell } from "@/admin/AdminShell";
 import {
   MessageSquare,
   Loader2,
@@ -223,16 +223,16 @@ function ChatsPage() {
 
   if (authChecking) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="flex min-h-[60vh] items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
   if (!isAdmin) {
     return (
-      <PageShell>
+      <AdminShell>
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-primary" />
           <h1 className="text-2xl font-bold">Admin access required</h1>
@@ -240,12 +240,12 @@ function ChatsPage() {
             ← Back home
           </Link>
         </div>
-      </PageShell>
+      </AdminShell>
     );
   }
 
   return (
-    <PageShell>
+    <AdminShell>
       <section className="mx-auto max-w-7xl px-4 py-10">
         <Link
           to="/admin"
@@ -432,7 +432,7 @@ function ChatsPage() {
           </div>
         </div>
       </section>
-    </PageShell>
+    </AdminShell>
   );
 }
 
