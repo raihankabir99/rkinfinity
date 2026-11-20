@@ -1,11 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -38,20 +38,20 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.04 0.005 80);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.07 0.005 80);
+  --background: oklch(0.105 0.008 145);
+  --foreground: oklch(0.96 0.008 90);
+  --card: oklch(0.14 0.01 145);
   --card-foreground: oklch(0.97 0 0);
   --popover: oklch(0.07 0.005 80);
   --popover-foreground: oklch(0.97 0 0);
   --primary: oklch(0.78 0.14 85);
   --primary-foreground: oklch(0.08 0 0);
-  --secondary: oklch(0.85 0.2 142);
-  --secondary-foreground: oklch(0.05 0 0);
-  --muted: oklch(0.14 0 0);
-  --muted-foreground: oklch(0.68 0.02 80);
-  --accent: oklch(0.85 0.2 142);
-  --accent-foreground: oklch(0.05 0 0);
+  --secondary: oklch(0.2 0.015 85);
+  --secondary-foreground: oklch(0.96 0.008 90);
+  --muted: oklch(0.16 0.008 85);
+  --muted-foreground: oklch(0.69 0.018 85);
+  --accent: oklch(0.78 0.14 85);
+  --accent-foreground: oklch(0.08 0.01 75);
   --destructive: oklch(0.62 0.24 27);
   --destructive-foreground: oklch(0.97 0 0);
   --border: oklch(0.78 0.14 85 / 18%);
@@ -77,7 +77,7 @@
   --gradient-neon: linear-gradient(135deg, var(--neon), var(--aqua));
   --gradient-hero:
     radial-gradient(ellipse at top, oklch(0.78 0.14 85 / 0.12), transparent 60%),
-    radial-gradient(ellipse at bottom right, oklch(0.85 0.2 142 / 0.08), transparent 50%);
+    radial-gradient(ellipse at bottom right, oklch(0.55 0.05 145 / 0.045), transparent 52%);
 
   --shadow-gold:
     0 0 24px oklch(0.78 0.14 85 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.25),
@@ -106,14 +106,163 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.88 0.28 142 / 0.08), transparent),
-      radial-gradient(ellipse 60% 40% at 100% 100%, oklch(0.85 0.18 195 / 0.06), transparent);
+      radial-gradient(ellipse 75% 45% at 50% -10%, oklch(0.78 0.14 85 / 0.055), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, oklch(0.55 0.05 145 / 0.025), transparent);
     background-attachment: fixed;
   }
 
   ::selection {
     background: var(--neon);
     color: oklch(0 0 0);
+  }
+}
+
+@layer components {
+  .section-shell {
+    width: min(100% - 2.5rem, 80rem);
+    margin-inline: auto;
+  }
+
+  .section-title {
+    color: white;
+    font-size: clamp(2rem, 4vw, 3.75rem);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 1.05;
+  }
+
+  .eyebrow {
+    color: var(--gold-bright);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .text-link {
+    color: var(--gold-bright);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 180ms ease;
+  }
+
+  .text-link:hover {
+    color: white;
+  }
+
+  .site-nav {
+    border: 1px solid oklch(1 0 0 / 0.09);
+    background: oklch(0.08 0.006 85 / 0.86);
+    box-shadow: 0 12px 40px oklch(0 0 0 / 0.2);
+    backdrop-filter: blur(18px);
+  }
+
+  .home-hero {
+    background:
+      radial-gradient(ellipse at 85% 28%, oklch(0.78 0.14 85 / 0.075), transparent 38%),
+      linear-gradient(180deg, oklch(0.12 0.01 85 / 0.6), transparent 88%);
+  }
+
+  .hero-grid {
+    background-image:
+      linear-gradient(oklch(1 0 0 / 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(1 0 0 / 0.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(to bottom, black, transparent 86%);
+  }
+
+  .hero-accent {
+    color: var(--gold-bright);
+  }
+
+  .hero-secondary-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: oklch(0.9 0.008 85);
+    font-size: 0.875rem;
+    transition: color 180ms ease;
+  }
+
+  .hero-secondary-link:hover {
+    color: var(--gold-bright);
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    transform: translateX(-50%);
+    place-items: center;
+    border: 1px solid oklch(1 0 0 / 0.15);
+    border-radius: 999px;
+    color: oklch(1 0 0 / 0.6);
+  }
+
+  .hero-art-frame {
+    box-shadow: 0 28px 80px oklch(0 0 0 / 0.35);
+  }
+
+  .home-cta {
+    background: linear-gradient(135deg, oklch(0.14 0.012 85), oklch(0.09 0.006 85) 72%);
+  }
+
+  .home-cta-glow {
+    background: radial-gradient(ellipse at 78% 10%, oklch(0.78 0.14 85 / 0.13), transparent 48%);
+  }
+
+  .project-art {
+    background-color: oklch(0.13 0.012 85);
+  }
+
+  .project-art-lines {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      135deg,
+      transparent 48%,
+      oklch(1 0 0 / 0.07) 49%,
+      transparent 50%
+    );
+    background-size: 28px 28px;
+    mask-image: linear-gradient(135deg, transparent 8%, black 100%);
+  }
+
+  .project-orbit {
+    background-image:
+      radial-gradient(circle at 50% 45%, oklch(0.78 0.14 85 / 0.17), transparent 34%),
+      linear-gradient(135deg, oklch(0.15 0.02 85), oklch(0.09 0.01 145));
+  }
+
+  .project-field {
+    background-image:
+      radial-gradient(ellipse at 75% 24%, oklch(0.72 0.07 145 / 0.18), transparent 38%),
+      linear-gradient(145deg, oklch(0.15 0.02 145), oklch(0.09 0.01 85));
+  }
+
+  .project-thread {
+    background-image:
+      radial-gradient(ellipse at 20% 80%, oklch(0.72 0.09 65 / 0.16), transparent 40%),
+      linear-gradient(135deg, oklch(0.16 0.018 55), oklch(0.09 0.01 85));
+  }
+
+  .project-monogram {
+    color: oklch(0.94 0.09 88 / 0.78);
+    font-size: clamp(5rem, 13vw, 9rem);
+    font-weight: 500;
+    letter-spacing: -0.12em;
+    line-height: 1;
+    text-shadow: 0 8px 48px oklch(0.78 0.14 85 / 0.22);
+  }
+
+  @media (max-width: 639px) {
+    .section-shell {
+      width: min(100% - 2rem, 80rem);
+    }
   }
 }
 
@@ -423,5 +572,25 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
