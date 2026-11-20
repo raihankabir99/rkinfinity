@@ -37,8 +37,8 @@ const tools = [
 
 const company = [
   { label: "About", to: "/about" },
-  { label: "My Story", to: "/about" },
-  { label: "Blog", to: "/blog" },
+  { label: "My Story", to: "/story" },
+  { label: "Journal", to: "/blog" },
   { label: "Contact", to: "/contact" },
 ] as const;
 
@@ -62,18 +62,8 @@ export function Footer() {
                 </span>
               </span>
             </Link>
-            <div className="footer-role-text text-sm space-y-1 font-semibold leading-relaxed">
-              <p className="text-[#e9e0e0]">
-                SEO Specialist <span className="text-primary/50 mx-1.5"> • </span> Digital Solutions
-                Architect <span className="text-primary/50 mx-1.5"> • </span> Content
-              </p>
-              <p>
-                Strategist <span className="text-primary/50 mx-1.5"> • </span> AI-Powered Web
-                Creator
-              </p>
-            </div>
-            <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mt-4">
-              Crafting digital experiences that scale with precision and creativity.
+            <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+              Digital growth, thoughtful web experiences, and practical technology—made with care.
             </p>
             <div className="mt-6 flex items-center gap-2.5 flex-wrap">
               {socials.map(({ Icon, href, label }) => (
@@ -148,16 +138,15 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Facebook page CTA */}
-      <div className="mx-auto max-w-7xl px-4 pt-16 pb-10 flex justify-center">
+      <div className="mx-auto flex max-w-7xl justify-start px-4 pb-10 pt-12">
         <a
           href={facebookUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="neon-border inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-[oklch(0.92_0.18_142)]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 px-5 text-sm text-white/60 transition hover:border-[color:var(--gold)]/40 hover:text-white"
         >
-          <Facebook size={16} className="fb-neon" />
-          Follow my Facebook page for daily stories & creative updates
+          <Facebook size={16} aria-hidden="true" />
+          Follow rkInfinity on Facebook
         </a>
       </div>
 

@@ -1,17 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PageShell, SectionHeader } from "@/components/PageShell";
+import { PageShell } from "@/components/PageShell";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import {
-  Search,
-  TrendingUp,
-  Code2,
-  PenTool,
-  Megaphone,
+  ArrowRight,
   BarChart3,
   Check,
-  Share2,
+  Code2,
   FileSearch,
-  Target,
-  ArrowRight,
+  PenTool,
+  Search,
+  Share2,
+  TrendingUp,
 } from "lucide-react";
 
 export const Route = createFileRoute("/services")({
@@ -20,287 +19,191 @@ export const Route = createFileRoute("/services")({
       { title: "Services — rkInfinity" },
       {
         name: "description",
-        content: "SEO, digital marketing, and web development services that compound.",
+        content:
+          "Explore SEO, digital marketing, content, analytics, and web development services from rkInfinity.",
       },
       { property: "og:title", content: "Services — rkInfinity" },
-      { property: "og:description", content: "Premium SEO, marketing, and engineering services." },
+      {
+        property: "og:description",
+        content: "SEO, digital marketing, and web development services.",
+      },
     ],
   }),
   component: Services,
 });
 
-const featuredServices = [
+const offerings = [
   {
     icon: Search,
-    iconAlt: "SEO optimization icon",
-    t: "SEO Optimization",
-    d: "Comprehensive search engine optimization to improve your website visibility and organic rankings.",
+    title: "SEO & search",
+    description: "Strengthen the foundations that help people find and understand your site.",
     items: [
-      "Technical SEO Audit",
-      "On-Page Optimization",
-      "Keyword Research & Strategy",
-      "Link Building",
-      "Local SEO",
-      "Performance Monitoring",
+      "Technical SEO audits",
+      "Keyword research & strategy",
+      "On-page optimization",
+      "Search visibility",
     ],
   },
   {
     icon: TrendingUp,
-    iconAlt: "Digital marketing growth icon",
-    t: "Digital Marketing",
-    d: "Data-driven digital marketing strategies that drive traffic, engagement, and conversions.",
+    title: "Growth marketing",
+    description: "Bring strategy, campaigns, and measurement together around your goals.",
     items: [
-      "Marketing Strategy Development",
-      "Campaign Management",
-      "Analytics & Reporting",
-      "Conversion Optimization",
-      "A/B Testing",
-      "ROI Analysis",
-    ],
-  },
-  {
-    icon: PenTool,
-    iconAlt: "Content creation pen icon",
-    t: "Content Creation",
-    d: "Engaging, SEO-friendly content that resonates with your audience and drives action.",
-    items: [
-      "Blog Posts & Articles",
-      "Website Copy",
-      "Social Media Content",
-      "Email Newsletters",
-      "Product Descriptions",
-      "Brand Storytelling",
-    ],
-  },
-  {
-    icon: BarChart3,
-    iconAlt: "Analytics insights chart icon",
-    t: "Analytics & Insights",
-    d: "Deep dive into your data to uncover opportunities and optimize performance.",
-    items: [
-      "Google Analytics Setup",
-      "Custom Dashboard Creation",
-      "Performance Tracking",
-      "Competitor Analysis",
-      "User Behavior Analysis",
-      "Monthly Reports",
-    ],
-  },
-  {
-    icon: FileSearch,
-    iconAlt: "Website audit magnifier icon",
-    t: "Website Audit",
-    d: "Comprehensive analysis of your website to identify issues and opportunities.",
-    items: [
-      "Technical Health Check",
-      "SEO Audit",
-      "UX/UI Review",
-      "Speed Optimization",
-      "Mobile Responsiveness",
-      "Security Assessment",
+      "Marketing strategy",
+      "Campaign planning",
+      "Conversion optimization",
+      "Performance reporting",
     ],
   },
   {
     icon: Share2,
-    iconAlt: "Social media network icon",
-    t: "Social Media Marketing",
-    d: "Strategic social media management to build your brand and engage your audience.",
+    title: "Social media",
+    description: "Build a consistent digital presence with useful, audience-aware content.",
+    items: ["Social content strategy", "Content calendar", "Community growth", "Campaign analysis"],
+  },
+  {
+    icon: PenTool,
+    title: "Content & storytelling",
+    description: "Create clear content that serves your audience and supports your brand.",
+    items: ["Content strategy", "Website copy", "Blog articles", "Brand storytelling"],
+  },
+  {
+    icon: BarChart3,
+    title: "Analytics & insights",
+    description: "Make site and campaign data easier to understand and act on.",
     items: [
-      "Strategy Development",
-      "Content Calendar",
-      "Community Management",
-      "Paid Advertising",
-      "Influencer Outreach",
-      "Performance Analytics",
+      "Analytics setup",
+      "Performance tracking",
+      "Competitor research",
+      "Reporting dashboards",
+    ],
+  },
+  {
+    icon: Code2,
+    title: "Web & AI experiences",
+    description: "Design and build responsive web experiences shaped around real needs.",
+    items: [
+      "Web design & development",
+      "AI-assisted web creation",
+      "UX/UI review",
+      "Digital automation",
     ],
   },
 ];
 
-const services = [
+const process = [
   {
-    icon: Search,
-    t: "Technical SEO Audits",
-    d: "Deep crawl analysis, schema, and core web vitals optimization.",
-    items: ["Site architecture", "Schema markup", "Core Web Vitals"],
+    number: "01",
+    title: "Discover",
+    description: "Understand the context, audience, and outcome you’re working toward.",
   },
   {
-    icon: TrendingUp,
-    t: "Growth Marketing",
-    d: "Paid + organic systems engineered for compounding ROAS.",
-    items: ["Funnel design", "PPC management", "CRO"],
+    number: "02",
+    title: "Plan",
+    description: "Agree on a focused direction and practical next steps.",
   },
   {
-    icon: Code2,
-    t: "AI-Powered Web Creation",
-    d: "Modern, AI-driven websites built for speed and conversion using latest technologies.",
-    items: ["Rapid AI Prototyping", "Custom UI/UX Implementation", "AI Chatbot Integration"],
+    number: "03",
+    title: "Create",
+    description: "Bring the chosen strategy or experience to life with care.",
   },
   {
-    icon: PenTool,
-    t: "Content Strategy",
-    d: "Editorial systems that rank, convert, and resonate.",
-    items: ["Topic clusters", "Editorial calendars", "Brand voice"],
+    number: "04",
+    title: "Improve",
+    description: "Review what’s working and decide what to refine next.",
   },
-  {
-    icon: Megaphone,
-    t: "Digital Presence Growth",
-    d: "Strategic organic growth plans to enhance your brand's visibility and authority online.",
-    items: ["Search Visibility", "Content Authority", "Data-Driven Insights"],
-  },
-  {
-    icon: BarChart3,
-    t: "Analytics & Reporting",
-    d: "Dashboards that turn noise into next-step decisions.",
-    items: ["GA4 & Search Console", "Looker Studio Dashboards", "SEO Performance Tracking"],
-  },
-];
-
-const processSteps = [
-  { n: "01", t: "Discovery", d: "Understanding your business, goals, and target audience." },
-  { n: "02", t: "Strategy", d: "Developing a customized plan tailored to your needs." },
-  { n: "03", t: "Execution", d: "Implementing the strategy with precision and care." },
-  { n: "04", t: "Optimization", d: "Continuous monitoring and improvement for best results." },
 ];
 
 function Services() {
   return (
     <PageShell>
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <SectionHeader
-          eyebrow="Services"
-          title="Everything you need to scale."
-          sub="From the first audit to the millionth visitor — one craftsman, one bill."
-        />
-
-        {/* Featured 6 services */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {featuredServices.map(({ icon: Icon, iconAlt, t, d, items }) => (
-            <article
-              key={t}
-              className="glass rounded-2xl p-7 hover:border-primary/40 transition group relative overflow-hidden"
-            >
-              <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/15 transition" />
-              <div className="relative">
-                <div
-                  role="img"
-                  aria-label={iconAlt}
-                  className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary mb-5"
-                >
-                  <Icon size={22} aria-hidden="true" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{t}</h3>
-                <p className="text-sm text-muted-foreground mb-5">{d}</p>
-                <ul className="space-y-2">
-                  {items.map((it) => (
-                    <li key={it} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Check size={14} className="text-primary shrink-0" aria-hidden="true" /> {it}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {/* Existing additional capabilities */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map(({ icon: Icon, t, d, items }) => (
-            <div
-              key={t}
-              className="glass rounded-2xl p-7 hover:border-primary/40 transition group relative overflow-hidden"
-            >
-              <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/15 transition" />
-              <div className="relative">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary mb-5">
-                  <Icon size={22} aria-hidden="true" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{t}</h3>
-                <p className="text-sm text-muted-foreground mb-5">{d}</p>
-                <ul className="space-y-2">
-                  {items.map((it) => (
-                    <li key={it} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Check size={14} className="text-primary shrink-0" aria-hidden="true" /> {it}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* My Process */}
-      <section className="mx-auto max-w-7xl px-4 py-20">
-        <div className="text-center mb-12">
-          <h2
-            className="text-4xl md:text-5xl font-black tracking-tight text-gradient"
-            style={{ textShadow: "0 0 30px oklch(0.78 0.14 85 / 0.4)" }}
-          >
-            My Process
-          </h2>
-          <p className="mt-3 text-muted-foreground text-sm md:text-base">
-            A clear, proven path from idea to outcome.
+      <section className="section-shell pb-16 pt-12 sm:pb-24 sm:pt-16">
+        <ScrollReveal>
+          <p className="eyebrow">What I can help with</p>
+          <h1 className="section-title mt-4 max-w-4xl text-5xl sm:text-6xl lg:text-7xl">
+            Thoughtful work for a <span className="hero-accent">stronger digital presence.</span>
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+            A connected set of digital capabilities—from search and content to marketing and web
+            experiences. We can shape the right scope around your goals.
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-3 relative">
-          {processSteps.map((step, i) => (
-            <div key={step.n} className="relative">
-              <div className="rounded-2xl border border-[color:var(--gold)]/40 bg-black/60 backdrop-blur p-6 h-full hover:border-[color:var(--gold-bright)] hover:shadow-[0_0_24px_oklch(0.78_0.14_85/0.35)] transition">
-                <div className="text-3xl font-black text-[color:var(--gold)] mb-3">{step.n}</div>
-                <h3 className="text-lg font-bold text-white mb-2">{step.t}</h3>
-                <p className="text-sm text-white/70 leading-relaxed">{step.d}</p>
-              </div>
-              {i < processSteps.length - 1 && (
-                <ArrowRight
-                  aria-hidden="true"
-                  className="hidden lg:block absolute top-1/2 -right-3 -translate-y-1/2 text-[color:var(--gold)]/70"
-                  size={22}
-                />
-              )}
-            </div>
+        </ScrollReveal>
+        <div className="mt-12 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {offerings.map(({ icon: Icon, title, description, items }, index) => (
+            <ScrollReveal key={title} delay={index * 65} className="h-full">
+              <article className="service-panel group flex h-full flex-col rounded-2xl border border-white/[.09] bg-white/[.025] p-6 transition duration-300 hover:-translate-y-1 hover:border-[color:var(--gold)]/35 hover:bg-white/[.04] sm:p-7">
+                <span className="grid size-11 place-items-center rounded-xl border border-[color:var(--gold)]/20 bg-[color:var(--gold)]/[.07] text-[color:var(--gold-bright)]">
+                  <Icon size={19} aria-hidden="true" />
+                </span>
+                <h2 className="mt-7 text-xl font-medium tracking-tight text-white">{title}</h2>
+                <p className="mt-3 flex-1 text-sm leading-6 text-white/55">{description}</p>
+                <ul className="mt-6 flex flex-col gap-2 border-t border-white/[.08] pt-5">
+                  {items.map((item) => (
+                    <li key={item} className="flex items-center gap-2 text-xs text-white/55">
+                      <Check
+                        size={13}
+                        className="shrink-0 text-[color:var(--gold)]"
+                        aria-hidden="true"
+                      />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </ScrollReveal>
           ))}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 pb-24">
-        <div
-          className="relative overflow-hidden rounded-3xl border border-[color:var(--gold)]/30 p-10 md:p-16 text-center"
-          style={{
-            background:
-              "radial-gradient(ellipse at top, oklch(0.78 0.14 85 / 0.18) 0%, oklch(0.08 0.005 80) 55%, #000 100%)",
-          }}
-        >
-          <div
-            className="absolute inset-0 pointer-events-none opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"
-            style={{
-              background:
-                "radial-gradient(circle at 50% 0%, oklch(0.78 0.14 85 / 0.25), transparent 60%)",
-            }}
-          />
-          <div className="relative">
+      <section className="border-y border-white/[.07] bg-white/[.018] py-20 sm:py-28">
+        <div className="section-shell">
+          <ScrollReveal>
+            <p className="eyebrow">A simple way forward</p>
+            <h2 className="section-title mt-4 max-w-2xl">From first conversation to next steps.</h2>
+          </ScrollReveal>
+          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {process.map((step, index) => (
+              <ScrollReveal key={step.number} delay={index * 70}>
+                <article className="h-full border-t border-white/15 pt-5">
+                  <span className="font-mono text-xs text-[color:var(--gold)]">{step.number}</span>
+                  <h3 className="mt-5 text-lg font-medium text-white">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{step.description}</p>
+                </article>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section-shell py-20 sm:py-28">
+        <ScrollReveal>
+          <div className="home-cta relative overflow-hidden rounded-[1.75rem] border border-white/10 px-6 py-12 sm:px-12 sm:py-16 lg:px-16">
             <div
-              className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-[color:var(--gold)]/60 bg-black/60 text-[color:var(--gold)] mb-6 shadow-[0_0_30px_oklch(0.78_0.14_85/0.45)]"
-              role="img"
-              aria-label="Target bullseye icon"
-            >
-              <Target size={28} aria-hidden="true" />
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black text-white">
-              Ready to Start Your Project?
-            </h2>
-            <p className="mt-4 text-white/70 max-w-xl mx-auto">
-              Let's discuss how I can help you achieve your digital goals. Get in touch for a free
-              consultation.
-            </p>
-            <div className="mt-8">
-              <Link to="/contact" hash="contact-form" className="btn-gold btn-pill inline-flex">
-                Get In Touch <ArrowRight size={18} />
+              className="home-cta-glow pointer-events-none absolute inset-0"
+              aria-hidden="true"
+            />
+            <div className="relative flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-2xl">
+                <p className="eyebrow">Let’s talk</p>
+                <h2 className="mt-4 text-3xl font-medium leading-tight tracking-[-.04em] text-white sm:text-5xl">
+                  Have a project in mind?
+                </h2>
+                <p className="mt-4 max-w-xl text-sm leading-6 text-white/55 sm:text-base">
+                  Share a little about what you’re working on, and we can find a useful place to
+                  begin.
+                </p>
+              </div>
+              <Link
+                to="/contact"
+                hash="contact-form"
+                className="btn-gold btn-pill group min-h-12 shrink-0"
+              >
+                Start a conversation{" "}
+                <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
     </PageShell>
   );

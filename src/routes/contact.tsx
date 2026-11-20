@@ -31,6 +31,7 @@ function Contact() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const update =
@@ -64,6 +65,7 @@ function Contact() {
         throw new Error(data?.error ?? "Submission failed. Please try again.");
       }
 
+      setSubmittedEmail(form.email);
       setSent(true);
       toast.success("Message sent — RK will be in touch soon!");
       setForm({ name: "", email: "", subject: "", message: "" });
@@ -176,12 +178,17 @@ function Contact() {
               <h3 className="text-2xl font-bold">Message sent!</h3>
               <p className="text-muted-foreground max-w-xs">
                 Thanks for reaching out. RK will reply to{" "}
-                <span className="text-foreground font-medium">{form.email || "your email"}</span>{" "}
+                <span className="text-foreground font-medium">
+                  {submittedEmail || "your email"}
+                </span>{" "}
                 soon.
               </p>
               <button
                 type="button"
-                onClick={() => setSent(false)}
+                onClick={() => {
+                  setSent(false);
+                  setError(null);
+                }}
                 className="btn-gold btn-pill mt-2 inline-flex"
               >
                 Send another message
@@ -219,13 +226,18 @@ function Contact() {
                 required={false}
               />
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
+                <label
+                  htmlFor="message"
+                  className="mb-2 block text-xs font-mono uppercase tracking-wider text-muted-foreground"
+                >
                   Message
                 </label>
                 <textarea
+                  id="message"
+                  name="message"
                   required
                   rows={5}
-                  placeholder="Tell me everything…"
+                  placeholder="Tell me what you’re working on…"
                   value={form.message}
                   onChange={update("message")}
                   maxLength={4000}
@@ -234,7 +246,9 @@ function Contact() {
               </div>
 
               {error && (
-                <p className="text-sm text-red-400 bg-red-400/10 rounded-xl px-4 py-3">{error}</p>
+                <p role="alert" className="rounded-xl bg-red-400/10 px-4 py-3 text-sm text-red-300">
+                  {error}
+                </p>
               )}
 
               <button
@@ -279,10 +293,14 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
+      <label
+        htmlFor={name}
+        className="mb-2 block text-xs font-mono uppercase tracking-wider text-muted-foreground"
+      >
         {label}
       </label>
       <input
+        id={name}
         required={required}
         name={name}
         type={type}
