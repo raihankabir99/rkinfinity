@@ -152,6 +152,36 @@ function Portfolio() {
           ))}
         </div>
 
+        <section
+          id="certificates"
+          className="mt-16 scroll-mt-28 rounded-3xl border border-white/10 bg-white/[0.04] p-7 md:p-10"
+        >
+          <SectionHeader
+            eyebrow="Credentials"
+            title="Certificates & learning."
+            sub="Explore available certificates and digital badges through my Credential.net wallet."
+          />
+          <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+            <div className="mb-5 grid h-16 w-16 place-items-center rounded-2xl border border-[color:var(--gold)]/30 bg-[color:var(--gold)]/10 text-[color:var(--gold)]">
+              <ShieldCheck size={29} aria-hidden="true" />
+            </div>
+            <h3 className="text-2xl font-bold text-white">My Credential Wallet</h3>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65">
+              View certificates, digital badges, and credential verification details from the original issuer.
+            </p>
+            <a
+              href="https://www.credential.net/profile/raihankabir99/wallet"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-gold btn-pill mt-7 inline-flex items-center gap-2"
+              aria-label="Open Raihan Kabir's Credential.net wallet in a new tab"
+            >
+              View My Credential.net Wallet
+              <ExternalLink size={15} aria-hidden="true" />
+            </a>
+          </div>
+        </section>
+
         <div className="mt-12 flex justify-center">
           <a
             href="https://www.credential.net/profile/raihankabir99/wallet"
