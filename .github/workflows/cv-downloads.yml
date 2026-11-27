@@ -1,6 +1,10 @@
 name: Build CV downloads
 
 on:
+  pull_request:
+    paths:
+      - "scripts/cv/build_cv.py"
+      - ".github/workflows/cv-downloads.yml"
   push:
     branches: [main]
     paths:
@@ -12,18 +16,17 @@ permissions:
   contents: write
 
 concurrency:
-  group: cv-downloads-main
+  group: cv-downloads-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Check out main
+      - name: Check out source
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
@@ -37,7 +40,8 @@ jobs:
       - name: Generate and validate PDF and DOCX
         run: python scripts/cv/build_cv.py
 
-      - name: Commit generated downloads
+      - name: Commit generated downloads to main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -46,5 +50,5 @@ jobs:
             echo "CV downloads are already up to date."
           else
             git commit -m "Build professional CV PDF and DOCX downloads"
-            git push origin main
+            git push origin HEAD:main
           fi
