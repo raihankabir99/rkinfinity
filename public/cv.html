@@ -51,8 +51,17 @@
         if(ready())return Promise.resolve();
         return new Promise(function(resolve,reject){
           var existing=document.querySelector('script[data-cv-lib="'+src+'"]');
-          if(existing){existing.addEventListener("load",resolve,{once:true});existing.addEventListener("error",reject,{once:true});return;}
-          var s=document.createElement("script");s.src=src;s.async=true;s.dataset.cvLib=src;s.onload=resolve;s.onerror=function(){reject(new Error("Download library could not be loaded. Please retry with an internet connection."));};document.head.appendChild(s);
+          if(existing){
+            if(existing.dataset.cvLoaded==="true"&&!ready()){existing.remove();}
+            else if(existing.dataset.cvFailed==="true"){existing.remove();}
+            else if(existing.dataset.cvLoaded==="true"&&ready()){resolve();return;}
+            else {existing.addEventListener("load",function(){if(ready())resolve();else reject(new Error("Download library initialized incorrectly."));},{once:true});existing.addEventListener("error",function(){reject(new Error("Download library could not be loaded. Please retry."));},{once:true});return;}
+          }
+          var s=document.createElement("script");s.src=src;s.async=true;s.dataset.cvLib=src;
+          var timer=setTimeout(function(){s.dataset.cvFailed="true";s.remove();reject(new Error("Download is taking too long. Please retry or check your internet connection."));},20000);
+          s.onload=function(){clearTimeout(timer);s.dataset.cvLoaded="true";if(ready())resolve();else reject(new Error("Download library loaded but did not initialize."));};
+          s.onerror=function(){clearTimeout(timer);s.dataset.cvFailed="true";s.remove();reject(new Error("Download library could not be loaded. Please check your internet connection and retry."));};
+          document.head.appendChild(s);
         });
       }
       function setBusy(button,busy,label){
@@ -139,18 +148,18 @@
         h("Certifications & Learning");p(profile.certifications);p("Credential wallet: "+profile.credential);
         h("Languages");p(profile.languages);p("Full portfolio & work samples: "+profile.portfolio);
         var doc=new d.Document({sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:850,right:900,bottom:850,left:900}}},children:children}]});
-        d.Packer.toBlob(doc).then(function(blob){var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="Raihan-Kabir-Professional-CV.docx";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);});
+        return d.Packer.toBlob(doc).then(function(blob){if(!blob||!blob.size)throw new Error("Word file is empty.");var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="Raihan-Kabir-Professional-CV.docx";a.style.display="none";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},5000);return true;});
       }
       var pdfBtn=document.getElementById("cv-download-pdf"),wordBtn=document.getElementById("cv-download-word");
       pdfBtn.addEventListener("click",async function(){
         setBusy(pdfBtn,true,"PDF");
-        try{await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.20/pdfmake.min.js",function(){return !!(window.pdfMake&&window.pdfMake.createPdf);});await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.20/vfs_fonts.js",function(){return !!(window.pdfMake&&window.pdfMake.vfs);});makePdf();}
+        try{await loadScript("https://cdn.jsdelivr.net/npm/pdfmake@0.2.20/build/pdfmake.min.js",function(){return !!(window.pdfMake&&window.pdfMake.createPdf);});await loadScript("https://cdn.jsdelivr.net/npm/pdfmake@0.2.20/build/vfs_fonts.js",function(){return !!(window.pdfMake&&window.pdfMake.vfs);});makePdf();}
         catch(e){alert(e.message||"PDF could not be generated.");}
         finally{setBusy(pdfBtn,false,"PDF");}
       });
       wordBtn.addEventListener("click",async function(){
         setBusy(wordBtn,true,"Word");
-        try{await loadScript("https://unpkg.com/docx@8.5.0/build/index.umd.js",function(){return !!(window.docx&&window.docx.Packer);});makeWord();}
+        try{await loadScript("https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js",function(){return !!(window.docx&&window.docx.Packer);});await makeWord();}
         catch(e){alert(e.message||"Word document could not be generated.");}
         finally{setBusy(wordBtn,false,"Word");}
       });
