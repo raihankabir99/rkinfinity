@@ -61,30 +61,65 @@
         else span.textContent=button.dataset.oldLabel||label;
       }
       function makePdf(){
-        var js=window.jspdf&&window.jspdf.jsPDF;if(!js)throw new Error("PDF generator is unavailable.");
-        var pdf=new js({unit:"mm",format:"a4",orientation:"portrait"});
-        var x=18,y=18,w=174,pageH=297,navy=[16,36,58],teal=[8,127,112],muted=[82,98,115];
-        function pageSpace(h){if(y+h>pageH-18){pdf.addPage();y=18;}}
-        function line(text,size,color,bold,indent){
-          pdf.setFont("helvetica",bold?"bold":"normal");pdf.setFontSize(size);pdf.setTextColor.apply(pdf,color);
-          var lines=pdf.splitTextToSize(String(text),w-(indent||0));
-          var h=lines.length*(size*0.42+1.15);pageSpace(h+1);pdf.text(lines,x+(indent||0),y);y+=h+1;
-        }
-        function section(title){
-          pageSpace(11);y+=3;pdf.setFont("helvetica","bold");pdf.setFontSize(10);pdf.setTextColor.apply(pdf,teal);pdf.text(title.toUpperCase(),x,y);
-          y+=2;pdf.setDrawColor(220,231,236);pdf.setLineWidth(.35);pdf.line(x,y,x+w,y);y+=4;
-        }
-        line(profile.name,24,navy,true);line(profile.headline,9,muted,false);line(profile.contact.join("  |  "),8,muted,false);
-        line(profile.links.map(function(a){return a[0]+": "+a[1];}).join("   |   "),7.2,teal,false);y+=2;
-        section("Professional Summary");line(profile.summary,8.5,navy,false);
-        section("Experience");profile.experience.forEach(function(e){line(e.title+" | "+e.company,9,navy,true);line(e.date,7.6,muted,false);e.bullets.forEach(function(b){line("• "+b,8.1,navy,false,2);});});
-        section("Education & Courses");profile.education.forEach(function(e){line(e.title,9,navy,true);line(e.org+" | "+e.date,7.6,muted,false);if(e.detail)line(e.detail,8.2,navy,false);});
-        section("Selected Projects");profile.projects.forEach(function(p){line(p.title+(p.status?" | "+p.status:""),9,navy,true);line(p.url,7.2,teal,false);line(p.detail,8.1,navy,false);});
-        section("Technical & Professional Skills");line(profile.skills.join(" · "),8.1,navy,false);
-        section("Certifications & Learning");line(profile.certifications,8.1,navy,false);line("Credential wallet: "+profile.credential,7.2,teal,false);
-        section("Languages");line(profile.languages,8.2,navy,false);line("Full portfolio & work samples: "+profile.portfolio,7.2,teal,false);
-        var total=pdf.getNumberOfPages();for(var i=1;i<=total;i++){pdf.setPage(i);pdf.setFont("helvetica","normal");pdf.setFontSize(7);pdf.setTextColor.apply(pdf,muted);pdf.text("rkInfinity · Raihan Kabir",18,288);pdf.text("Page "+i+" of "+total,192,288,{align:"right"});}
-        pdf.save("Raihan-Kabir-Professional-CV.pdf");
+        var pdfMake=window.pdfMake;
+        if(!pdfMake||!pdfMake.createPdf)throw new Error("PDF layout engine is unavailable.");
+        if(!pdfMake.vfs)throw new Error("PDF fonts are not ready. Please retry.");
+        var C={navy:"#10243A",teal:"#087F70",muted:"#526273",line:"#DDE7EC"};
+        var content=[];
+        function heading(text){content.push({text:text.toUpperCase(),style:"sectionHeading",margin:[0,13,0,5],keepWithNext:true});}
+        function para(text,style,extra){content.push(Object.assign({text:String(text||""),style:style||"body",margin:[0,0,0,5]},extra||{}));}
+        content.push({text:profile.name,style:"name",margin:[0,0,0,2]});
+        para(profile.headline,"headline",{margin:[0,0,0,6]});
+        para(profile.contact.join("  |  "),"contact",{margin:[0,0,0,3]});
+        content.push({text:profile.links.map(function(a){return {text:a[0],link:a[1],color:C.teal,decoration:"underline"};}).reduce(function(acc,item,i){if(i)acc.push({text:"   ·   ",color:C.muted});acc.push(item);return acc;},[]),style:"contact",margin:[0,0,0,9]});
+        content.push({canvas:[{type:"line",x1:0,y1:0,x2:510,y2:0,lineWidth:1.2,lineColor:C.teal}],margin:[0,0,0,3]});
+        heading("Professional Summary");para(profile.summary);
+        heading("Experience");
+        profile.experience.forEach(function(e){
+          content.push({stack:[
+            {text:e.title+"  |  "+e.company,style:"role",margin:[0,0,0,2]},
+            {text:e.date,style:"meta",margin:[0,0,0,4]},
+            {ul:e.bullets,style:"body",margin:[0,0,0,5]}
+          ],unbreakable:true,margin:[0,0,0,3]});
+        });
+        heading("Education / Courses");
+        profile.education.forEach(function(e){
+          var block=[{text:e.title,style:"role",margin:[0,0,0,2]},{text:e.org+"  |  "+e.date,style:"meta",margin:[0,0,0,3]}];
+          if(e.detail)block.push({text:e.detail,style:"body",margin:[0,0,0,5]});
+          content.push({stack:block,unbreakable:true,margin:[0,0,0,4]});
+        });
+        heading("Projects");
+        profile.projects.forEach(function(p){
+          content.push({stack:[
+            {text:p.title+(p.status?"  |  "+p.status:""),style:"role",margin:[0,0,0,2]},
+            {text:p.url,link:p.url,style:"link",margin:[0,0,0,3]},
+            {text:p.detail,style:"body",margin:[0,0,0,5]}
+          ],unbreakable:true,margin:[0,0,0,3]});
+        });
+        heading("Technical & Professional Skills");para(profile.skills.join("  ·  "));
+        heading("Certifications & Learning");para(profile.certifications);
+        para([{text:"Credential wallet: ",bold:true},{text:"Verify credentials",link:profile.credential,color:C.teal,decoration:"underline"}],"small");
+        heading("Languages");para(profile.languages);
+        para([{text:"Full portfolio & work samples: ",bold:true},{text:"Open portfolio folder",link:profile.portfolio,color:C.teal,decoration:"underline"}],"small");
+        var definition={
+          pageSize:"A4",pageMargins:[46,42,46,48],
+          content:content,
+          defaultStyle:{font:"Roboto",fontSize:9.2,color:C.navy,lineHeight:1.22},
+          styles:{
+            name:{font:"Roboto",fontSize:25,bold:true,color:C.navy},
+            headline:{fontSize:9.5,color:C.muted},
+            contact:{fontSize:8,color:C.muted},
+            sectionHeading:{fontSize:10,bold:true,color:C.teal,characterSpacing:0.7},
+            role:{fontSize:9.2,bold:true,color:C.navy},
+            meta:{fontSize:7.8,color:C.muted},
+            body:{fontSize:8.6,color:C.navy,lineHeight:1.22},
+            link:{fontSize:7.5,color:C.teal},
+            small:{fontSize:7.7,color:C.muted}
+          },
+          footer:function(currentPage,pageCount){return {margin:[46,0,46,20],columns:[{text:"rkInfinity  ·  Raihan Kabir",fontSize:7,color:C.muted},{text:"Page "+currentPage+" of "+pageCount,alignment:"right",fontSize:7,color:C.muted}]};},
+          pageBreakBefore:function(currentNode,followingNodesOnPage){return currentNode.style==="sectionHeading"&&followingNodesOnPage.length===0;}
+        };
+        pdfMake.createPdf(definition).download("Raihan-Kabir-Professional-CV.pdf");
       }
       function makeWord(){
         var d=window.docx;if(!d||!d.Document||!d.Packer)throw new Error("Word document generator is unavailable.");
@@ -109,7 +144,7 @@
       var pdfBtn=document.getElementById("cv-download-pdf"),wordBtn=document.getElementById("cv-download-word");
       pdfBtn.addEventListener("click",async function(){
         setBusy(pdfBtn,true,"PDF");
-        try{await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js",function(){return !!(window.jspdf&&window.jspdf.jsPDF);});makePdf();}
+        try{await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.20/pdfmake.min.js",function(){return !!(window.pdfMake&&window.pdfMake.createPdf);});await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.20/vfs_fonts.js",function(){return !!(window.pdfMake&&window.pdfMake.vfs);});makePdf();}
         catch(e){alert(e.message||"PDF could not be generated.");}
         finally{setBusy(pdfBtn,false,"PDF");}
       });
