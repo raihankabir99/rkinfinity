@@ -6,11 +6,9 @@ import { SubscribeModal } from "./SubscribeModal";
 const links = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
-  { to: "/story", label: "Story" },
-  { to: "/portfolio", label: "Portfolio" },
+  { to: "/portfolio", label: "Work" },
   { to: "/services", label: "Services" },
-  { to: "/tools", label: "Tools" },
-  { to: "/blog", label: "Blog" },
+  { to: "/blog", label: "Journal" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
@@ -22,9 +20,18 @@ export function Navbar() {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     onScroll();
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [open]);
 
   return (
     <>
@@ -34,7 +41,10 @@ export function Navbar() {
         }`}
       >
         <div className="mx-auto max-w-7xl px-4">
-          <nav className="glass flex items-center justify-between rounded-2xl px-4 py-3 md:px-6">
+          <nav
+            aria-label="Main navigation"
+            className="site-nav flex items-center justify-between rounded-2xl px-4 py-3 md:px-6"
+          >
             <Link to="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
               <img
                 src="/rkinfinity-logo.png"
@@ -70,9 +80,11 @@ export function Navbar() {
                 Subscribe
               </button>
               <button
-                onClick={() => setOpen(!open)}
-                className="lg:hidden p-2 text-foreground"
-                aria-label="Toggle menu"
+                type="button"
+                onClick={() => setOpen((isOpen) => !isOpen)}
+                className="lg:hidden rounded-lg p-2 text-foreground transition hover:bg-white/5"
+                aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+                aria-controls="mobile-navigation"
                 aria-expanded={open}
               >
                 {open ? <X size={22} /> : <Menu size={22} />}
@@ -81,7 +93,10 @@ export function Navbar() {
           </nav>
 
           {open && (
-            <div className="glass mt-2 rounded-2xl p-3 lg:hidden animate-fade-in">
+            <div
+              id="mobile-navigation"
+              className="glass mt-2 rounded-2xl p-3 lg:hidden animate-fade-in"
+            >
               <div className="flex justify-center mb-4">
                 <Link
                   to="/"
