@@ -12,64 +12,112 @@
 </head>
 <body>
   <style>
-    .cv-download-button{position:fixed;top:14px;right:14px;z-index:9999;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:8px 13px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:#071426;color:#fff;font:600 12px/1.1 Inter,system-ui,sans-serif;letter-spacing:.01em;box-shadow:0 4px 14px rgba(2,8,23,.18);cursor:pointer;transition:background .16s ease,transform .16s ease}
-    .cv-download-button:hover{background:#087f70;transform:translateY(-1px)}
+    .cv-download-tools{position:fixed;top:12px;right:14px;z-index:9999;display:flex;gap:7px;align-items:center}
+    .cv-download-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:35px;padding:7px 11px;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:#10243a;color:#fff;font:600 11px/1.1 Inter,system-ui,sans-serif;box-shadow:0 3px 12px rgba(2,8,23,.16);cursor:pointer;white-space:nowrap;transition:background .16s ease,transform .16s ease}
+    .cv-download-button.secondary{background:#087f70}
+    .cv-download-button:hover{background:#0b6f65;transform:translateY(-1px)}
     .cv-download-button:focus-visible{outline:2px solid #00bfa5;outline-offset:3px}
     .cv-download-button:disabled{opacity:.72;cursor:wait;transform:none}
-    .cv-download-button svg{width:15px;height:15px;flex:none}
-    @media(max-width:640px){.cv-download-button{top:9px;right:9px;min-height:34px;padding:7px 10px;gap:5px;font-size:11px}.cv-download-button svg{width:14px;height:14px}}
+    .cv-download-button svg{width:14px;height:14px;flex:none}
+    @media(max-width:640px){.cv-download-tools{top:8px;right:8px;gap:5px}.cv-download-button{min-height:31px;padding:6px 8px;gap:4px;font-size:10px}.cv-download-button svg{width:12px;height:12px}}
     @media(prefers-reduced-motion:reduce){.cv-download-button{transition:none}}
   </style>
-  <button class="cv-download-button" id="cv-download-button" type="button" aria-label="Download CV as PDF">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
-    <span>Download PDF</span>
-  </button>
+  <div class="cv-download-tools" role="group" aria-label="Download CV">
+    <button class="cv-download-button" id="cv-download-pdf" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span>PDF</span>
+    </button>
+    <button class="cv-download-button secondary" id="cv-download-word" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m8 13 2 6 2-4 2 4 2-6"/></svg><span>Word</span>
+    </button>
+  </div>
   <script>
     (function(){
-      var button=document.getElementById("cv-download-button");
-      if(!button)return;
-      button.addEventListener("click",async function(){
-        if(button.disabled)return;
-        var label=button.querySelector("span");
-        var original=label.textContent;
-        button.disabled=true;
-        label.textContent="Preparing…";
-        try{
-          if(!window.html2pdf){
-            await new Promise(function(resolve,reject){
-              var script=document.createElement("script");
-              script.src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-              script.onload=resolve;
-              script.onerror=function(){reject(new Error("PDF library could not load. Please check your internet connection and try again."));};
-              document.head.appendChild(script);
-            });
-          }
-          var source=document.getElementById("root");
-          if(!source)throw new Error("CV content was not found.");
-          var clone=source.cloneNode(true);
-          clone.querySelectorAll("button,.cv-download-button").forEach(function(el){el.remove();});
-          var wrapper=document.createElement("div");
-          wrapper.style.cssText="position:fixed;left:-12000px;top:0;width:794px;background:#fff;z-index:-1;";
-          clone.style.cssText+=";width:794px;max-width:none;margin:0 auto;background:#fff;";
-          wrapper.appendChild(clone);
-          document.body.appendChild(wrapper);
-          await window.html2pdf().set({
-            margin:[8,8,8,8],
-            filename:"Raihan-Kabir-CV.pdf",
-            image:{type:"jpeg",quality:0.98},
-            html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false,windowWidth:810},
-            jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
-            pagebreak:{mode:["css","legacy"],avoid:["section","article","h2","h3"]}
-          }).from(clone).save();
-          wrapper.remove();
-        }catch(error){
-          var temp=document.querySelector("body > div[style*='-12000px']");
-          if(temp)temp.remove();
-          alert(error&&error.message?error.message:"PDF download failed. Please try again.");
-        }finally{
-          button.disabled=false;
-          label.textContent=original;
+      var profile={
+        name:"Raihan Kabir",
+        headline:"Aspiring Computer Science Student | Web Development & Digital Marketing",
+        contact:["maskrklo@gmail.com","+966 540 742 748","Al-Hofuf, Saudi Arabia"],
+        links:[["Portfolio","https://rkinfinity.pages.dev/about"],["GitHub","https://github.com/raihankabir99"],["LinkedIn","https://linkedin.com/in/raihan-kabir-ovi99"]],
+        summary:"HSC graduate with a Commerce background, currently preparing for university admission in Computer Science. Building a strong foundation in computer science through practical learning. Developing skills in C, Python, SQL, HTML, CSS, algorithms, and web technologies, alongside practical knowledge of SEO, digital marketing, Google Analytics, and content writing. Completed a Content Writing Internship at InAmigos Foundation and currently developing technical skills through hands-on web development projects while preparing for further academic study and entry-level opportunities.",
+        experience:[{title:"Content Writing Intern",company:"InAmigos Foundation",date:"Remote | 6 Apr 2026 – 19 Apr 2026",bullets:["Created SEO-optimized content for NGO initiatives and social impact storytelling.","Researched NGO activities and drafted engaging narratives for web and social platforms.","Applied on-page SEO and keyword research to support content visibility."]}],
+        education:[{title:"CS50's Introduction to Computer Science — Completed",org:"HarvardX (edX)",date:"Online · Completed",detail:"C, Python, SQL, HTML, CSS, algorithms, data structures, memory management, databases, and web programming."},{title:"Higher Secondary Certificate (HSC) — Commerce",org:"Bandarban Govt. College",date:"Bandarban · 11 Mar 2022 – 26 Nov 2023",detail:""}],
+        projects:[{title:"ZOAL Website — E-commerce Platform",url:"https://alzoal.sa",status:"Ongoing",detail:"Full-stack e-commerce project with Google AI Studio and Supabase. Features include product management, user authentication, API integration, database workflows, and responsive UI. Uses AI-assisted development for prototyping and debugging."},{title:"T-shirt Website",url:"https://tshirtwebsite1v0-4tam6iirr-raihankabir99s-projects.vercel.app",status:"",detail:"E-commerce / website development project."},{title:"NGO Website",url:"https://ngo-landing-page-git-fix-vercel-8b46a6-raihankabir99s-projects.vercel.app/",status:"",detail:"Website project for an NGO."},{title:"ALBAYT Website",url:"https://albayt-eosin.vercel.app/",status:"",detail:"Website project and live preview."}],
+        skills:["Web Development","SEO","Digital Marketing","Google Analytics","Content Writing","AI-Assisted Development","Supabase","Python","SQL","Prompt Engineering","LLMs","Git & GitHub","C","HTML","CSS","Algorithms","Data Structures","Google Ads","Keyword Research","SEO Audits","Technical SEO","On-Page SEO","Off-Page SEO","GEO / AI Search","Semrush"],
+        certifications:"SEO, Analytics & Digital Marketing: Technical SEO, On-Page SEO, AI Search / GEO, Semrush, Google Analytics, Content Writing.",
+        credential:"https://www.credential.net/profile/raihankabir99/wallet",
+        languages:"Bengali (Native) · English (Intermediate) · Hindi (Intermediate)",
+        portfolio:"https://drive.google.com/drive/folders/1xpeRJEwdho9sa6_32LHq6AvydCaBPixr?usp=drive_link"
+      };
+      function loadScript(src,ready){
+        if(ready())return Promise.resolve();
+        return new Promise(function(resolve,reject){
+          var existing=document.querySelector('script[data-cv-lib="'+src+'"]');
+          if(existing){existing.addEventListener("load",resolve,{once:true});existing.addEventListener("error",reject,{once:true});return;}
+          var s=document.createElement("script");s.src=src;s.async=true;s.dataset.cvLib=src;s.onload=resolve;s.onerror=function(){reject(new Error("Download library could not be loaded. Please retry with an internet connection."));};document.head.appendChild(s);
+        });
+      }
+      function setBusy(button,busy,label){
+        button.disabled=busy;var span=button.querySelector("span");
+        if(busy){button.dataset.oldLabel=span.textContent;span.textContent="Preparing…";}
+        else span.textContent=button.dataset.oldLabel||label;
+      }
+      function makePdf(){
+        var js=window.jspdf&&window.jspdf.jsPDF;if(!js)throw new Error("PDF generator is unavailable.");
+        var pdf=new js({unit:"mm",format:"a4",orientation:"portrait"});
+        var x=18,y=18,w=174,pageH=297,navy=[16,36,58],teal=[8,127,112],muted=[82,98,115];
+        function pageSpace(h){if(y+h>pageH-18){pdf.addPage();y=18;}}
+        function line(text,size,color,bold,indent){
+          pdf.setFont("helvetica",bold?"bold":"normal");pdf.setFontSize(size);pdf.setTextColor.apply(pdf,color);
+          var lines=pdf.splitTextToSize(String(text),w-(indent||0));
+          var h=lines.length*(size*0.42+1.15);pageSpace(h+1);pdf.text(lines,x+(indent||0),y);y+=h+1;
         }
+        function section(title){
+          pageSpace(11);y+=3;pdf.setFont("helvetica","bold");pdf.setFontSize(10);pdf.setTextColor.apply(pdf,teal);pdf.text(title.toUpperCase(),x,y);
+          y+=2;pdf.setDrawColor(220,231,236);pdf.setLineWidth(.35);pdf.line(x,y,x+w,y);y+=4;
+        }
+        line(profile.name,24,navy,true);line(profile.headline,9,muted,false);line(profile.contact.join("  |  "),8,muted,false);
+        line(profile.links.map(function(a){return a[0]+": "+a[1];}).join("   |   "),7.2,teal,false);y+=2;
+        section("Professional Summary");line(profile.summary,8.5,navy,false);
+        section("Experience");profile.experience.forEach(function(e){line(e.title+" | "+e.company,9,navy,true);line(e.date,7.6,muted,false);e.bullets.forEach(function(b){line("• "+b,8.1,navy,false,2);});});
+        section("Education & Courses");profile.education.forEach(function(e){line(e.title,9,navy,true);line(e.org+" | "+e.date,7.6,muted,false);if(e.detail)line(e.detail,8.2,navy,false);});
+        section("Selected Projects");profile.projects.forEach(function(p){line(p.title+(p.status?" | "+p.status:""),9,navy,true);line(p.url,7.2,teal,false);line(p.detail,8.1,navy,false);});
+        section("Technical & Professional Skills");line(profile.skills.join(" · "),8.1,navy,false);
+        section("Certifications & Learning");line(profile.certifications,8.1,navy,false);line("Credential wallet: "+profile.credential,7.2,teal,false);
+        section("Languages");line(profile.languages,8.2,navy,false);line("Full portfolio & work samples: "+profile.portfolio,7.2,teal,false);
+        var total=pdf.getNumberOfPages();for(var i=1;i<=total;i++){pdf.setPage(i);pdf.setFont("helvetica","normal");pdf.setFontSize(7);pdf.setTextColor.apply(pdf,muted);pdf.text("rkInfinity · Raihan Kabir",18,288);pdf.text("Page "+i+" of "+total,192,288,{align:"right"});}
+        pdf.save("Raihan-Kabir-Professional-CV.pdf");
+      }
+      function makeWord(){
+        var d=window.docx;if(!d||!d.Document||!d.Packer)throw new Error("Word document generator is unavailable.");
+        var children=[];
+        function p(text,opts){children.push(new d.Paragraph(Object.assign({children:[new d.TextRun({text:String(text),font:"Aptos",size:18,color:"10243A"})],spacing:{after:100}},opts||{})));}
+        function h(text){children.push(new d.Paragraph({text:text.toUpperCase(),heading:d.HeadingLevel.HEADING_2,spacing:{before:220,after:90},border:{bottom:{color:"DDE7EC",space:4,style:"single",size:5}}}));}
+        function bullet(text){children.push(new d.Paragraph({text,bullet:{indent:260},spacing:{after:55}}));}
+        children.push(new d.Paragraph({text:profile.name,heading:d.HeadingLevel.TITLE,spacing:{after:60}}));
+        p(profile.headline,{spacing:{after:80}});
+        p(profile.contact.join("  |  "),{spacing:{after:60}});
+        p(profile.links.map(function(a){return a[0]+": "+a[1];}).join("  |  "),{spacing:{after:120}});
+        h("Professional Summary");p(profile.summary);
+        h("Experience");profile.experience.forEach(function(e){p(e.title+" | "+e.company,{spacing:{after:30}});p(e.date,{spacing:{after:50}});e.bullets.forEach(bullet);});
+        h("Education & Courses");profile.education.forEach(function(e){p(e.title,{spacing:{after:25}});p(e.org+" | "+e.date,{spacing:{after:50}});if(e.detail)p(e.detail);});
+        h("Selected Projects");profile.projects.forEach(function(pr){p(pr.title+(pr.status?" | "+pr.status:""),{spacing:{after:20}});p(pr.detail,{spacing:{after:25}});p(pr.url,{spacing:{after:90}});});
+        h("Technical & Professional Skills");p(profile.skills.join(" · "));
+        h("Certifications & Learning");p(profile.certifications);p("Credential wallet: "+profile.credential);
+        h("Languages");p(profile.languages);p("Full portfolio & work samples: "+profile.portfolio);
+        var doc=new d.Document({sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:850,right:900,bottom:850,left:900}}},children:children}]});
+        d.Packer.toBlob(doc).then(function(blob){var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="Raihan-Kabir-Professional-CV.docx";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);});
+      }
+      var pdfBtn=document.getElementById("cv-download-pdf"),wordBtn=document.getElementById("cv-download-word");
+      pdfBtn.addEventListener("click",async function(){
+        setBusy(pdfBtn,true,"PDF");
+        try{await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js",function(){return !!(window.jspdf&&window.jspdf.jsPDF);});makePdf();}
+        catch(e){alert(e.message||"PDF could not be generated.");}
+        finally{setBusy(pdfBtn,false,"PDF");}
+      });
+      wordBtn.addEventListener("click",async function(){
+        setBusy(wordBtn,true,"Word");
+        try{await loadScript("https://unpkg.com/docx@8.5.0/build/index.umd.js",function(){return !!(window.docx&&window.docx.Packer);});makeWord();}
+        catch(e){alert(e.message||"Word document could not be generated.");}
+        finally{setBusy(wordBtn,false,"Word");}
       });
     })();
   </script>
