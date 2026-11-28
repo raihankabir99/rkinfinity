@@ -38,6 +38,18 @@ The proposed `src/server/supabase-admin.server.ts` requires `SUPABASE_SERVICE_RO
 5. Integrate LiveKit separately after reviewing every endpoint, rate-limit binding, room ownership/admission rules, secret bindings, and migration policies.
 6. Run install, typecheck, lint, build, and route smoke tests before proposing a PR to main.
 
+
+## Dashboard-specific comparison (verified)
+
+- The current `src/routes/admin.index.tsx` on `main` already imports and calls `verifyAdminSession(sess.session.access_token)` before loading dashboard data. Keep this implementation.
+- The `feature/admin-v2-foundation` version of `src/routes/admin.index.tsx` instead queries `user_roles` directly from the browser. Do not replace the current main dashboard with that older/weaker authorization flow.
+- The main dashboard already has its own responsive navigation, activity feed, lead/conversation summaries, and system-health panels. The replacement shell/dashboard is not a safe additive change without a route-by-route UX review.
+- The admin session endpoint and helper are already present on main. Avoid duplicating them or adding a second auth architecture.
+
+## Decision from this pass
+
+No application code from PR #6 or PR #7 is cherry-picked in this pass. The main dashboard already has the relevant server-verified session gate; the large branch's dashboard is not a security upgrade. The remaining Admin V2 value is mainly a broader shell/CMS/LiveKit feature set, which must be separated into smaller independently testable changes before code integration.
+
 ## Current result
 
 No application code or database migration has been merged from the large feature branches. This is intentional: the review found no safe wholesale merge candidate. This branch is a protected integration workspace; production remains on main.
