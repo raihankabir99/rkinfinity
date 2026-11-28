@@ -13,7 +13,7 @@ function json(body, status = 200) {
 
 export async function onRequestGet(context) {
   const authorization = context.request.headers.get("Authorization") || "";
-  const match = authorization.match(/^Bearer\\s+(.+)$/i);
+  const match = authorization.match(/^Bearer\s+(.+)$/i);
   if (!match) return json({ authenticated: false, isAdmin: false }, 401);
 
   const url = context.env.SUPABASE_URL || context.env.VITE_SUPABASE_URL;
