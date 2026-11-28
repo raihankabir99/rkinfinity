@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyAdminSession } from "@/lib/admin-session";
 import {
   Activity, Users, AlertTriangle, MessageSquare, Mail, Globe, RefreshCw, LogOut,
   ShieldCheck, Loader2, BarChart3, Newspaper, Brain, BookOpen, LayoutDashboard,
@@ -50,10 +51,8 @@ function AdminPage() {
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
       if (!sess.session) { navigate({ to:"/login" }); return; }
-      const { data: roles, error } = await supabase.from("user_roles").select("role").eq("user_id", sess.session.user.id).eq("role", "admin");
+      const ok = await verifyAdminSession(sess.session.access_token);
       if (!mounted) return;
-      if (error) toast.error("Unable to verify admin role");
-      const ok = !!roles?.length;
       setIsAdmin(ok); setAuthChecking(false);
       if (!ok) toast.error("Admin access required");
     })();
