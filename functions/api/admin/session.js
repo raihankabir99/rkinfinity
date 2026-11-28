@@ -39,7 +39,8 @@ export async function onRequestGet(context) {
       console.error("Admin role lookup failed:", roleError.message);
       return json({ authenticated: true, isAdmin: false }, 503);
     }
-    return json({ authenticated: true, isAdmin: !!role });
+    if (!role) return json({ authenticated: true, isAdmin: false }, 403);
+    return json({ authenticated: true, isAdmin: true });
   } catch (error) {
     console.error("Admin session verification failed:", error);
     return json({ authenticated: false, isAdmin: false }, 503);
